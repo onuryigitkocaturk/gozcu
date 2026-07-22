@@ -1,7 +1,6 @@
-package com.onuryigitkocaturk.query_monitor.entity;
+package com.onuryigitkocaturk.query_monitor.model;
 
 import com.onuryigitkocaturk.query_monitor.enums.Frequency;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -45,17 +44,13 @@ public class Query {
     private Frequency frequency;
 
     @Column(nullable = false)
-    private boolean active = true;
+    private boolean active;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id", nullable = false)
     private Group group;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "db_connection_id", nullable = false)
-    private DbConnection dbConnection;
-
-    @OneToMany(mappedBy = "query", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "query", fetch = FetchType.LAZY)
     private List<Alert> alerts = new ArrayList<>();
 
     @CreationTimestamp
@@ -65,12 +60,11 @@ public class Query {
     public Query() {
     }
 
-    public Query(String name, String definitionJson, Frequency frequency, Group group, DbConnection dbConnection) {
+    public Query(String name, String definitionJson, Frequency frequency, Group group) {
         this.name = name;
         this.definitionJson = definitionJson;
         this.frequency = frequency;
         this.group = group;
-        this.dbConnection = dbConnection;
     }
 
     public Long getId() {
@@ -119,14 +113,6 @@ public class Query {
 
     public void setGroup(Group group) {
         this.group = group;
-    }
-
-    public DbConnection getDbConnection() {
-        return dbConnection;
-    }
-
-    public void setDbConnection(DbConnection dbConnection) {
-        this.dbConnection = dbConnection;
     }
 
     public List<Alert> getAlerts() {

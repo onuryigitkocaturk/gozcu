@@ -1,6 +1,5 @@
-package com.onuryigitkocaturk.query_monitor.entity;
+package com.onuryigitkocaturk.query_monitor.model;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -36,13 +35,10 @@ public class Group {
     @ManyToMany(mappedBy = "groups", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>();
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<DbConnection> dbConnections = new ArrayList<>();
-
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private List<Query> queries = new ArrayList<>();
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private List<Alert> alerts = new ArrayList<>();
 
     @CreationTimestamp
@@ -87,14 +83,6 @@ public class Group {
 
     public void setUsers(Set<User> users) {
         this.users = users;
-    }
-
-    public List<DbConnection> getDbConnections() {
-        return dbConnections;
-    }
-
-    public void setDbConnections(List<DbConnection> dbConnections) {
-        this.dbConnections = dbConnections;
     }
 
     public List<Query> getQueries() {

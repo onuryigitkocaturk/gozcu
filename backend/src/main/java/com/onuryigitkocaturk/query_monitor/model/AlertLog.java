@@ -1,4 +1,4 @@
-package com.onuryigitkocaturk.query_monitor.entity;
+package com.onuryigitkocaturk.query_monitor.model;
 
 import com.onuryigitkocaturk.query_monitor.enums.LogStatus;
 import jakarta.persistence.Column;

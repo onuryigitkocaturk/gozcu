@@ -1,6 +1,5 @@
-package com.onuryigitkocaturk.query_monitor.entity;
+package com.onuryigitkocaturk.query_monitor.model;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -35,7 +34,7 @@ public class Alert {
     private String conditionExpression;
 
     @Column(nullable = false)
-    private boolean active = true;
+    private boolean active;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "query_id", nullable = false)
@@ -48,7 +47,7 @@ public class Alert {
     @JoinColumn(name = "group_id", nullable = false)
     private Group group;
 
-    @OneToMany(mappedBy = "alert", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "alert", fetch = FetchType.LAZY)
     private List<AlertLog> alertLogs = new ArrayList<>();
 
     @CreationTimestamp
