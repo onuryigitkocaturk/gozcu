@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: query-monitor-postgres
+    environment:
+      POSTGRES_DB: query_monitor
+      POSTGRES_USER: query_monitor
+      POSTGRES_PASSWORD: query_monitor
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
