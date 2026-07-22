@@ -1,8 +1,10 @@
 package com.onuryigitkocaturk.query_monitor.service.impl;
 
+import com.onuryigitkocaturk.query_monitor.dto.LoginRequest;
 import com.onuryigitkocaturk.query_monitor.dto.RegisterRequest;
 import com.onuryigitkocaturk.query_monitor.enums.Role;
 import com.onuryigitkocaturk.query_monitor.exception.DuplicateUserException;
+import com.onuryigitkocaturk.query_monitor.exception.InvalidCredentialsException;
 import com.onuryigitkocaturk.query_monitor.model.User;
 import com.onuryigitkocaturk.query_monitor.repository.UserRepository;
 import com.onuryigitkocaturk.query_monitor.service.UserService;
@@ -33,5 +35,17 @@ public class UserServiceImpl implements UserService {
         User user = new User(request.getUsername(), hashedPassword, request.getEmail(), Role.USER);
 
         return userRepository.save(user);
+    }
+
+    @Override
+    public User login(LoginRequest request) {
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new InvalidCredentialsException("Invalid username or password");
+        }
+
+        return user;
     }
 }
