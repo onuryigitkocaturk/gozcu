@@ -53,6 +53,14 @@ public class User {
     )
     private Set<Group> groups = new HashSet<>();
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_project",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "project_id")
+    )
+    private Set<Project> projects = new HashSet<>();
+
     public User() {
     }
 
@@ -117,6 +125,14 @@ public class User {
 
     public void setGroups(Set<Group> groups) {
         this.groups = groups;
+    }
+
+    public Set<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(Set<Project> projects) {
+        this.projects = projects;
     }
 
     @Override

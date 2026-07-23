@@ -19,8 +19,8 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "groups")
-public class Group {
+@Table(name = "projects")
+public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,22 +32,26 @@ public class Group {
     @Column
     private String description;
 
-    @ManyToMany(mappedBy = "groups", fetch = FetchType.LAZY)
+    @Column(nullable = false)
+    private String targetTable;
+
+    @ManyToMany(mappedBy = "projects", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>();
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
-    private List<Alert> alerts = new ArrayList<>();
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+    private List<Query> queries = new ArrayList<>();
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public Group() {
+    public Project() {
     }
 
-    public Group(String name, String description) {
+    public Project(String name, String description, String targetTable) {
         this.name = name;
         this.description = description;
+        this.targetTable = targetTable;
     }
 
     public Long getId() {
@@ -74,6 +78,14 @@ public class Group {
         this.description = description;
     }
 
+    public String getTargetTable() {
+        return targetTable;
+    }
+
+    public void setTargetTable(String targetTable) {
+        this.targetTable = targetTable;
+    }
+
     public Set<User> getUsers() {
         return users;
     }
@@ -82,12 +94,12 @@ public class Group {
         this.users = users;
     }
 
-    public List<Alert> getAlerts() {
-        return alerts;
+    public List<Query> getQueries() {
+        return queries;
     }
 
-    public void setAlerts(List<Alert> alerts) {
-        this.alerts = alerts;
+    public void setQueries(List<Query> queries) {
+        this.queries = queries;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -101,9 +113,9 @@ public class Group {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Group)) return false;
-        Group group = (Group) o;
-        return Objects.equals(id, group.id);
+        if (!(o instanceof Project)) return false;
+        Project project = (Project) o;
+        return Objects.equals(id, project.id);
     }
 
     @Override
@@ -113,9 +125,10 @@ public class Group {
 
     @Override
     public String toString() {
-        return "Group{" +
+        return "Project{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", targetTable='" + targetTable + '\'' +
                 '}';
     }
 }

@@ -47,8 +47,8 @@ public class Query {
     private boolean active;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id", nullable = false)
-    private Group group;
+    @JoinColumn(name = "project_id", nullable = false)
+    private Project project;
 
     @OneToMany(mappedBy = "query", fetch = FetchType.LAZY)
     private List<Alert> alerts = new ArrayList<>();
@@ -60,11 +60,11 @@ public class Query {
     public Query() {
     }
 
-    public Query(String name, String definitionJson, Frequency frequency, Group group) {
+    public Query(String name, String definitionJson, Frequency frequency, Project project) {
         this.name = name;
         this.definitionJson = definitionJson;
         this.frequency = frequency;
-        this.group = group;
+        this.project = project;
     }
 
     public Long getId() {
@@ -107,12 +107,12 @@ public class Query {
         this.active = active;
     }
 
-    public Group getGroup() {
-        return group;
+    public Project getProject() {
+        return project;
     }
 
-    public void setGroup(Group group) {
-        this.group = group;
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     public List<Alert> getAlerts() {

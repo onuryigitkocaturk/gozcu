@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface QueryRepository extends JpaRepository<Query, Long> {
 
-    List<Query> findByGroupId(Long groupId);
+    List<Query> findByProjectId(Long projectId);
 
     List<Query> findByActiveTrue();
 }
