@@ -32,14 +32,14 @@ public class Project {
     @Column
     private String description;
 
-    @Column(nullable = false)
-    private String targetTable;
-
     @ManyToMany(mappedBy = "projects", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>();
 
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
     private List<Query> queries = new ArrayList<>();
+
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+    private List<ProjectTable> tables = new ArrayList<>();
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -48,10 +48,9 @@ public class Project {
     public Project() {
     }
 
-    public Project(String name, String description, String targetTable) {
+    public Project(String name, String description) {
         this.name = name;
         this.description = description;
-        this.targetTable = targetTable;
     }
 
     public Long getId() {
@@ -78,14 +77,6 @@ public class Project {
         this.description = description;
     }
 
-    public String getTargetTable() {
-        return targetTable;
-    }
-
-    public void setTargetTable(String targetTable) {
-        this.targetTable = targetTable;
-    }
-
     public Set<User> getUsers() {
         return users;
     }
@@ -100,6 +91,14 @@ public class Project {
 
     public void setQueries(List<Query> queries) {
         this.queries = queries;
+    }
+
+    public List<ProjectTable> getTables() {
+        return tables;
+    }
+
+    public void setTables(List<ProjectTable> tables) {
+        this.tables = tables;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -128,7 +127,6 @@ public class Project {
         return "Project{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", targetTable='" + targetTable + '\'' +
                 '}';
     }
 }
