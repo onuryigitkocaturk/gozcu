@@ -37,4 +37,16 @@ public class ProjectController {
         projectService.deleteProject(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{projectId}/users/{userId}")
+    public ResponseEntity<Void> addUserToProject(@PathVariable Long projectId, @PathVariable Long userId) {
+        projectService.addUserToProject(projectId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{projectId}/users/{userId}")
+    public ResponseEntity<Void> removeUserFromProject(@PathVariable Long projectId, @PathVariable Long userId) {
+        projectService.removeUserFromProject(projectId, userId);
+        return ResponseEntity.noContent().build();
+    }
 }
