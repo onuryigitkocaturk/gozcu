@@ -1,5 +1,6 @@
 package com.onuryigitkocaturk.query_monitor.service;
 
+import com.onuryigitkocaturk.query_monitor.dto.ChangeRoleRequest;
 import com.onuryigitkocaturk.query_monitor.dto.RegisterRequest;
 import com.onuryigitkocaturk.query_monitor.dto.UpdateUserRequest;
 import com.onuryigitkocaturk.query_monitor.model.User;
@@ -17,4 +18,6 @@ public interface UserService {
     void deleteUser(Long id);
 
     List<User> getAllUsers();
+
+    User changeRole(Long id, ChangeRoleRequest request);
 }

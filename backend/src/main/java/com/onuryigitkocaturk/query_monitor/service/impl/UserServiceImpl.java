@@ -1,5 +1,6 @@
 package com.onuryigitkocaturk.query_monitor.service.impl;
 
+import com.onuryigitkocaturk.query_monitor.dto.ChangeRoleRequest;
 import com.onuryigitkocaturk.query_monitor.dto.RegisterRequest;
 import com.onuryigitkocaturk.query_monitor.dto.UpdateUserRequest;
 import com.onuryigitkocaturk.query_monitor.enums.Role;
@@ -75,5 +76,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public User changeRole(Long id, ChangeRoleRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+
+        user.setRole(request.getRole());
+        return userRepository.save(user);
     }
 }

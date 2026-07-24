@@ -1,5 +1,6 @@
 package com.onuryigitkocaturk.query_monitor.controller;
 
+import com.onuryigitkocaturk.query_monitor.dto.ChangeRoleRequest;
 import com.onuryigitkocaturk.query_monitor.dto.UpdateUserRequest;
 import com.onuryigitkocaturk.query_monitor.dto.UserResponse;
 import com.onuryigitkocaturk.query_monitor.mapper.UserMapper;
@@ -51,5 +52,12 @@ UserManagementController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}/role")
+    public ResponseEntity<UserResponse> changeRole(@PathVariable Long id, @RequestBody ChangeRoleRequest request) {
+        User user = userService.changeRole(id, request);
+        return ResponseEntity.ok(userMapper.toResponse(user));
     }
 }
