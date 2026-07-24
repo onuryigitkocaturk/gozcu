@@ -6,6 +6,7 @@ import com.onuryigitkocaturk.query_monitor.mapper.UserMapper;
 import com.onuryigitkocaturk.query_monitor.model.User;
 import com.onuryigitkocaturk.query_monitor.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +30,7 @@ UserManagementController {
         this.userMapper = userMapper;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<UserResponse> responses = userService.getAllUsers().stream()
@@ -37,12 +39,14 @@ UserManagementController {
         return ResponseEntity.ok(responses);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
         User user = userService.updateUser(id, request);
         return ResponseEntity.ok(userMapper.toResponse(user));
     }
 
+    @PreAuthorize("hasRole('ADMIN') or #id == principal.id")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);

@@ -7,6 +7,7 @@ import com.onuryigitkocaturk.query_monitor.model.Group;
 import com.onuryigitkocaturk.query_monitor.service.GroupService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/groups")
+@PreAuthorize("hasRole('ADMIN')")
 public class GroupController {
 
     private final GroupService groupService;
