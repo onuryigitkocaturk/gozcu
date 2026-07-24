@@ -1,8 +1,12 @@
 package com.onuryigitkocaturk.query_monitor.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class ProjectRequest {
 
+    @NotBlank
     private String name;
+
     private String description;
 
     public ProjectRequest() {

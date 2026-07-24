@@ -1,8 +1,15 @@
 package com.onuryigitkocaturk.query_monitor.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 public class UpdateUserRequest {
 
+    @NotBlank
     private String username;
+
+    @NotBlank
+    @Email
     private String email;
 
     public UpdateUserRequest() {

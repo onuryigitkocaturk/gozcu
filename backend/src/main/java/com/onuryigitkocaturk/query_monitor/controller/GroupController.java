@@ -5,6 +5,7 @@ import com.onuryigitkocaturk.query_monitor.dto.GroupResponse;
 import com.onuryigitkocaturk.query_monitor.mapper.GroupMapper;
 import com.onuryigitkocaturk.query_monitor.model.Group;
 import com.onuryigitkocaturk.query_monitor.service.GroupService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,7 +30,7 @@ public class GroupController {
     }
 
     @PostMapping
-    public ResponseEntity<GroupResponse> createGroup(@RequestBody GroupRequest request) {
+    public ResponseEntity<GroupResponse> createGroup(@Valid @RequestBody GroupRequest request) {
         Group group = groupService.createGroup(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(groupMapper.toResponse(group));
     }

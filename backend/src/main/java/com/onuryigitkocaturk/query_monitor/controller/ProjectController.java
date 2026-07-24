@@ -5,6 +5,7 @@ import com.onuryigitkocaturk.query_monitor.dto.ProjectResponse;
 import com.onuryigitkocaturk.query_monitor.mapper.ProjectMapper;
 import com.onuryigitkocaturk.query_monitor.model.Project;
 import com.onuryigitkocaturk.query_monitor.service.ProjectService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,7 +30,7 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<ProjectResponse> createProject(@RequestBody ProjectRequest request) {
+    public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody ProjectRequest request) {
         Project project = projectService.createProject(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(projectMapper.toResponse(project));
     }
