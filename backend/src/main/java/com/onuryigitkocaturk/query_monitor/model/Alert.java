@@ -41,6 +41,14 @@ public class Alert {
     private Query query;
 
     /**
+     * Query.project ile aynı değeri taşır (denormalize) — Alert'ten Project'e
+     * tek adımda erişebilmek için, Query üzerinden JOIN yapmaya gerek kalmasın diye.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", nullable = false)
+    private Project project;
+
+    /**
      * Koşul sağlandığında mail bildiriminin gönderileceği kullanıcı grubu.
      */
     @ManyToOne(fetch = FetchType.LAZY)
@@ -57,9 +65,10 @@ public class Alert {
     public Alert() {
     }
 
-    public Alert(String conditionExpression, Query query, Group group) {
+    public Alert(String conditionExpression, Query query, Project project, Group group) {
         this.conditionExpression = conditionExpression;
         this.query = query;
+        this.project = project;
         this.group = group;
     }
 
@@ -93,6 +102,14 @@ public class Alert {
 
     public void setQuery(Query query) {
         this.query = query;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     public Group getGroup() {

@@ -9,6 +9,8 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
 
     List<Alert> findByQueryId(Long queryId);
 
+    List<Alert> findByProjectId(Long projectId);
+
     List<Alert> findByGroupId(Long groupId);
 
     List<Alert> findByActiveTrue();
