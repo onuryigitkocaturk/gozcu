@@ -1,6 +1,7 @@
 package com.onuryigitkocaturk.query_monitor.exception;
 
 import com.onuryigitkocaturk.query_monitor.dto.ErrorResponse;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -57,6 +58,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateProjectTableException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateProjectTable(DuplicateProjectTableException ex) {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        return buildResponse(HttpStatus.CONFLICT,
+                "This record cannot be deleted because other records still depend on it");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

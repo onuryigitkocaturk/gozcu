@@ -1,5 +1,6 @@
 package com.onuryigitkocaturk.query_monitor.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -38,7 +39,12 @@ public class Project {
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
     private List<Query> queries = new ArrayList<>();
 
-    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+    /**
+     * cascade + orphanRemoval: bir ProjectTable projesiz var olamaz,
+     * proje silinince bağlı tablo kayıtları da otomatik silinsin diye.
+     */
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectTable> tables = new ArrayList<>();
 
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)

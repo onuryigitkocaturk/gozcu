@@ -6,14 +6,19 @@ public class ProjectTableResponse {
 
     private Long id;
     private String tableName;
+    private Long projectId;
+    private String projectName;
     private LocalDateTime createdAt;
 
     public ProjectTableResponse() {
     }
 
-    public ProjectTableResponse(Long id, String tableName, LocalDateTime createdAt) {
+    public ProjectTableResponse(Long id, String tableName, Long projectId, String projectName,
+                                 LocalDateTime createdAt) {
         this.id = id;
         this.tableName = tableName;
+        this.projectId = projectId;
+        this.projectName = projectName;
         this.createdAt = createdAt;
     }
 
@@ -31,6 +36,22 @@ public class ProjectTableResponse {
 
     public void setTableName(String tableName) {
         this.tableName = tableName;
+    }
+
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
     public LocalDateTime getCreatedAt() {

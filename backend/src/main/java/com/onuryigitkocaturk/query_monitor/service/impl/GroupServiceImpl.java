@@ -10,6 +10,9 @@ import com.onuryigitkocaturk.query_monitor.repository.GroupRepository;
 import com.onuryigitkocaturk.query_monitor.repository.UserRepository;
 import com.onuryigitkocaturk.query_monitor.service.GroupService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
 
 @Service
 public class GroupServiceImpl implements GroupService {
@@ -33,11 +36,19 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    @Transactional
     public void deleteGroup(Long id) {
-        if (!groupRepository.existsById(id)) {
-            throw new GroupNotFoundException("Group not found: " + id);
+        Group group = groupRepository.findById(id)
+                .orElseThrow(() -> new GroupNotFoundException("Group not found: " + id));
+
+        // owning side User; grubu direkt silmeden önce üyelerin
+        // koleksiyonundan çıkarmazsak user_group'ta FK ihlali olur.
+        for (User user : new HashSet<>(group.getUsers())) {
+            user.getGroups().remove(group);
+            userRepository.save(user);
         }
-        groupRepository.deleteById(id);
+
+        groupRepository.delete(group);
     }
 
     @Override

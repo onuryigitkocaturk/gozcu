@@ -11,6 +11,7 @@ import com.onuryigitkocaturk.query_monitor.repository.UserRepository;
 import com.onuryigitkocaturk.query_monitor.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -66,11 +67,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException("User not found: " + id);
-        }
-        userRepository.deleteById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+
+        // owning side User üzerinden temizlemezsek, user_group/user_project
+        // junction tablosundaki satırlar FK ihlaline yol açar.
+        user.getGroups().clear();
+        user.getProjects().clear();
+        userRepository.save(user);
+
+        userRepository.delete(user);
     }
 
     @Override

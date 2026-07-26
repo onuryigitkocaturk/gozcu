@@ -11,6 +11,8 @@ public class ProjectTableMapper {
         return new ProjectTableResponse(
                 projectTable.getId(),
                 projectTable.getTableName(),
+                projectTable.getProject().getId(),
+                projectTable.getProject().getName(),
                 projectTable.getCreatedAt()
         );
     }

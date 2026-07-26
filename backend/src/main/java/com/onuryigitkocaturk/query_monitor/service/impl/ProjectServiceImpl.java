@@ -15,7 +15,9 @@ import com.onuryigitkocaturk.query_monitor.repository.ProjectTableRepository;
 import com.onuryigitkocaturk.query_monitor.repository.UserRepository;
 import com.onuryigitkocaturk.query_monitor.service.ProjectService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -47,11 +49,20 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional
     public void deleteProject(Long id) {
-        if (!projectRepository.existsById(id)) {
-            throw new ProjectNotFoundException("Project not found: " + id);
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + id));
+
+        // owning side User; projeyi direkt silmeden önce üyelerin
+        // koleksiyonundan çıkarmazsak user_project'te FK ihlali olur.
+        for (User user : new HashSet<>(project.getUsers())) {
+            user.getProjects().remove(project);
+            userRepository.save(user);
         }
-        projectRepository.deleteById(id);
+
+        // ProjectTable'lar cascade+orphanRemoval sayesinde otomatik silinir.
+        projectRepository.delete(project);
     }
 
     @Override
