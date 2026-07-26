@@ -8,4 +8,6 @@ import java.util.List;
 public interface ProjectTableRepository extends JpaRepository<ProjectTable, Long> {
 
     List<ProjectTable> findByProjectId(Long projectId);
+
+    boolean existsByProjectIdAndTableName(Long projectId, String tableName);
 }
