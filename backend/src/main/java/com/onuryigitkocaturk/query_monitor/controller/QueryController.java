@@ -68,4 +68,12 @@ public class QueryController {
                                                                 @PathVariable Long queryId) {
         return ResponseEntity.ok(queryService.runQuery(projectId, queryId));
     }
+
+    @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
+    @GetMapping("/{queryId}/count")
+    public ResponseEntity<Map<String, Long>> countQueryMatches(@PathVariable Long projectId,
+                                                                  @PathVariable Long tableId,
+                                                                  @PathVariable Long queryId) {
+        return ResponseEntity.ok(Map.of("count", queryService.countQueryMatches(projectId, queryId)));
+    }
 }

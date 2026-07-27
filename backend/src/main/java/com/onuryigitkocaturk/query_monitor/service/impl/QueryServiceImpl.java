@@ -73,14 +73,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void deleteQuery(Long projectId, Long queryId) {
-        Query query = queryRepository.findById(queryId)
-                .orElseThrow(() -> new QueryNotFoundException("Query not found: " + queryId));
-
-        if (!query.getProject().getId().equals(projectId)) {
-            throw new QueryNotFoundException("Query not found: " + queryId);
-        }
-
-        queryRepository.delete(query);
+        queryRepository.delete(getValidatedQuery(projectId, queryId));
     }
 
     @Override
@@ -91,6 +84,19 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public List<Map<String, Object>> runQuery(Long projectId, Long queryId) {
+        Query query = getValidatedQuery(projectId, queryId);
+        return queryExecutionService.executeQuery(
+                query.getProjectTable().getTableName(), query.getDefinitionJson());
+    }
+
+    @Override
+    public long countQueryMatches(Long projectId, Long queryId) {
+        Query query = getValidatedQuery(projectId, queryId);
+        return queryExecutionService.countMatches(
+                query.getProjectTable().getTableName(), query.getDefinitionJson());
+    }
+
+    private Query getValidatedQuery(Long projectId, Long queryId) {
         Query query = queryRepository.findById(queryId)
                 .orElseThrow(() -> new QueryNotFoundException("Query not found: " + queryId));
 
@@ -98,8 +104,7 @@ public class QueryServiceImpl implements QueryService {
             throw new QueryNotFoundException("Query not found: " + queryId);
         }
 
-        return queryExecutionService.executeQuery(
-                query.getProjectTable().getTableName(), query.getDefinitionJson());
+        return query;
     }
 
     private ProjectTable getValidatedProjectTable(Long projectId, Long projectTableId) {

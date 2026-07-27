@@ -15,4 +15,6 @@ public interface QueryService {
     List<Query> getQueriesForTable(Long projectId, Long projectTableId);
 
     List<Map<String, Object>> runQuery(Long projectId, Long queryId);
+
+    long countQueryMatches(Long projectId, Long queryId);
 }
