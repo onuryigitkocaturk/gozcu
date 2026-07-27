@@ -1,8 +1,10 @@
 package com.onuryigitkocaturk.query_monitor.controller;
 
 import com.onuryigitkocaturk.query_monitor.alerting.AlertEvaluationResult;
+import com.onuryigitkocaturk.query_monitor.dto.AlertLogResponse;
 import com.onuryigitkocaturk.query_monitor.dto.AlertRequest;
 import com.onuryigitkocaturk.query_monitor.dto.AlertResponse;
+import com.onuryigitkocaturk.query_monitor.mapper.AlertLogMapper;
 import com.onuryigitkocaturk.query_monitor.mapper.AlertMapper;
 import com.onuryigitkocaturk.query_monitor.model.Alert;
 import com.onuryigitkocaturk.query_monitor.service.AlertService;
@@ -28,10 +30,12 @@ public class AlertController {
 
     private final AlertService alertService;
     private final AlertMapper alertMapper;
+    private final AlertLogMapper alertLogMapper;
 
-    public AlertController(AlertService alertService, AlertMapper alertMapper) {
+    public AlertController(AlertService alertService, AlertMapper alertMapper, AlertLogMapper alertLogMapper) {
         this.alertService = alertService;
         this.alertMapper = alertMapper;
+        this.alertLogMapper = alertLogMapper;
     }
 
     @PostMapping
@@ -71,5 +75,17 @@ public class AlertController {
                                                                  @PathVariable Long queryId,
                                                                  @PathVariable Long alertId) {
         return ResponseEntity.ok(alertService.evaluateAlert(projectId, alertId));
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
+    @GetMapping("/{alertId}/logs")
+    public ResponseEntity<List<AlertLogResponse>> getAlertLogs(@PathVariable Long projectId,
+                                                                 @PathVariable Long tableId,
+                                                                 @PathVariable Long queryId,
+                                                                 @PathVariable Long alertId) {
+        List<AlertLogResponse> response = alertService.getLogsForAlert(projectId, alertId).stream()
+                .map(alertLogMapper::toResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
     }
 }

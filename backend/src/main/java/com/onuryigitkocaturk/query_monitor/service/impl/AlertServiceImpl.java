@@ -13,8 +13,10 @@ import com.onuryigitkocaturk.query_monitor.exception.InvalidAlertConditionExcept
 import com.onuryigitkocaturk.query_monitor.exception.ProjectNotFoundException;
 import com.onuryigitkocaturk.query_monitor.exception.QueryNotFoundException;
 import com.onuryigitkocaturk.query_monitor.model.Alert;
+import com.onuryigitkocaturk.query_monitor.model.AlertLog;
 import com.onuryigitkocaturk.query_monitor.model.Group;
 import com.onuryigitkocaturk.query_monitor.model.Project;
+import com.onuryigitkocaturk.query_monitor.repository.AlertLogRepository;
 import com.onuryigitkocaturk.query_monitor.repository.AlertRepository;
 import com.onuryigitkocaturk.query_monitor.repository.GroupRepository;
 import com.onuryigitkocaturk.query_monitor.repository.ProjectRepository;
@@ -36,6 +38,7 @@ public class AlertServiceImpl implements AlertService {
     );
 
     private final AlertRepository alertRepository;
+    private final AlertLogRepository alertLogRepository;
     private final ProjectRepository projectRepository;
     private final QueryRepository queryRepository;
     private final GroupRepository groupRepository;
@@ -43,12 +46,14 @@ public class AlertServiceImpl implements AlertService {
     private final ObjectMapper objectMapper;
 
     public AlertServiceImpl(AlertRepository alertRepository,
+                             AlertLogRepository alertLogRepository,
                              ProjectRepository projectRepository,
                              QueryRepository queryRepository,
                              GroupRepository groupRepository,
                              AlertEvaluationService alertEvaluationService,
                              ObjectMapper objectMapper) {
         this.alertRepository = alertRepository;
+        this.alertLogRepository = alertLogRepository;
         this.projectRepository = projectRepository;
         this.queryRepository = queryRepository;
         this.groupRepository = groupRepository;
@@ -106,6 +111,12 @@ public class AlertServiceImpl implements AlertService {
                 alert.getQuery().getProjectTable().getTableName(),
                 alert.getQuery().getDefinitionJson(),
                 alert.getConditionExpression());
+    }
+
+    @Override
+    public List<AlertLog> getLogsForAlert(Long projectId, Long alertId) {
+        Alert alert = getValidatedAlert(projectId, alertId);
+        return alertLogRepository.findByAlertId(alert.getId());
     }
 
     private void validateCondition(AlertConditionValue condition) {
