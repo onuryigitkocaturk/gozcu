@@ -2,6 +2,7 @@ package com.onuryigitkocaturk.query_monitor.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.onuryigitkocaturk.query_monitor.connector.QueryExecutionService;
 import com.onuryigitkocaturk.query_monitor.connector.TableMetadataService;
 import com.onuryigitkocaturk.query_monitor.dto.QueryRequest;
 import com.onuryigitkocaturk.query_monitor.exception.InvalidQueryDefinitionException;
@@ -19,6 +20,7 @@ import com.onuryigitkocaturk.query_monitor.service.QueryService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class QueryServiceImpl implements QueryService {
@@ -28,6 +30,7 @@ public class QueryServiceImpl implements QueryService {
     private final ProjectTableRepository projectTableRepository;
     private final TableMetadataService tableMetadataService;
     private final QueryDefinitionValidator queryDefinitionValidator;
+    private final QueryExecutionService queryExecutionService;
     private final ObjectMapper objectMapper;
 
     public QueryServiceImpl(QueryRepository queryRepository,
@@ -35,12 +38,14 @@ public class QueryServiceImpl implements QueryService {
                              ProjectTableRepository projectTableRepository,
                              TableMetadataService tableMetadataService,
                              QueryDefinitionValidator queryDefinitionValidator,
+                             QueryExecutionService queryExecutionService,
                              ObjectMapper objectMapper) {
         this.queryRepository = queryRepository;
         this.projectRepository = projectRepository;
         this.projectTableRepository = projectTableRepository;
         this.tableMetadataService = tableMetadataService;
         this.queryDefinitionValidator = queryDefinitionValidator;
+        this.queryExecutionService = queryExecutionService;
         this.objectMapper = objectMapper;
     }
 
@@ -82,6 +87,19 @@ public class QueryServiceImpl implements QueryService {
     public List<Query> getQueriesForTable(Long projectId, Long projectTableId) {
         getValidatedProjectTable(projectId, projectTableId);
         return queryRepository.findByProjectTableId(projectTableId);
+    }
+
+    @Override
+    public List<Map<String, Object>> runQuery(Long projectId, Long queryId) {
+        Query query = queryRepository.findById(queryId)
+                .orElseThrow(() -> new QueryNotFoundException("Query not found: " + queryId));
+
+        if (!query.getProject().getId().equals(projectId)) {
+            throw new QueryNotFoundException("Query not found: " + queryId);
+        }
+
+        return queryExecutionService.executeQuery(
+                query.getProjectTable().getTableName(), query.getDefinitionJson());
     }
 
     private ProjectTable getValidatedProjectTable(Long projectId, Long projectTableId) {

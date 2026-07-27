@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -58,5 +59,13 @@ public class QueryController {
                                               @PathVariable Long queryId) {
         queryService.deleteQuery(projectId, queryId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
+    @GetMapping("/{queryId}/run")
+    public ResponseEntity<List<Map<String, Object>>> runQuery(@PathVariable Long projectId,
+                                                                @PathVariable Long tableId,
+                                                                @PathVariable Long queryId) {
+        return ResponseEntity.ok(queryService.runQuery(projectId, queryId));
     }
 }

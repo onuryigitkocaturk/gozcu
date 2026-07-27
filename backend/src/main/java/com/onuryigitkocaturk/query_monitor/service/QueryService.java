@@ -4,6 +4,7 @@ import com.onuryigitkocaturk.query_monitor.dto.QueryRequest;
 import com.onuryigitkocaturk.query_monitor.model.Query;
 
 import java.util.List;
+import java.util.Map;
 
 public interface QueryService {
 
@@ -12,4 +13,6 @@ public interface QueryService {
     void deleteQuery(Long projectId, Long queryId);
 
     List<Query> getQueriesForTable(Long projectId, Long projectTableId);
+
+    List<Map<String, Object>> runQuery(Long projectId, Long queryId);
 }
