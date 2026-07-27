@@ -10,7 +10,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -33,10 +32,13 @@ public class Query {
     private String name;
 
     /**
-     * Sürükle-bırak query builder'ın ürettiği yapı; SQL'e Criteria API / QueryDSL ile çevrilir.
+     * Surukle-birak query builder'in urettigi JSON agaci (QueryNode). @Lob
+     * KULLANILMAZ - PostgreSQL'de @Lob, gercek TEXT yerine ozel bir Large
+     * Object (oid) mekanizmasina denk geliyor ve autocommit disi (transactional)
+     * erisim zorunlu kiliyor; TEXT kolonunda boyut siniri olmadigi icin buna
+     * hic gerek yok.
      */
-    @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String definitionJson;
 
     @Enumerated(EnumType.STRING)
@@ -50,6 +52,16 @@ public class Query {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
+    /**
+     * Bir proje birden fazla tabloyu izleyebildigi icin (Project -> ProjectTable
+     * one-to-many), Query'nin hangi tabloyu sorguladigini belirtmek icin ayrica
+     * gereklidir. projectTable.getProject() ile project alani her zaman ayni
+     * projeye isaret etmelidir (servis katmaninda dogrulanir).
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_table_id", nullable = false)
+    private ProjectTable projectTable;
+
     @OneToMany(mappedBy = "query", fetch = FetchType.LAZY)
     private List<Alert> alerts = new ArrayList<>();
 
@@ -60,11 +72,12 @@ public class Query {
     public Query() {
     }
 
-    public Query(String name, String definitionJson, Frequency frequency, Project project) {
+    public Query(String name, String definitionJson, Frequency frequency, Project project, ProjectTable projectTable) {
         this.name = name;
         this.definitionJson = definitionJson;
         this.frequency = frequency;
         this.project = project;
+        this.projectTable = projectTable;
     }
 
     public Long getId() {
@@ -113,6 +126,14 @@ public class Query {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public ProjectTable getProjectTable() {
+        return projectTable;
+    }
+
+    public void setProjectTable(ProjectTable projectTable) {
+        this.projectTable = projectTable;
     }
 
     public List<Alert> getAlerts() {

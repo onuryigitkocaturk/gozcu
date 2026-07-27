@@ -7,7 +7,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -27,10 +26,10 @@ public class Alert {
     private Long id;
 
     /**
-     * Query sonucunun değerlendirileceği koşul (örn. "row_count > 100").
+     * Query sonucunun degerlendirilecegi kosul (JSON: metric + operator + value).
+     * @Lob KULLANILMAZ (bkz. Query.definitionJson'daki not).
      */
-    @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String conditionExpression;
 
     @Column(nullable = false)

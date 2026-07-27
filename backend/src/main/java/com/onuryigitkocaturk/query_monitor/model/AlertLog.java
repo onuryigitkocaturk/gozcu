@@ -10,7 +10,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
@@ -35,9 +34,10 @@ public class AlertLog {
     private LogStatus status;
 
     /**
-     * Çalıştırma sonucu / hata mesajı (mail gönderimi dahil).
+     * Calistirma sonucu / hata mesaji (mail gonderimi dahil).
+     * @Lob KULLANILMAZ (bkz. Query.definitionJson'daki not).
      */
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String message;
 
     @CreationTimestamp

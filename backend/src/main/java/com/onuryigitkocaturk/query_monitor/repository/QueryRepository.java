@@ -1,13 +1,26 @@
 package com.onuryigitkocaturk.query_monitor.repository;
 
-import com.onuryigitkocaturk.query_monitor.model.Query;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface QueryRepository extends JpaRepository<Query, Long> {
+/**
+ * DIKKAT: model.Query (entity) ile Spring Data'nin @Query (JPQL) anotasyonu
+ * ayni basit isme sahip oldugu icin, ikisini ayni anda import edemiyoruz.
+ * Bu yuzden entity'yi asagida her yerde tam paket yoluyla
+ * (com.onuryigitkocaturk.query_monitor.model.Query) kullanıyoruz.
+ */
+public interface QueryRepository
+        extends JpaRepository<com.onuryigitkocaturk.query_monitor.model.Query, Long> {
 
-    List<Query> findByProjectId(Long projectId);
+    List<com.onuryigitkocaturk.query_monitor.model.Query> findByProjectId(Long projectId);
 
-    List<Query> findByActiveTrue();
+    List<com.onuryigitkocaturk.query_monitor.model.Query> findByActiveTrue();
+
+    @Query("SELECT q FROM Query q JOIN FETCH q.project JOIN FETCH q.projectTable " +
+            "WHERE q.projectTable.id = :projectTableId")
+    List<com.onuryigitkocaturk.query_monitor.model.Query> findByProjectTableId(
+            @Param("projectTableId") Long projectTableId);
 }
