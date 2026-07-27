@@ -5,10 +5,12 @@ import com.onuryigitkocaturk.query_monitor.dto.UpdateUserRequest;
 import com.onuryigitkocaturk.query_monitor.dto.UserResponse;
 import com.onuryigitkocaturk.query_monitor.mapper.UserMapper;
 import com.onuryigitkocaturk.query_monitor.model.User;
+import com.onuryigitkocaturk.query_monitor.security.UserDetailsImpl;
 import com.onuryigitkocaturk.query_monitor.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +32,12 @@ UserManagementController {
     public UserManagementController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
         this.userMapper = userMapper;
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal UserDetailsImpl principal) {
+        User user = userService.getByUsername(principal.getUsername());
+        return ResponseEntity.ok(userMapper.toResponse(user));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
