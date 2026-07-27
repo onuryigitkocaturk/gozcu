@@ -7,6 +7,8 @@ import com.onuryigitkocaturk.query_monitor.enums.LogStatus;
 import com.onuryigitkocaturk.query_monitor.model.Alert;
 import com.onuryigitkocaturk.query_monitor.model.AlertLog;
 import com.onuryigitkocaturk.query_monitor.model.Query;
+import com.onuryigitkocaturk.query_monitor.model.User;
+import com.onuryigitkocaturk.query_monitor.notification.NotificationService;
 import com.onuryigitkocaturk.query_monitor.repository.AlertLogRepository;
 import com.onuryigitkocaturk.query_monitor.repository.AlertRepository;
 import com.onuryigitkocaturk.query_monitor.repository.QueryRepository;
@@ -19,10 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Aktif Query'leri kendi frequency'sine gore periyodik olarak degerlendirir
- * ve sonucu AlertLog'a yazar. MAIL GONDERMEZ HENUZ - notification/ paketi
- * (MailHog ile) ayri bir artista eklenecek; su an sadece "tetiklendi mi"
- * bilgisi kalici olarak loglaniyor.
+ * Aktif Query'leri kendi frequency'sine gore periyodik olarak degerlendirir,
+ * tetiklenirse Group'un uyelerine mail atar (NotificationService uzerinden,
+ * MailHog'a - gercek internete gitmez) ve sonucu AlertLog'a yazar.
  *
  * Cron ifadeleri application.properties'ten override edilebilir - gercek
  * saatlik/gunluk donguyu beklemeden hizli test yapabilmek icin.
@@ -36,15 +37,18 @@ public class AlertScheduler {
     private final AlertRepository alertRepository;
     private final AlertLogRepository alertLogRepository;
     private final AlertEvaluationService alertEvaluationService;
+    private final NotificationService notificationService;
 
     public AlertScheduler(QueryRepository queryRepository,
                            AlertRepository alertRepository,
                            AlertLogRepository alertLogRepository,
-                           AlertEvaluationService alertEvaluationService) {
+                           AlertEvaluationService alertEvaluationService,
+                           NotificationService notificationService) {
         this.queryRepository = queryRepository;
         this.alertRepository = alertRepository;
         this.alertLogRepository = alertLogRepository;
         this.alertEvaluationService = alertEvaluationService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -89,8 +93,13 @@ public class AlertScheduler {
 
             if (result.triggered()) {
                 status = LogStatus.TRIGGERED;
-                // TODO: notification/ paketi eklenince burada alert.getGroup()'a mail gonderilecek.
-                message = "Eslesen satir sayisi: " + result.matchCount() + ". Mail gonderimi henuz eklenmedi.";
+                List<String> recipientEmails = alert.getGroup().getUsers().stream()
+                        .map(User::getEmail)
+                        .toList();
+                notificationService.sendAlertTriggeredEmail(
+                        recipientEmails, alert.getQuery().getName(), result.matchCount());
+                message = "Eslesen satir sayisi: " + result.matchCount() + ". "
+                        + recipientEmails.size() + " kisiye mail gonderildi.";
             } else {
                 status = LogStatus.NOT_TRIGGERED;
                 message = "Eslesen satir sayisi: " + result.matchCount() + ". Kosul saglanmadi.";
