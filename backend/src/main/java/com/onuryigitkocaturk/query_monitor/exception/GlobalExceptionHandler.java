@@ -1,6 +1,7 @@
 package com.onuryigitkocaturk.query_monitor.exception;
 
 import com.onuryigitkocaturk.query_monitor.dto.ErrorResponse;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -84,6 +85,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         return buildResponse(HttpStatus.CONFLICT,
                 "This record cannot be deleted because other records still depend on it");
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<ErrorResponse> handleDataAccessException(DataAccessException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST,
+                "Query could not be executed, this usually means a value type mismatch (e.g. comparing a text column to a number)");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

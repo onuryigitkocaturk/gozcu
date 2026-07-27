@@ -25,8 +25,11 @@ import java.util.List;
  * tetiklenirse Group'un uyelerine mail atar (NotificationService uzerinden,
  * MailHog'a - gercek internete gitmez) ve sonucu AlertLog'a yazar.
  *
- * Cron ifadeleri application.properties'ten override edilebilir - gercek
- * saatlik/gunluk donguyu beklemeden hizli test yapabilmek icin.
+ * fixedRate degerleri (ms) application.properties'ten override edilebilir -
+ * gercek saatlik/gunluk donguyu beklemeden hizli test yapabilmek icin.
+ * cron degil fixedRate kullaniliyor cunku test sirasinda 90 saniye gibi
+ * 60'i tam bolmeyen araliklar istenebiliyor, cron'un saniye alani bunu
+ * ifade edemiyor.
  */
 @Component
 public class AlertScheduler {
@@ -52,13 +55,13 @@ public class AlertScheduler {
     }
 
     @Transactional
-    @Scheduled(cron = "${scheduler.hourly-cron:0 0 * * * *}")
+    @Scheduled(fixedRateString = "${scheduler.hourly-rate-ms:3600000}")
     public void runHourlyQueries() {
         evaluateQueriesWithFrequency(Frequency.HOURLY);
     }
 
     @Transactional
-    @Scheduled(cron = "${scheduler.daily-cron:0 0 0 * * *}")
+    @Scheduled(fixedRateString = "${scheduler.daily-rate-ms:86400000}")
     public void runDailyQueries() {
         evaluateQueriesWithFrequency(Frequency.DAILY);
     }
