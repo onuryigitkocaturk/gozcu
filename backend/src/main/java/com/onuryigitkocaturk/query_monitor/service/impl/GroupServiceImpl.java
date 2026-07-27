@@ -12,7 +12,9 @@ import com.onuryigitkocaturk.query_monitor.service.GroupService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 @Service
 public class GroupServiceImpl implements GroupService {
@@ -52,6 +54,11 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    public List<Group> getAllGroups() {
+        return groupRepository.findAll();
+    }
+
+    @Override
     public void addUserToGroup(Long groupId, Long userId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException("Group not found: " + groupId));
@@ -71,5 +78,12 @@ public class GroupServiceImpl implements GroupService {
 
         user.getGroups().remove(group);
         userRepository.save(user);
+    }
+
+    @Override
+    public List<User> getGroupUsers(Long groupId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupNotFoundException("Group not found: " + groupId));
+        return new ArrayList<>(group.getUsers());
     }
 }

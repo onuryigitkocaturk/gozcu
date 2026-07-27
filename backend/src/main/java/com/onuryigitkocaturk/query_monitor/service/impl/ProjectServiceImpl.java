@@ -17,6 +17,7 @@ import com.onuryigitkocaturk.query_monitor.service.ProjectService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +68,11 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public List<Project> getAllProjects() {
+        return projectRepository.findAll();
+    }
+
+    @Override
     public void addUserToProject(Long projectId, Long userId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
@@ -86,6 +92,13 @@ public class ProjectServiceImpl implements ProjectService {
 
         user.getProjects().remove(project);
         userRepository.save(user);
+    }
+
+    @Override
+    public List<User> getProjectUsers(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
+        return new ArrayList<>(project.getUsers());
     }
 
     @Override

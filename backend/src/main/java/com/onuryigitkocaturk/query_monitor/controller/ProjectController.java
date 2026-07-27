@@ -4,8 +4,10 @@ import com.onuryigitkocaturk.query_monitor.dto.ProjectRequest;
 import com.onuryigitkocaturk.query_monitor.dto.ProjectResponse;
 import com.onuryigitkocaturk.query_monitor.dto.ProjectTableRequest;
 import com.onuryigitkocaturk.query_monitor.dto.ProjectTableResponse;
+import com.onuryigitkocaturk.query_monitor.dto.UserResponse;
 import com.onuryigitkocaturk.query_monitor.mapper.ProjectMapper;
 import com.onuryigitkocaturk.query_monitor.mapper.ProjectTableMapper;
+import com.onuryigitkocaturk.query_monitor.mapper.UserMapper;
 import com.onuryigitkocaturk.query_monitor.model.Project;
 import com.onuryigitkocaturk.query_monitor.model.ProjectTable;
 import com.onuryigitkocaturk.query_monitor.service.ProjectService;
@@ -33,18 +35,28 @@ public class ProjectController {
     private final ProjectService projectService;
     private final ProjectMapper projectMapper;
     private final ProjectTableMapper projectTableMapper;
+    private final UserMapper userMapper;
 
     public ProjectController(ProjectService projectService, ProjectMapper projectMapper,
-                              ProjectTableMapper projectTableMapper) {
+                              ProjectTableMapper projectTableMapper, UserMapper userMapper) {
         this.projectService = projectService;
         this.projectMapper = projectMapper;
         this.projectTableMapper = projectTableMapper;
+        this.userMapper = userMapper;
     }
 
     @PostMapping
     public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody ProjectRequest request) {
         Project project = projectService.createProject(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(projectMapper.toResponse(project));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ProjectResponse>> getAllProjects() {
+        List<ProjectResponse> response = projectService.getAllProjects().stream()
+                .map(projectMapper::toResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
@@ -63,6 +75,15 @@ public class ProjectController {
     public ResponseEntity<Void> removeUserFromProject(@PathVariable Long projectId, @PathVariable Long userId) {
         projectService.removeUserFromProject(projectId, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
+    @GetMapping("/{projectId}/users")
+    public ResponseEntity<List<UserResponse>> getProjectUsers(@PathVariable Long projectId) {
+        List<UserResponse> response = projectService.getProjectUsers(projectId).stream()
+                .map(userMapper::toResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{projectId}/tables")
