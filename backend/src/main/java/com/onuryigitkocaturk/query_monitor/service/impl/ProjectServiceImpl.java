@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -111,5 +112,21 @@ public class ProjectServiceImpl implements ProjectService {
             throw new ProjectNotFoundException("Project not found: " + projectId);
         }
         return projectTableRepository.findByProjectId(projectId);
+    }
+
+    @Override
+    public List<Map<String, Object>> getTableData(Long projectId, String tableName) {
+        if (!projectRepository.existsById(projectId)) {
+            throw new ProjectNotFoundException("Project not found: " + projectId);
+        }
+
+        // whitelist kontrolu: tableName SQL'e concat edilmeden once, bu tablonun
+        // gercekten bu projeye bagli oldugu dogrulanmali (SQL injection riski).
+        if (!projectTableRepository.existsByProjectIdAndTableName(projectId, tableName)) {
+            throw new TableNotFoundException(
+                    "Table not linked to this project: " + tableName);
+        }
+
+        return tableMetadataService.getTableData(tableName);
     }
 }

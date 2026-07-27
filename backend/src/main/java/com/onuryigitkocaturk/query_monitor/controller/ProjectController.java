@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -79,5 +80,12 @@ public class ProjectController {
                 .map(projectTableMapper::toResponse)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
+    @GetMapping("/{projectId}/tables/{tableName}/data")
+    public ResponseEntity<List<Map<String, Object>>> getTableData(@PathVariable Long projectId,
+                                                                     @PathVariable String tableName) {
+        return ResponseEntity.ok(projectService.getTableData(projectId, tableName));
     }
 }

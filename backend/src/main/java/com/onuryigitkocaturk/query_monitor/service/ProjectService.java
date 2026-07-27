@@ -5,6 +5,7 @@ import com.onuryigitkocaturk.query_monitor.model.Project;
 import com.onuryigitkocaturk.query_monitor.model.ProjectTable;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ProjectService {
 
@@ -19,4 +20,6 @@ public interface ProjectService {
     void addTableToProject(Long projectId, String tableName);
 
     List<ProjectTable> getProjectTables(Long projectId);
+
+    List<Map<String, Object>> getTableData(Long projectId, String tableName);
 }
