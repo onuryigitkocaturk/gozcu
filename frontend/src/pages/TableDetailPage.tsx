@@ -90,7 +90,6 @@ export function TableDetailPage() {
         {queriesError && <div className="alert-banner alert-banner--error">{queriesError}</div>}
         {!loadingQueries && !queriesError && queries && queries.length === 0 && (
           <EmptyState
-            icon="🧩"
             title="Henüz sorgu yok"
             description="Sürükle-bırak sorgu oluşturucuyla bu tablo için bir kontrol sorgusu tanımla."
           />

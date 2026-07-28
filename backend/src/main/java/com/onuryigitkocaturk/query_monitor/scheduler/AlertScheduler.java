@@ -2,6 +2,7 @@ package com.onuryigitkocaturk.query_monitor.scheduler;
 
 import com.onuryigitkocaturk.query_monitor.alerting.AlertEvaluationResult;
 import com.onuryigitkocaturk.query_monitor.alerting.AlertEvaluationService;
+import com.onuryigitkocaturk.query_monitor.connector.QueryExecutionService;
 import com.onuryigitkocaturk.query_monitor.enums.Frequency;
 import com.onuryigitkocaturk.query_monitor.enums.LogStatus;
 import com.onuryigitkocaturk.query_monitor.model.Alert;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Aktif Query'leri kendi frequency'sine gore periyodik olarak degerlendirir,
@@ -40,17 +42,20 @@ public class AlertScheduler {
     private final AlertRepository alertRepository;
     private final AlertLogRepository alertLogRepository;
     private final AlertEvaluationService alertEvaluationService;
+    private final QueryExecutionService queryExecutionService;
     private final NotificationService notificationService;
 
     public AlertScheduler(QueryRepository queryRepository,
                            AlertRepository alertRepository,
                            AlertLogRepository alertLogRepository,
                            AlertEvaluationService alertEvaluationService,
+                           QueryExecutionService queryExecutionService,
                            NotificationService notificationService) {
         this.queryRepository = queryRepository;
         this.alertRepository = alertRepository;
         this.alertLogRepository = alertLogRepository;
         this.alertEvaluationService = alertEvaluationService;
+        this.queryExecutionService = queryExecutionService;
         this.notificationService = notificationService;
     }
 
@@ -99,8 +104,11 @@ public class AlertScheduler {
                 List<String> recipientEmails = alert.getGroup().getUsers().stream()
                         .map(User::getEmail)
                         .toList();
+                List<Map<String, Object>> matchedRows = queryExecutionService.executeQuery(
+                        alert.getQuery().getProjectTable().getTableName(),
+                        alert.getQuery().getDefinitionJson());
                 notificationService.sendAlertTriggeredEmail(
-                        recipientEmails, alert.getQuery().getName(), result.matchCount());
+                        recipientEmails, alert.getQuery().getName(), result.matchCount(), matchedRows);
                 message = "Eslesen satir sayisi: " + result.matchCount() + ". "
                         + recipientEmails.size() + " kisiye mail gonderildi.";
             } else {

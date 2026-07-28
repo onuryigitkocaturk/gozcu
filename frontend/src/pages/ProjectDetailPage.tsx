@@ -102,7 +102,6 @@ export function ProjectDetailPage() {
           {tablesError && <div className="alert-banner alert-banner--error">{tablesError}</div>}
           {!loadingTables && !tablesError && tables && tables.length === 0 && (
             <EmptyState
-              icon="🗄️"
               title="Henüz tablo bağlanmadı"
               description="İzlenen veritabanından bir tablo seçip bu projeye bağlayarak sorgu oluşturmaya başlayabilirsin."
             />
@@ -158,7 +157,7 @@ export function ProjectDetailPage() {
           {loadingMembers && <SpinnerCenter />}
           {membersError && <div className="alert-banner alert-banner--error">{membersError}</div>}
           {!loadingMembers && !membersError && members && members.length === 0 && (
-            <EmptyState icon="👥" title="Henüz üye eklenmedi" />
+            <EmptyState title="Henüz üye eklenmedi" />
           )}
           {!loadingMembers &&
             members &&

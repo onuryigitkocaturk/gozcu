@@ -63,7 +63,7 @@ export function GroupsPage() {
       {error && <div className="alert-banner alert-banner--error">{error}</div>}
 
       {!loading && !error && groups && groups.length === 0 && (
-        <EmptyState icon="👥" title="Henüz grup yok" description="İlk bildirim grubunu oluştur." />
+        <EmptyState title="Henüz grup yok" description="İlk bildirim grubunu oluştur." />
       )}
 
       {!loading && !error && groups && groups.length > 0 && (
@@ -175,7 +175,7 @@ function GroupMembersModal({ groupId, onClose }: { groupId: number; onClose: () 
       <div className="divider" />
 
       {loading && <SpinnerCenter />}
-      {!loading && members && members.length === 0 && <EmptyState icon="👤" title="Üye yok" />}
+      {!loading && members && members.length === 0 && <EmptyState title="Üye yok" />}
       {!loading &&
         members &&
         members.map((m) => (

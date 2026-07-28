@@ -2,10 +2,9 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "../ui";
 
-function SidebarLink({ to, icon, children }: { to: string; icon: string; children: string }) {
+function SidebarLink({ to, children }: { to: string; children: string }) {
   return (
     <NavLink to={to} end={to === "/"} className={({ isActive }) => `sidebar__link${isActive ? " active" : ""}`}>
-      <span aria-hidden>{icon}</span>
       {children}
     </NavLink>
   );
@@ -31,20 +30,20 @@ export function AppShell() {
         </div>
 
         <div className="sidebar__section-label">Genel</div>
-        <SidebarLink to="/" icon="📁">
+        <SidebarLink to="/">
           Projelerim
         </SidebarLink>
 
         {isAdmin && (
           <>
             <div className="sidebar__section-label">Yönetim</div>
-            <SidebarLink to="/admin/users" icon="👤">
+            <SidebarLink to="/admin/users">
               Kullanıcılar
             </SidebarLink>
-            <SidebarLink to="/admin/groups" icon="👥">
+            <SidebarLink to="/admin/groups">
               Gruplar
             </SidebarLink>
-            <SidebarLink to="/admin/connector" icon="🗄️">
+            <SidebarLink to="/admin/connector">
               İzlenen Veritabanı
             </SidebarLink>
           </>

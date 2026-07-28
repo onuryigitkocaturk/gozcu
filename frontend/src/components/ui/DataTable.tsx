@@ -5,7 +5,7 @@ import type { TableRow } from "../../types/api";
 /** Satirlarin kendi anahtarlarindan kolonlari cikarip generic bir tablo cizer. */
 export function DataTable({ rows, emptyLabel = "Kayıt bulunamadı" }: { rows: TableRow[]; emptyLabel?: string }) {
   if (rows.length === 0) {
-    return <EmptyState icon="🗒️" title={emptyLabel} />;
+    return <EmptyState title={emptyLabel} />;
   }
 
   const columns = Array.from(

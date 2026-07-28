@@ -6,6 +6,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Gercek SMTP protokolu ile mail gonderir (JavaMailSender). Su an
@@ -15,6 +16,9 @@ import java.util.List;
  */
 @Service
 public class NotificationServiceImpl implements NotificationService {
+
+    /** Mail cok uzun olmasin diye eslesen satirlardan en fazla bu kadari listelenir. */
+    private static final int MAX_ROWS_IN_EMAIL = 20;
 
     private final JavaMailSender mailSender;
     private final String fromAddress;
@@ -26,7 +30,8 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendAlertTriggeredEmail(List<String> recipientEmails, String queryName, long matchCount) {
+    public void sendAlertTriggeredEmail(List<String> recipientEmails, String queryName, long matchCount,
+                                         List<Map<String, Object>> matchedRows) {
         if (recipientEmails.isEmpty()) {
             return;
         }
@@ -35,9 +40,27 @@ public class NotificationServiceImpl implements NotificationService {
         message.setFrom(fromAddress);
         message.setTo(recipientEmails.toArray(new String[0]));
         message.setSubject("[Query Monitor] Alert tetiklendi: " + queryName);
-        message.setText("\"" + queryName + "\" sorgusu " + matchCount
-                + " sonuc dondurdu ve tanimli kosulu sagladi.");
+        message.setText(buildBody(queryName, matchCount, matchedRows));
 
         mailSender.send(message);
+    }
+
+    private String buildBody(String queryName, long matchCount, List<Map<String, Object>> matchedRows) {
+        StringBuilder body = new StringBuilder();
+        body.append("\"").append(queryName).append("\" sorgusu ").append(matchCount)
+                .append(" sonuc dondurdu ve tanimli kosulu sagladi.\n");
+
+        if (!matchedRows.isEmpty()) {
+            int shown = Math.min(matchedRows.size(), MAX_ROWS_IN_EMAIL);
+            body.append("\nEslesen kayitlar:\n");
+            for (int i = 0; i < shown; i++) {
+                body.append(i + 1).append(". ").append(matchedRows.get(i)).append("\n");
+            }
+            if (matchedRows.size() > shown) {
+                body.append("... ve ").append(matchedRows.size() - shown).append(" kayit daha.\n");
+            }
+        }
+
+        return body.toString();
     }
 }

@@ -28,7 +28,7 @@ export function ConnectorPage() {
       {error && <div className="alert-banner alert-banner--error">{error}</div>}
 
       {!loading && !error && tables && tables.length === 0 && (
-        <EmptyState icon="🗄️" title="İzlenen veritabanında hiç tablo yok" />
+        <EmptyState title="İzlenen veritabanında hiç tablo yok" />
       )}
 
       {!loading && !error && tables && tables.length > 0 && (

@@ -153,7 +153,6 @@ export function QueryDetailPage() {
         {loadingAlerts && <SpinnerCenter />}
         {!loadingAlerts && alerts && alerts.length === 0 && (
           <EmptyState
-            icon="🔔"
             title="Henüz alert yok"
             description="Bu sorgunun sonucunu bir eşiğe göre değerlendirip bir gruba mail atacak bir alert tanımla."
           />
@@ -263,7 +262,7 @@ function AlertRow({
 
       <Modal open={logsOpen} onClose={() => setLogsOpen(false)} title="Alert Logları">
         {loadingLogs && <SpinnerCenter />}
-        {!loadingLogs && logs && logs.length === 0 && <EmptyState icon="📜" title="Henüz log yok" />}
+        {!loadingLogs && logs && logs.length === 0 && <EmptyState title="Henüz log yok" />}
         {!loadingLogs && logs && logs.length > 0 && (
           <div className="flex flex-col gap-8">
             {logs

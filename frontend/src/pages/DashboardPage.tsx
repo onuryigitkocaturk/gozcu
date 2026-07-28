@@ -67,7 +67,6 @@ function AdminDashboard() {
 
       {!loading && !error && projects && projects.length === 0 && (
         <EmptyState
-          icon="📁"
           title="Henüz proje yok"
           description="İlk projeni oluşturarak izlenen tabloları ve sorguları burada organize etmeye başla."
           action={

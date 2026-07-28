@@ -1,6 +1,7 @@
 package com.onuryigitkocaturk.query_monitor.model;
 
 import com.onuryigitkocaturk.query_monitor.enums.Frequency;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -62,7 +63,7 @@ public class Query {
     @JoinColumn(name = "project_table_id", nullable = false)
     private ProjectTable projectTable;
 
-    @OneToMany(mappedBy = "query", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "query", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Alert> alerts = new ArrayList<>();
 
     @CreationTimestamp
