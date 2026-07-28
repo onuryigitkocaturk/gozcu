@@ -119,6 +119,12 @@
   margin: 0 auto;
 }
 
+.page__footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
 .page__header {
   display: flex;
   align-items: flex-start;

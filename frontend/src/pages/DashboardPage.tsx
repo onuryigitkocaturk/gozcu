@@ -147,7 +147,6 @@ function MemberDashboard() {
       <div className="page__header">
         <div>
           <h1 className="page__title">Projelerim</h1>
-          <p className="page__subtitle">Üyesi olduğun projeler.</p>
         </div>
       </div>
 

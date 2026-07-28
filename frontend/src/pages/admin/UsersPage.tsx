@@ -13,13 +13,26 @@ export function UsersPage() {
   const { notifySuccess, notifyError } = useToast();
   const { data: users, loading, error, reload } = useAsync(() => usersApi.list(), []);
 
-  const handleRoleChange = async (id: number, role: Role) => {
+  const [pendingRoles, setPendingRoles] = useState<Record<number, Role>>({});
+  const [savingRoles, setSavingRoles] = useState(false);
+
+  const handleRoleSelect = (id: number, role: Role) => {
+    setPendingRoles((prev) => ({ ...prev, [id]: role }));
+  };
+
+  const handleSaveRoles = async () => {
+    setSavingRoles(true);
     try {
-      await usersApi.changeRole(id, { role });
-      notifySuccess("Rol güncellendi.");
+      await Promise.all(
+        Object.entries(pendingRoles).map(([id, role]) => usersApi.changeRole(Number(id), { role })),
+      );
+      notifySuccess("Değişiklikler kaydedildi.");
+      setPendingRoles({});
       reload();
     } catch (err) {
-      notifyError(err instanceof ApiError ? err.message : "Rol güncellenemedi.");
+      notifyError(err instanceof ApiError ? err.message : "Değişiklikler kaydedilemedi.");
+    } finally {
+      setSavingRoles(false);
     }
   };
 
@@ -64,8 +77,8 @@ export function UsersPage() {
               </div>
               <div className="list-row__actions">
                 <InlineSelect
-                  value={u.role}
-                  onChange={(e) => handleRoleChange(u.id, e.target.value as Role)}
+                  value={pendingRoles[u.id] ?? u.role}
+                  onChange={(e) => handleRoleSelect(u.id, e.target.value as Role)}
                   style={{ minWidth: 110 }}
                   disabled={u.id === currentUser?.id}
                 >
@@ -84,6 +97,14 @@ export function UsersPage() {
             </div>
           ))}
         </Card>
+      )}
+
+      {!loading && !error && users && Object.keys(pendingRoles).length > 0 && (
+        <div className="page__footer-actions">
+          <Button variant="primary" onClick={handleSaveRoles} disabled={savingRoles}>
+            {savingRoles ? "Kaydediliyor…" : "Değişiklikleri Kaydet"}
+          </Button>
+        </div>
       )}
     </div>
   );
