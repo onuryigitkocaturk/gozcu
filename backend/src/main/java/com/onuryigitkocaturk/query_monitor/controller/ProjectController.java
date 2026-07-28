@@ -10,11 +10,13 @@ import com.onuryigitkocaturk.query_monitor.mapper.ProjectTableMapper;
 import com.onuryigitkocaturk.query_monitor.mapper.UserMapper;
 import com.onuryigitkocaturk.query_monitor.model.Project;
 import com.onuryigitkocaturk.query_monitor.model.ProjectTable;
+import com.onuryigitkocaturk.query_monitor.security.UserDetailsImpl;
 import com.onuryigitkocaturk.query_monitor.service.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,6 +56,15 @@ public class ProjectController {
     @GetMapping
     public ResponseEntity<List<ProjectResponse>> getAllProjects() {
         List<ProjectResponse> response = projectService.getAllProjects().stream()
+                .map(projectMapper::toResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/my")
+    public ResponseEntity<List<ProjectResponse>> getMyProjects(@AuthenticationPrincipal UserDetailsImpl principal) {
+        List<ProjectResponse> response = projectService.getProjectsForUser(principal.getId()).stream()
                 .map(projectMapper::toResponse)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(response);

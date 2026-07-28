@@ -34,6 +34,7 @@ public class QueryController {
         this.queryMapper = queryMapper;
     }
 
+    @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
     @PostMapping
     public ResponseEntity<QueryResponse> createQuery(@PathVariable Long projectId,
                                                        @PathVariable Long tableId,

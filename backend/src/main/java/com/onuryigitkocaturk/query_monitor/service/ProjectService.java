@@ -16,6 +16,8 @@ public interface ProjectService {
 
     List<Project> getAllProjects();
 
+    List<Project> getProjectsForUser(Long userId);
+
     void addUserToProject(Long projectId, Long userId);
 
     void removeUserFromProject(Long projectId, Long userId);

@@ -3,6 +3,7 @@ package com.onuryigitkocaturk.query_monitor.repository;
 import com.onuryigitkocaturk.query_monitor.model.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
@@ -10,4 +11,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     Optional<Project> findByName(String name);
 
     boolean existsByName(String name);
+
+    List<Project> findByUsers_Id(Long userId);
 }

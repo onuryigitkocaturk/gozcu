@@ -73,6 +73,11 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public List<Project> getProjectsForUser(Long userId) {
+        return projectRepository.findByUsers_Id(userId);
+    }
+
+    @Override
     public void addUserToProject(Long projectId, Long userId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));

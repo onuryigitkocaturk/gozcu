@@ -26,6 +26,7 @@ public class ConnectorController {
         return ResponseEntity.ok(tableMetadataService.listTables());
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/tables/{tableName}/columns")
     public ResponseEntity<List<String>> listColumns(@PathVariable String tableName) {
         return ResponseEntity.ok(tableMetadataService.listColumns(tableName));
