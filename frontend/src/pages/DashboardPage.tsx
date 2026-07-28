@@ -140,42 +140,56 @@ function AdminDashboard() {
 
 function MemberDashboard() {
   const navigate = useNavigate();
-  const [projectId, setProjectId] = useState("");
-
-  const handleGo = (e: FormEvent) => {
-    e.preventDefault();
-    const id = Number(projectId);
-    if (id > 0) navigate(`/projects/${id}`);
-  };
+  const { data: projects, loading, error } = useAsync(() => projectsApi.listMine(), []);
 
   return (
     <div className="page">
       <div className="page__header">
         <div>
           <h1 className="page__title">Projelerim</h1>
-          <p className="page__subtitle">
-            Bir projeye eriştiğinde burada işlem yapabilirsin. Hangi projeye üye olduğunu bilmiyorsan
-            yöneticinden proje ID'sini öğrenebilirsin.
-          </p>
+          <p className="page__subtitle">Üyesi olduğun projeler.</p>
         </div>
       </div>
 
-      <Card style={{ maxWidth: 420 }}>
-        <CardHeader title="Proje ID ile git" />
-        <form onSubmit={handleGo} className="flex gap-8">
-          <Input
-            placeholder="Örn. 1"
-            type="number"
-            min={1}
-            value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
-            style={{ marginBottom: 0 }}
-          />
-          <Button type="submit" variant="primary" disabled={!projectId}>
-            Git
-          </Button>
-        </form>
-      </Card>
+      {loading && <SpinnerCenter />}
+      {error && <div className="alert-banner alert-banner--error">{error}</div>}
+
+      {!loading && !error && projects && projects.length === 0 && (
+        <EmptyState
+          title="Henüz bir projeye üye değilsin"
+          description="Bir yöneticiden seni bir projeye eklemesini iste."
+        />
+      )}
+
+      {!loading && !error && projects && projects.length > 0 && (
+        <Card padded={false}>
+          {projects.map((project) => (
+            <div className="list-row" key={project.id}>
+              <div className="list-row__main">
+                <a
+                  className="list-row__title"
+                  href={`/projects/${project.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(`/projects/${project.id}`);
+                  }}
+                >
+                  {project.name}
+                </a>
+                <div className="list-row__meta">
+                  {project.description && <span>{project.description}</span>}
+                  <span>· {formatDateTime(project.createdAt)}</span>
+                </div>
+              </div>
+              <div className="list-row__actions">
+                <Button size="sm" variant="secondary" onClick={() => navigate(`/projects/${project.id}`)}>
+                  Aç
+                </Button>
+              </div>
+            </div>
+          ))}
+        </Card>
+      )}
     </div>
   );
 }

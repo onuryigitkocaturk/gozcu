@@ -10,6 +10,7 @@ import type {
 
 export const projectsApi = {
   list: () => api.get<ProjectResponse[]>("/api/projects"),
+  listMine: () => api.get<ProjectResponse[]>("/api/projects/my"),
   create: (body: ProjectRequest) => api.post<ProjectResponse>("/api/projects", body),
   remove: (id: number) => api.del<void>(`/api/projects/${id}`),
   addUser: (projectId: number, userId: number) => api.post<void>(`/api/projects/${projectId}/users/${userId}`),

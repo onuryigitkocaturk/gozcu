@@ -31,11 +31,10 @@ export function RegisterPage() {
     <div className="auth-page">
       <Card className="auth-card">
         <div className="auth-card__brand">
-          <span className="sidebar__brand-mark">Q</span>
-          <strong>Query Monitor</strong>
+          <strong className="auth-card__brand-text">gözcü</strong>
+          <img src="/turksat_logotip_cmyk-01.png" alt="Türksat" className="brand-logo" />
         </div>
-        <h1 className="auth-card__title">Hesap oluştur</h1>
-        <p className="auth-card__subtitle">Yeni kullanıcılar varsayılan olarak standart yetkiyle başlar.</p>
+        <h1 className="auth-card__title">Hesap oluşturun</h1>
 
         {error && <div className="alert-banner alert-banner--error">{error}</div>}
 
@@ -63,12 +62,12 @@ export function RegisterPage() {
             required
           />
           <Button type="submit" variant="primary" disabled={loading} style={{ width: "100%" }}>
-            {loading ? "Kayıt olunuyor…" : "Kayıt ol"}
+            {loading ? "Kayıt olunuyor…" : "Kayıt olun"}
           </Button>
         </form>
 
         <div className="auth-card__footer">
-          Zaten hesabın var mı? <Link to="/login">Giriş yap</Link>
+          Zaten hesabınız var mı? <Link to="/login">Giriş yapın</Link>
         </div>
       </Card>
     </div>

@@ -18,10 +18,14 @@ export function QueryBuilderPage() {
   const navigate = useNavigate();
   const { notifySuccess, notifyError } = useToast();
 
-  const { data: tables } = useAsync(() => projectsApi.listTables(pId), [pId]);
+  const { data: tables, error: tablesError } = useAsync(() => projectsApi.listTables(pId), [pId]);
   const currentTable = tables?.find((t) => t.id === tId);
 
-  const { data: columns, loading: loadingColumns } = useAsync(
+  const {
+    data: columns,
+    loading: loadingColumns,
+    error: columnsError,
+  } = useAsync(
     () => (currentTable ? connectorApi.listColumns(currentTable.tableName) : Promise.resolve([])),
     [currentTable?.tableName],
   );
@@ -91,6 +95,9 @@ export function QueryBuilderPage() {
           </Select>
         </div>
       </Card>
+
+      {tablesError && <div className="alert-banner alert-banner--error">{tablesError}</div>}
+      {columnsError && <div className="alert-banner alert-banner--error">{columnsError}</div>}
 
       {loadingColumns && <SpinnerCenter />}
 

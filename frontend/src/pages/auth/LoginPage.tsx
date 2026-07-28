@@ -30,11 +30,11 @@ export function LoginPage() {
     <div className="auth-page">
       <Card className="auth-card">
         <div className="auth-card__brand">
-          <span className="sidebar__brand-mark">Q</span>
-          <strong>Query Monitor</strong>
+          <strong className="auth-card__brand-text">gözcü</strong>
+          <img src="/turksat_logotip_cmyk-01.png" alt="Türksat" className="brand-logo" />
         </div>
-        <h1 className="auth-card__title">Tekrar hoş geldin</h1>
-        <p className="auth-card__subtitle">Devam etmek için giriş yap.</p>
+        <h1 className="auth-card__title">Hoş Geldiniz!</h1>
+        <p className="auth-card__subtitle">Devam etmek için giriş yapın.</p>
 
         {error && <div className="alert-banner alert-banner--error">{error}</div>}
 
@@ -59,7 +59,7 @@ export function LoginPage() {
         </form>
 
         <div className="auth-card__footer">
-          Hesabın yok mu? <Link to="/register">Kayıt ol</Link>
+          Hesabınız yok mu? <Link to="/register">Kayıt olun</Link>
         </div>
       </Card>
     </div>

@@ -19,14 +19,12 @@ export function AppShell() {
     navigate("/login", { replace: true });
   };
 
-  const initials = user?.username ? user.username.slice(0, 2).toUpperCase() : "?";
-
   return (
     <div className="app-shell">
       <aside className="sidebar">
         <div className="sidebar__brand">
-          <span className="sidebar__brand-mark">Q</span>
-          Query Monitor
+          gözcü
+          <img src="/turksat_logotip_cmyk-01.png" alt="Türksat" className="brand-logo" />
         </div>
 
         <div className="sidebar__section-label">Genel</div>
@@ -58,10 +56,8 @@ export function AppShell() {
 
       <div className="main-area">
         <header className="topbar">
-          <div className="topbar__title">Query Monitor</div>
           <div className="topbar__user">
             <span>{user?.username}</span>
-            <span className="avatar">{initials}</span>
           </div>
         </header>
         <Outlet />

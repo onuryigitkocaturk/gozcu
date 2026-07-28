@@ -78,11 +78,9 @@ export function TableDetailPage() {
           <CardHeader
             title="Sorgular"
             action={
-              isAdmin && (
-                <Button size="sm" variant="primary" onClick={() => navigate(`/projects/${pId}/tables/${tId}/queries/new`)}>
-                  + Yeni Sorgu
-                </Button>
-              )
+              <Button size="sm" variant="primary" onClick={() => navigate(`/projects/${pId}/tables/${tId}/queries/new`)}>
+                + Yeni Sorgu
+              </Button>
             }
           />
         </div>
