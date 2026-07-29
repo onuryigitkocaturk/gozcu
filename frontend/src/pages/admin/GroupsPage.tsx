@@ -17,7 +17,7 @@ export function GroupsPage() {
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const [membersOpenFor, setMembersOpenFor] = useState<number | null>(null);
+  const [membersOpenFor, setMembersOpenFor] = useState<string | null>(null);
 
   const handleCreate = async () => {
     if (!name.trim()) return;
@@ -36,7 +36,7 @@ export function GroupsPage() {
     }
   };
 
-  const handleDelete = async (id: number, groupName: string) => {
+  const handleDelete = async (id: string, groupName: string) => {
     if (!confirm(`"${groupName}" grubunu silmek istediğine emin misin?`)) return;
     try {
       await groupsApi.remove(id);
@@ -116,7 +116,7 @@ export function GroupsPage() {
   );
 }
 
-function GroupMembersModal({ groupId, onClose }: { groupId: number; onClose: () => void }) {
+function GroupMembersModal({ groupId, onClose }: { groupId: string; onClose: () => void }) {
   const { notifySuccess, notifyError } = useToast();
   const {
     data: members,
@@ -133,7 +133,7 @@ function GroupMembersModal({ groupId, onClose }: { groupId: number; onClose: () 
     if (!selected) return;
     setAdding(true);
     try {
-      await groupsApi.addUser(groupId, Number(selected));
+      await groupsApi.addUser(groupId, selected);
       notifySuccess("Kullanıcı gruba eklendi.");
       setSelected("");
       reload();
@@ -144,7 +144,7 @@ function GroupMembersModal({ groupId, onClose }: { groupId: number; onClose: () 
     }
   };
 
-  const handleRemove = async (userId: number, username: string) => {
+  const handleRemove = async (userId: string, username: string) => {
     if (!confirm(`${username} kullanıcısını gruptan çıkarmak istediğine emin misin?`)) return;
     try {
       await groupsApi.removeUser(groupId, userId);

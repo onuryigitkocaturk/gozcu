@@ -9,8 +9,8 @@ import { Badge, Button, Card, CardHeader, DataTable, EmptyState, SpinnerCenter }
 
 export function TableDetailPage() {
   const { projectId, tableId } = useParams();
-  const pId = Number(projectId);
-  const tId = Number(tableId);
+  const pId = projectId as string;
+  const tId = tableId as string;
   const { isAdmin } = useAuth();
   const { notifySuccess, notifyError } = useToast();
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ export function TableDetailPage() {
     reload: reloadQueries,
   } = useAsync(() => queriesApi.list(pId, tId), [pId, tId]);
 
-  const handleDeleteQuery = async (queryId: number, name: string) => {
+  const handleDeleteQuery = async (queryId: string, name: string) => {
     if (!confirm(`"${name}" sorgusunu silmek istediğine emin misin?`)) return;
     try {
       await queriesApi.remove(pId, tId, queryId);

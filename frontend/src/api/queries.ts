@@ -1,16 +1,16 @@
 import { api } from "./client";
 import type { CountResponse, QueryRequest, QueryResponse, TableRow } from "../types/api";
 
-const base = (projectId: number, tableId: number) => `/api/projects/${projectId}/tables/${tableId}/queries`;
+const base = (projectId: string, tableId: string) => `/api/projects/${projectId}/tables/${tableId}/queries`;
 
 export const queriesApi = {
-  list: (projectId: number, tableId: number) => api.get<QueryResponse[]>(base(projectId, tableId)),
-  create: (projectId: number, tableId: number, body: QueryRequest) =>
+  list: (projectId: string, tableId: string) => api.get<QueryResponse[]>(base(projectId, tableId)),
+  create: (projectId: string, tableId: string, body: QueryRequest) =>
     api.post<QueryResponse>(base(projectId, tableId), body),
-  remove: (projectId: number, tableId: number, queryId: number) =>
+  remove: (projectId: string, tableId: string, queryId: string) =>
     api.del<void>(`${base(projectId, tableId)}/${queryId}`),
-  run: (projectId: number, tableId: number, queryId: number) =>
+  run: (projectId: string, tableId: string, queryId: string) =>
     api.get<TableRow[]>(`${base(projectId, tableId)}/${queryId}/run`),
-  count: (projectId: number, tableId: number, queryId: number) =>
+  count: (projectId: string, tableId: string, queryId: string) =>
     api.get<CountResponse>(`${base(projectId, tableId)}/${queryId}/count`),
 };

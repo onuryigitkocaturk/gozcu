@@ -12,15 +12,15 @@ export const projectsApi = {
   list: () => api.get<ProjectResponse[]>("/api/projects"),
   listMine: () => api.get<ProjectResponse[]>("/api/projects/my"),
   create: (body: ProjectRequest) => api.post<ProjectResponse>("/api/projects", body),
-  remove: (id: number) => api.del<void>(`/api/projects/${id}`),
-  addUser: (projectId: number, userId: number) => api.post<void>(`/api/projects/${projectId}/users/${userId}`),
-  removeUser: (projectId: number, userId: number) =>
+  remove: (id: string) => api.del<void>(`/api/projects/${id}`),
+  addUser: (projectId: string, userId: string) => api.post<void>(`/api/projects/${projectId}/users/${userId}`),
+  removeUser: (projectId: string, userId: string) =>
     api.del<void>(`/api/projects/${projectId}/users/${userId}`),
-  listUsers: (projectId: number) => api.get<UserResponse[]>(`/api/projects/${projectId}/users`),
+  listUsers: (projectId: string) => api.get<UserResponse[]>(`/api/projects/${projectId}/users`),
 
-  addTable: (projectId: number, body: ProjectTableRequest) =>
+  addTable: (projectId: string, body: ProjectTableRequest) =>
     api.post<void>(`/api/projects/${projectId}/tables`, body),
-  listTables: (projectId: number) => api.get<ProjectTableResponse[]>(`/api/projects/${projectId}/tables`),
-  getTableData: (projectId: number, tableName: string) =>
+  listTables: (projectId: string) => api.get<ProjectTableResponse[]>(`/api/projects/${projectId}/tables`),
+  getTableData: (projectId: string, tableName: string) =>
     api.get<TableRow[]>(`/api/projects/${projectId}/tables/${encodeURIComponent(tableName)}/data`),
 };

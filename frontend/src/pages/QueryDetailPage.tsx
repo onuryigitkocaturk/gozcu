@@ -33,9 +33,9 @@ const ALERT_OPERATORS: ConditionOperator[] = [
 
 export function QueryDetailPage() {
   const { projectId, tableId, queryId } = useParams();
-  const pId = Number(projectId);
-  const tId = Number(tableId);
-  const qId = Number(queryId);
+  const pId = projectId as string;
+  const tId = tableId as string;
+  const qId = queryId as string;
   const { isAdmin } = useAuth();
   const { notifySuccess, notifyError } = useToast();
   const navigate = useNavigate();
@@ -80,7 +80,7 @@ export function QueryDetailPage() {
     }
   };
 
-  const handleDeleteAlert = async (alertId: number) => {
+  const handleDeleteAlert = async (alertId: string) => {
     if (!confirm("Bu alert'i silmek istediğine emin misin?")) return;
     try {
       await alertsApi.remove(pId, tId, qId, alertId);
@@ -190,11 +190,11 @@ function AlertRow({
   onDelete,
   isAdmin,
 }: {
-  projectId: number;
-  tableId: number;
-  queryId: number;
-  alert: { id: number; groupName: string; condition: { metric: string; operator: ConditionOperator; value: number }; active: boolean };
-  onDelete: (alertId: number) => void;
+  projectId: string;
+  tableId: string;
+  queryId: string;
+  alert: { id: string; groupName: string; condition: { metric: string; operator: ConditionOperator; value: number }; active: boolean };
+  onDelete: (alertId: string) => void;
   isAdmin: boolean;
 }) {
   const { notifyError } = useToast();
@@ -299,9 +299,9 @@ function AddAlertModal({
 }: {
   open: boolean;
   onClose: () => void;
-  projectId: number;
-  tableId: number;
-  queryId: number;
+  projectId: string;
+  tableId: string;
+  queryId: string;
   onAdded: () => void;
 }) {
   const { notifySuccess, notifyError } = useToast();
@@ -316,7 +316,7 @@ function AddAlertModal({
     setSaving(true);
     try {
       await alertsApi.create(projectId, tableId, queryId, {
-        groupId: Number(groupId),
+        groupId,
         condition: { metric: "ROW_COUNT", operator, value: Number(value) },
       });
       notifySuccess("Alert oluşturuldu.");

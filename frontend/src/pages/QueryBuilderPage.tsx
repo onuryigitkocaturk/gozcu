@@ -13,8 +13,8 @@ import type { Frequency } from "../types/api";
 
 export function QueryBuilderPage() {
   const { projectId, tableId } = useParams();
-  const pId = Number(projectId);
-  const tId = Number(tableId);
+  const pId = projectId as string;
+  const tId = tableId as string;
   const navigate = useNavigate();
   const { notifySuccess, notifyError } = useToast();
 

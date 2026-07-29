@@ -12,7 +12,7 @@ import { formatDateTime } from "../utils/format";
 
 export function ProjectDetailPage() {
   const { projectId } = useParams();
-  const id = Number(projectId);
+  const id = projectId as string;
   const { isAdmin } = useAuth();
   const { notifySuccess, notifyError } = useToast();
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ export function ProjectDetailPage() {
     void tableName;
   };
 
-  const handleRemoveMember = async (userId: number, username: string) => {
+  const handleRemoveMember = async (userId: string, username: string) => {
     if (!confirm(`${username} kullanıcısını bu projeden çıkarmak istediğine emin misin?`)) return;
     try {
       await projectsApi.removeUser(id, userId);
@@ -217,7 +217,7 @@ function AddTableModal({
 }: {
   open: boolean;
   onClose: () => void;
-  projectId: number;
+  projectId: string;
   onAdded: () => void;
 }) {
   const { notifySuccess, notifyError } = useToast();
@@ -283,8 +283,8 @@ function AddMemberModal({
 }: {
   open: boolean;
   onClose: () => void;
-  projectId: number;
-  existingMemberIds: number[];
+  projectId: string;
+  existingMemberIds: string[];
   onAdded: () => void;
 }) {
   const { notifySuccess, notifyError } = useToast();
@@ -298,7 +298,7 @@ function AddMemberModal({
     if (!selected) return;
     setSaving(true);
     try {
-      await projectsApi.addUser(projectId, Number(selected));
+      await projectsApi.addUser(projectId, selected);
       notifySuccess("Kullanıcı projeye eklendi.");
       setSelected("");
       onAdded();

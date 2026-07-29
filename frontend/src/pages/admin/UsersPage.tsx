@@ -13,10 +13,10 @@ export function UsersPage() {
   const { notifySuccess, notifyError } = useToast();
   const { data: users, loading, error, reload } = useAsync(() => usersApi.list(), []);
 
-  const [pendingRoles, setPendingRoles] = useState<Record<number, Role>>({});
+  const [pendingRoles, setPendingRoles] = useState<Record<string, Role>>({});
   const [savingRoles, setSavingRoles] = useState(false);
 
-  const handleRoleSelect = (id: number, role: Role) => {
+  const handleRoleSelect = (id: string, role: Role) => {
     setPendingRoles((prev) => ({ ...prev, [id]: role }));
   };
 
@@ -24,7 +24,7 @@ export function UsersPage() {
     setSavingRoles(true);
     try {
       await Promise.all(
-        Object.entries(pendingRoles).map(([id, role]) => usersApi.changeRole(Number(id), { role })),
+        Object.entries(pendingRoles).map(([id, role]) => usersApi.changeRole(id, { role })),
       );
       notifySuccess("Değişiklikler kaydedildi.");
       setPendingRoles({});
@@ -36,9 +36,9 @@ export function UsersPage() {
     }
   };
 
-  const [confirmingId, setConfirmingId] = useState<number | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
-  const handleDelete = async (id: number, username: string) => {
+  const handleDelete = async (id: string, username: string) => {
     if (!confirm(`${username} kullanıcısını silmek istediğine emin misin?`)) return;
     setConfirmingId(id);
     try {

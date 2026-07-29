@@ -32,7 +32,7 @@ export interface AuthResponse {
   token: string;
 }
 export interface UserResponse {
-  id: number;
+  id: string;
   username: string;
   email: string;
   role: Role;
@@ -52,7 +52,7 @@ export interface GroupRequest {
   description?: string;
 }
 export interface GroupResponse {
-  id: number;
+  id: string;
   name: string;
   description: string | null;
   createdAt: string;
@@ -64,7 +64,7 @@ export interface ProjectRequest {
   description?: string;
 }
 export interface ProjectResponse {
-  id: number;
+  id: string;
   name: string;
   description: string | null;
   createdAt: string;
@@ -75,9 +75,9 @@ export interface ProjectTableRequest {
   tableName: string;
 }
 export interface ProjectTableResponse {
-  id: number;
+  id: string;
   tableName: string;
-  projectId: number;
+  projectId: string;
   projectName: string;
   createdAt: string;
 }
@@ -115,12 +115,12 @@ export interface QueryRequest {
   definition: QueryNode;
 }
 export interface QueryResponse {
-  id: number;
+  id: string;
   name: string;
   frequency: Frequency;
   active: boolean;
-  projectId: number;
-  projectTableId: number;
+  projectId: string;
+  projectTableId: string;
   tableName: string;
   definition: QueryNode;
   createdAt: string;
@@ -137,14 +137,14 @@ export interface AlertConditionValue {
   value: number;
 }
 export interface AlertRequest {
-  groupId: number;
+  groupId: string;
   condition: AlertConditionValue;
 }
 export interface AlertResponse {
-  id: number;
-  queryId: number;
-  projectId: number;
-  groupId: number;
+  id: string;
+  queryId: string;
+  projectId: string;
+  groupId: string;
   groupName: string;
   condition: AlertConditionValue;
   active: boolean;
@@ -155,7 +155,7 @@ export interface AlertEvaluationResult {
   matchCount: number;
 }
 export interface AlertLogResponse {
-  id: number;
+  id: string;
   status: LogStatus;
   message: string;
   executedAt: string;
