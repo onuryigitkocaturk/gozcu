@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class QueryServiceImpl implements QueryService {
@@ -55,7 +56,7 @@ public class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public Query createQuery(Long projectId, Long projectTableId, QueryRequest request, Long createdByUserId) {
+    public Query createQuery(UUID projectId, UUID projectTableId, QueryRequest request, UUID createdByUserId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
 
@@ -78,31 +79,31 @@ public class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public void deleteQuery(Long projectId, Long queryId) {
+    public void deleteQuery(UUID projectId, UUID queryId) {
         queryRepository.delete(getValidatedQuery(projectId, queryId));
     }
 
     @Override
-    public List<Query> getQueriesForTable(Long projectId, Long projectTableId) {
+    public List<Query> getQueriesForTable(UUID projectId, UUID projectTableId) {
         getValidatedProjectTable(projectId, projectTableId);
         return queryRepository.findByProjectTableId(projectTableId);
     }
 
     @Override
-    public List<Map<String, Object>> runQuery(Long projectId, Long queryId) {
+    public List<Map<String, Object>> runQuery(UUID projectId, UUID queryId) {
         Query query = getValidatedQuery(projectId, queryId);
         return queryExecutionService.executeQuery(
                 query.getProjectTable().getTableName(), query.getDefinitionJson());
     }
 
     @Override
-    public long countQueryMatches(Long projectId, Long queryId) {
+    public long countQueryMatches(UUID projectId, UUID queryId) {
         Query query = getValidatedQuery(projectId, queryId);
         return queryExecutionService.countMatches(
                 query.getProjectTable().getTableName(), query.getDefinitionJson());
     }
 
-    private Query getValidatedQuery(Long projectId, Long queryId) {
+    private Query getValidatedQuery(UUID projectId, UUID queryId) {
         Query query = queryRepository.findById(queryId)
                 .orElseThrow(() -> new QueryNotFoundException("Query not found: " + queryId));
 
@@ -113,7 +114,7 @@ public class QueryServiceImpl implements QueryService {
         return query;
     }
 
-    private ProjectTable getValidatedProjectTable(Long projectId, Long projectTableId) {
+    private ProjectTable getValidatedProjectTable(UUID projectId, UUID projectTableId) {
         if (!projectRepository.existsById(projectId)) {
             throw new ProjectNotFoundException("Project not found: " + projectId);
         }

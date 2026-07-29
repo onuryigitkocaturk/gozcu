@@ -1,13 +1,14 @@
 package com.onuryigitkocaturk.query_monitor.dto;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class AlertResponse {
 
-    private Long id;
-    private Long queryId;
-    private Long projectId;
-    private Long groupId;
+    private UUID id;
+    private UUID queryId;
+    private UUID projectId;
+    private UUID groupId;
     private String groupName;
     private AlertConditionValue condition;
     private boolean active;
@@ -16,7 +17,7 @@ public class AlertResponse {
     public AlertResponse() {
     }
 
-    public AlertResponse(Long id, Long queryId, Long projectId, Long groupId, String groupName,
+    public AlertResponse(UUID id, UUID queryId, UUID projectId, UUID groupId, String groupName,
                           AlertConditionValue condition, boolean active, LocalDateTime createdAt) {
         this.id = id;
         this.queryId = queryId;
@@ -28,35 +29,35 @@ public class AlertResponse {
         this.createdAt = createdAt;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public Long getQueryId() {
+    public UUID getQueryId() {
         return queryId;
     }
 
-    public void setQueryId(Long queryId) {
+    public void setQueryId(UUID queryId) {
         this.queryId = queryId;
     }
 
-    public Long getProjectId() {
+    public UUID getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(Long projectId) {
+    public void setProjectId(UUID projectId) {
         this.projectId = projectId;
     }
 
-    public Long getGroupId() {
+    public UUID getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(Long groupId) {
+    public void setGroupId(UUID groupId) {
         this.groupId = groupId;
     }
 

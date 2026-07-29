@@ -1,10 +1,11 @@
 package com.onuryigitkocaturk.query_monitor.dto;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class GroupResponse {
 
-    private Long id;
+    private UUID id;
     private String name;
     private String description;
     private LocalDateTime createdAt;
@@ -12,18 +13,18 @@ public class GroupResponse {
     public GroupResponse() {
     }
 
-    public GroupResponse(Long id, String name, String description, LocalDateTime createdAt) {
+    public GroupResponse(UUID id, String name, String description, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.createdAt = createdAt;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

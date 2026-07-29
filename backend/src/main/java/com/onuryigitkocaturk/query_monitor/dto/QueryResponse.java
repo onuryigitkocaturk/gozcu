@@ -4,15 +4,16 @@ import com.onuryigitkocaturk.query_monitor.dto.querydefinition.QueryNode;
 import com.onuryigitkocaturk.query_monitor.enums.Frequency;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class QueryResponse {
 
-    private Long id;
+    private UUID id;
     private String name;
     private Frequency frequency;
     private boolean active;
-    private Long projectId;
-    private Long projectTableId;
+    private UUID projectId;
+    private UUID projectTableId;
     private String tableName;
     private QueryNode definition;
     private LocalDateTime createdAt;
@@ -21,8 +22,8 @@ public class QueryResponse {
     public QueryResponse() {
     }
 
-    public QueryResponse(Long id, String name, Frequency frequency, boolean active,
-                          Long projectId, Long projectTableId, String tableName,
+    public QueryResponse(UUID id, String name, Frequency frequency, boolean active,
+                          UUID projectId, UUID projectTableId, String tableName,
                           QueryNode definition, LocalDateTime createdAt, String createdByUsername) {
         this.id = id;
         this.name = name;
@@ -36,11 +37,11 @@ public class QueryResponse {
         this.createdByUsername = createdByUsername;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -68,19 +69,19 @@ public class QueryResponse {
         this.active = active;
     }
 
-    public Long getProjectId() {
+    public UUID getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(Long projectId) {
+    public void setProjectId(UUID projectId) {
         this.projectId = projectId;
     }
 
-    public Long getProjectTableId() {
+    public UUID getProjectTableId() {
         return projectTableId;
     }
 
-    public void setProjectTableId(Long projectTableId) {
+    public void setProjectTableId(UUID projectTableId) {
         this.projectTableId = projectTableId;
     }
 

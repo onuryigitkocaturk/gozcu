@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -71,26 +72,26 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProject(@PathVariable UUID id) {
         projectService.deleteProject(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{projectId}/users/{userId}")
-    public ResponseEntity<Void> addUserToProject(@PathVariable Long projectId, @PathVariable Long userId) {
+    public ResponseEntity<Void> addUserToProject(@PathVariable UUID projectId, @PathVariable UUID userId) {
         projectService.addUserToProject(projectId, userId);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{projectId}/users/{userId}")
-    public ResponseEntity<Void> removeUserFromProject(@PathVariable Long projectId, @PathVariable Long userId) {
+    public ResponseEntity<Void> removeUserFromProject(@PathVariable UUID projectId, @PathVariable UUID userId) {
         projectService.removeUserFromProject(projectId, userId);
         return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
     @GetMapping("/{projectId}/users")
-    public ResponseEntity<List<UserResponse>> getProjectUsers(@PathVariable Long projectId) {
+    public ResponseEntity<List<UserResponse>> getProjectUsers(@PathVariable UUID projectId) {
         List<UserResponse> response = projectService.getProjectUsers(projectId).stream()
                 .map(userMapper::toResponse)
                 .collect(Collectors.toList());
@@ -98,7 +99,7 @@ public class ProjectController {
     }
 
     @PostMapping("/{projectId}/tables")
-    public ResponseEntity<Void> addTableToProject(@PathVariable Long projectId,
+    public ResponseEntity<Void> addTableToProject(@PathVariable UUID projectId,
                                                     @Valid @RequestBody ProjectTableRequest request) {
         projectService.addTableToProject(projectId, request.getTableName());
         return ResponseEntity.noContent().build();
@@ -106,7 +107,7 @@ public class ProjectController {
 
     @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
     @GetMapping("/{projectId}/tables")
-    public ResponseEntity<List<ProjectTableResponse>> getProjectTables(@PathVariable Long projectId) {
+    public ResponseEntity<List<ProjectTableResponse>> getProjectTables(@PathVariable UUID projectId) {
         List<ProjectTable> tables = projectService.getProjectTables(projectId);
         List<ProjectTableResponse> response = tables.stream()
                 .map(projectTableMapper::toResponse)
@@ -116,7 +117,7 @@ public class ProjectController {
 
     @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
     @GetMapping("/{projectId}/tables/{tableName}/data")
-    public ResponseEntity<List<Map<String, Object>>> getTableData(@PathVariable Long projectId,
+    public ResponseEntity<List<Map<String, Object>>> getTableData(@PathVariable UUID projectId,
                                                                      @PathVariable String tableName) {
         return ResponseEntity.ok(projectService.getTableData(projectId, tableName));
     }

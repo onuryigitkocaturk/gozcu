@@ -3,10 +3,11 @@ package com.onuryigitkocaturk.query_monitor.dto;
 import com.onuryigitkocaturk.query_monitor.enums.Role;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class UserResponse {
 
-    private Long id;
+    private UUID id;
     private String username;
     private String email;
     private Role role;
@@ -15,7 +16,7 @@ public class UserResponse {
     public UserResponse() {
     }
 
-    public UserResponse(Long id, String username, String email, Role role, LocalDateTime createdAt) {
+    public UserResponse(UUID id, String username, String email, Role role, LocalDateTime createdAt) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -23,11 +24,11 @@ public class UserResponse {
         this.createdAt = createdAt;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

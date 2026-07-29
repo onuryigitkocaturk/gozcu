@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -39,9 +40,9 @@ public class AlertController {
     }
 
     @PostMapping
-    public ResponseEntity<AlertResponse> createAlert(@PathVariable Long projectId,
-                                                       @PathVariable Long tableId,
-                                                       @PathVariable Long queryId,
+    public ResponseEntity<AlertResponse> createAlert(@PathVariable UUID projectId,
+                                                       @PathVariable UUID tableId,
+                                                       @PathVariable UUID queryId,
                                                        @Valid @RequestBody AlertRequest request) {
         Alert alert = alertService.createAlert(projectId, queryId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(alertMapper.toResponse(alert));
@@ -49,9 +50,9 @@ public class AlertController {
 
     @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
     @GetMapping
-    public ResponseEntity<List<AlertResponse>> getAlerts(@PathVariable Long projectId,
-                                                           @PathVariable Long tableId,
-                                                           @PathVariable Long queryId) {
+    public ResponseEntity<List<AlertResponse>> getAlerts(@PathVariable UUID projectId,
+                                                           @PathVariable UUID tableId,
+                                                           @PathVariable UUID queryId) {
         List<Alert> alerts = alertService.getAlertsForQuery(projectId, queryId);
         List<AlertResponse> response = alerts.stream()
                 .map(alertMapper::toResponse)
@@ -60,29 +61,29 @@ public class AlertController {
     }
 
     @DeleteMapping("/{alertId}")
-    public ResponseEntity<Void> deleteAlert(@PathVariable Long projectId,
-                                              @PathVariable Long tableId,
-                                              @PathVariable Long queryId,
-                                              @PathVariable Long alertId) {
+    public ResponseEntity<Void> deleteAlert(@PathVariable UUID projectId,
+                                              @PathVariable UUID tableId,
+                                              @PathVariable UUID queryId,
+                                              @PathVariable UUID alertId) {
         alertService.deleteAlert(projectId, alertId);
         return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
     @GetMapping("/{alertId}/evaluate")
-    public ResponseEntity<AlertEvaluationResult> evaluateAlert(@PathVariable Long projectId,
-                                                                 @PathVariable Long tableId,
-                                                                 @PathVariable Long queryId,
-                                                                 @PathVariable Long alertId) {
+    public ResponseEntity<AlertEvaluationResult> evaluateAlert(@PathVariable UUID projectId,
+                                                                 @PathVariable UUID tableId,
+                                                                 @PathVariable UUID queryId,
+                                                                 @PathVariable UUID alertId) {
         return ResponseEntity.ok(alertService.evaluateAlert(projectId, alertId));
     }
 
     @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
     @GetMapping("/{alertId}/logs")
-    public ResponseEntity<List<AlertLogResponse>> getAlertLogs(@PathVariable Long projectId,
-                                                                 @PathVariable Long tableId,
-                                                                 @PathVariable Long queryId,
-                                                                 @PathVariable Long alertId) {
+    public ResponseEntity<List<AlertLogResponse>> getAlertLogs(@PathVariable UUID projectId,
+                                                                 @PathVariable UUID tableId,
+                                                                 @PathVariable UUID queryId,
+                                                                 @PathVariable UUID alertId) {
         List<AlertLogResponse> response = alertService.getLogsForAlert(projectId, alertId).stream()
                 .map(alertLogMapper::toResponse)
                 .collect(Collectors.toList());

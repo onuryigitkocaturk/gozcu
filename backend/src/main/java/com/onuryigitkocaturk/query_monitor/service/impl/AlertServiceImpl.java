@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class AlertServiceImpl implements AlertService {
@@ -62,7 +63,7 @@ public class AlertServiceImpl implements AlertService {
     }
 
     @Override
-    public Alert createAlert(Long projectId, Long queryId, AlertRequest request) {
+    public Alert createAlert(UUID projectId, UUID queryId, AlertRequest request) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
 
@@ -90,12 +91,12 @@ public class AlertServiceImpl implements AlertService {
     }
 
     @Override
-    public void deleteAlert(Long projectId, Long alertId) {
+    public void deleteAlert(UUID projectId, UUID alertId) {
         alertRepository.delete(getValidatedAlert(projectId, alertId));
     }
 
     @Override
-    public List<Alert> getAlertsForQuery(Long projectId, Long queryId) {
+    public List<Alert> getAlertsForQuery(UUID projectId, UUID queryId) {
         com.onuryigitkocaturk.query_monitor.model.Query query = queryRepository.findById(queryId)
                 .orElseThrow(() -> new QueryNotFoundException("Query not found: " + queryId));
         if (!query.getProject().getId().equals(projectId)) {
@@ -105,7 +106,7 @@ public class AlertServiceImpl implements AlertService {
     }
 
     @Override
-    public AlertEvaluationResult evaluateAlert(Long projectId, Long alertId) {
+    public AlertEvaluationResult evaluateAlert(UUID projectId, UUID alertId) {
         Alert alert = getValidatedAlert(projectId, alertId);
         return alertEvaluationService.evaluate(
                 alert.getQuery().getProjectTable().getTableName(),
@@ -114,7 +115,7 @@ public class AlertServiceImpl implements AlertService {
     }
 
     @Override
-    public List<AlertLog> getLogsForAlert(Long projectId, Long alertId) {
+    public List<AlertLog> getLogsForAlert(UUID projectId, UUID alertId) {
         Alert alert = getValidatedAlert(projectId, alertId);
         return alertLogRepository.findByAlertId(alert.getId());
     }
@@ -126,7 +127,7 @@ public class AlertServiceImpl implements AlertService {
         }
     }
 
-    private Alert getValidatedAlert(Long projectId, Long alertId) {
+    private Alert getValidatedAlert(UUID projectId, UUID alertId) {
         Alert alert = alertRepository.findById(alertId)
                 .orElseThrow(() -> new AlertNotFoundException("Alert not found: " + alertId));
 

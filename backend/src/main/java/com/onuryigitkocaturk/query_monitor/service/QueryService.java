@@ -5,16 +5,17 @@ import com.onuryigitkocaturk.query_monitor.model.Query;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public interface QueryService {
 
-    Query createQuery(Long projectId, Long projectTableId, QueryRequest request, Long createdByUserId);
+    Query createQuery(UUID projectId, UUID projectTableId, QueryRequest request, UUID createdByUserId);
 
-    void deleteQuery(Long projectId, Long queryId);
+    void deleteQuery(UUID projectId, UUID queryId);
 
-    List<Query> getQueriesForTable(Long projectId, Long projectTableId);
+    List<Query> getQueriesForTable(UUID projectId, UUID projectTableId);
 
-    List<Map<String, Object>> runQuery(Long projectId, Long queryId);
+    List<Map<String, Object>> runQuery(UUID projectId, UUID queryId);
 
-    long countQueryMatches(Long projectId, Long queryId);
+    long countQueryMatches(UUID projectId, UUID queryId);
 }

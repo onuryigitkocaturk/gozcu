@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -48,7 +49,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(Long id, UpdateUserRequest request) {
+    public User updateUser(UUID id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
 
@@ -68,7 +69,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void deleteUser(Long id) {
+    public void deleteUser(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
 
@@ -87,7 +88,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User changeRole(Long id, ChangeRoleRequest request) {
+    public User changeRole(UUID id, ChangeRoleRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
 

@@ -7,26 +7,27 @@ import com.onuryigitkocaturk.query_monitor.model.User;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public interface ProjectService {
 
     Project createProject(ProjectRequest request);
 
-    void deleteProject(Long id);
+    void deleteProject(UUID id);
 
     List<Project> getAllProjects();
 
-    List<Project> getProjectsForUser(Long userId);
+    List<Project> getProjectsForUser(UUID userId);
 
-    void addUserToProject(Long projectId, Long userId);
+    void addUserToProject(UUID projectId, UUID userId);
 
-    void removeUserFromProject(Long projectId, Long userId);
+    void removeUserFromProject(UUID projectId, UUID userId);
 
-    List<User> getProjectUsers(Long projectId);
+    List<User> getProjectUsers(UUID projectId);
 
-    void addTableToProject(Long projectId, String tableName);
+    void addTableToProject(UUID projectId, String tableName);
 
-    List<ProjectTable> getProjectTables(Long projectId);
+    List<ProjectTable> getProjectTables(UUID projectId);
 
-    List<Map<String, Object>> getTableData(Long projectId, String tableName);
+    List<Map<String, Object>> getTableData(UUID projectId, String tableName);
 }

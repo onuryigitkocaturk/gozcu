@@ -6,16 +6,17 @@ import com.onuryigitkocaturk.query_monitor.model.Alert;
 import com.onuryigitkocaturk.query_monitor.model.AlertLog;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface AlertService {
 
-    Alert createAlert(Long projectId, Long queryId, AlertRequest request);
+    Alert createAlert(UUID projectId, UUID queryId, AlertRequest request);
 
-    void deleteAlert(Long projectId, Long alertId);
+    void deleteAlert(UUID projectId, UUID alertId);
 
-    List<Alert> getAlertsForQuery(Long projectId, Long queryId);
+    List<Alert> getAlertsForQuery(UUID projectId, UUID queryId);
 
-    AlertEvaluationResult evaluateAlert(Long projectId, Long alertId);
+    AlertEvaluationResult evaluateAlert(UUID projectId, UUID alertId);
 
-    List<AlertLog> getLogsForAlert(Long projectId, Long alertId);
+    List<AlertLog> getLogsForAlert(UUID projectId, UUID alertId);
 }

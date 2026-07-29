@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -52,25 +53,25 @@ public class GroupController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGroup(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteGroup(@PathVariable UUID id) {
         groupService.deleteGroup(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{groupId}/users/{userId}")
-    public ResponseEntity<Void> addUserToGroup(@PathVariable Long groupId, @PathVariable Long userId) {
+    public ResponseEntity<Void> addUserToGroup(@PathVariable UUID groupId, @PathVariable UUID userId) {
         groupService.addUserToGroup(groupId, userId);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{groupId}/users/{userId}")
-    public ResponseEntity<Void> removeUserFromGroup(@PathVariable Long groupId, @PathVariable Long userId) {
+    public ResponseEntity<Void> removeUserFromGroup(@PathVariable UUID groupId, @PathVariable UUID userId) {
         groupService.removeUserFromGroup(groupId, userId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{groupId}/users")
-    public ResponseEntity<List<UserResponse>> getGroupUsers(@PathVariable Long groupId) {
+    public ResponseEntity<List<UserResponse>> getGroupUsers(@PathVariable UUID groupId) {
         List<UserResponse> response = groupService.getGroupUsers(groupId).stream()
                 .map(userMapper::toResponse)
                 .collect(Collectors.toList());

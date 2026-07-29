@@ -6,16 +6,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.UUID;
 
-public interface AlertRepository extends JpaRepository<Alert, Long> {
+public interface AlertRepository extends JpaRepository<Alert, UUID> {
 
     @Query("SELECT a FROM Alert a JOIN FETCH a.query q JOIN FETCH q.projectTable " +
             "JOIN FETCH a.project JOIN FETCH a.group WHERE a.query.id = :queryId")
-    List<Alert> findByQueryId(@Param("queryId") Long queryId);
+    List<Alert> findByQueryId(@Param("queryId") UUID queryId);
 
-    List<Alert> findByProjectId(Long projectId);
+    List<Alert> findByProjectId(UUID projectId);
 
-    List<Alert> findByGroupId(Long groupId);
+    List<Alert> findByGroupId(UUID groupId);
 
     List<Alert> findByActiveTrue();
 }

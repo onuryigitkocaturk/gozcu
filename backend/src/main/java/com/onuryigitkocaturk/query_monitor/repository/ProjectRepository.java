@@ -5,12 +5,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface ProjectRepository extends JpaRepository<Project, Long> {
+public interface ProjectRepository extends JpaRepository<Project, UUID> {
 
     Optional<Project> findByName(String name);
 
     boolean existsByName(String name);
 
-    List<Project> findByUsers_Id(Long userId);
+    List<Project> findByUsers_Id(UUID userId);
 }

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -38,8 +39,8 @@ public class QueryController {
 
     @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
     @PostMapping
-    public ResponseEntity<QueryResponse> createQuery(@PathVariable Long projectId,
-                                                       @PathVariable Long tableId,
+    public ResponseEntity<QueryResponse> createQuery(@PathVariable UUID projectId,
+                                                       @PathVariable UUID tableId,
                                                        @Valid @RequestBody QueryRequest request,
                                                        @AuthenticationPrincipal UserDetailsImpl principal) {
         Query query = queryService.createQuery(projectId, tableId, request, principal.getId());
@@ -48,8 +49,8 @@ public class QueryController {
 
     @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
     @GetMapping
-    public ResponseEntity<List<QueryResponse>> getQueries(@PathVariable Long projectId,
-                                                            @PathVariable Long tableId) {
+    public ResponseEntity<List<QueryResponse>> getQueries(@PathVariable UUID projectId,
+                                                            @PathVariable UUID tableId) {
         List<Query> queries = queryService.getQueriesForTable(projectId, tableId);
         List<QueryResponse> response = queries.stream()
                 .map(queryMapper::toResponse)
@@ -58,26 +59,26 @@ public class QueryController {
     }
 
     @DeleteMapping("/{queryId}")
-    public ResponseEntity<Void> deleteQuery(@PathVariable Long projectId,
-                                              @PathVariable Long tableId,
-                                              @PathVariable Long queryId) {
+    public ResponseEntity<Void> deleteQuery(@PathVariable UUID projectId,
+                                              @PathVariable UUID tableId,
+                                              @PathVariable UUID queryId) {
         queryService.deleteQuery(projectId, queryId);
         return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
     @GetMapping("/{queryId}/run")
-    public ResponseEntity<List<Map<String, Object>>> runQuery(@PathVariable Long projectId,
-                                                                @PathVariable Long tableId,
-                                                                @PathVariable Long queryId) {
+    public ResponseEntity<List<Map<String, Object>>> runQuery(@PathVariable UUID projectId,
+                                                                @PathVariable UUID tableId,
+                                                                @PathVariable UUID queryId) {
         return ResponseEntity.ok(queryService.runQuery(projectId, queryId));
     }
 
     @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
     @GetMapping("/{queryId}/count")
-    public ResponseEntity<Map<String, Long>> countQueryMatches(@PathVariable Long projectId,
-                                                                  @PathVariable Long tableId,
-                                                                  @PathVariable Long queryId) {
+    public ResponseEntity<Map<String, Long>> countQueryMatches(@PathVariable UUID projectId,
+                                                                  @PathVariable UUID tableId,
+                                                                  @PathVariable UUID queryId) {
         return ResponseEntity.ok(Map.of("count", queryService.countQueryMatches(projectId, queryId)));
     }
 }

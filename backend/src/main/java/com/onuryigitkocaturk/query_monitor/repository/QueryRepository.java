@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * DIKKAT: model.Query (entity) ile Spring Data'nin @Query (JPQL) anotasyonu
@@ -13,14 +14,14 @@ import java.util.List;
  * (com.onuryigitkocaturk.query_monitor.model.Query) kullanıyoruz.
  */
 public interface QueryRepository
-        extends JpaRepository<com.onuryigitkocaturk.query_monitor.model.Query, Long> {
+        extends JpaRepository<com.onuryigitkocaturk.query_monitor.model.Query, UUID> {
 
-    List<com.onuryigitkocaturk.query_monitor.model.Query> findByProjectId(Long projectId);
+    List<com.onuryigitkocaturk.query_monitor.model.Query> findByProjectId(UUID projectId);
 
     List<com.onuryigitkocaturk.query_monitor.model.Query> findByActiveTrue();
 
     @Query("SELECT q FROM Query q JOIN FETCH q.project JOIN FETCH q.projectTable " +
             "LEFT JOIN FETCH q.createdBy WHERE q.projectTable.id = :projectTableId")
     List<com.onuryigitkocaturk.query_monitor.model.Query> findByProjectTableId(
-            @Param("projectTableId") Long projectTableId);
+            @Param("projectTableId") UUID projectTableId);
 }

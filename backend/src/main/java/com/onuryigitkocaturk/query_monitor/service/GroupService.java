@@ -5,18 +5,19 @@ import com.onuryigitkocaturk.query_monitor.model.Group;
 import com.onuryigitkocaturk.query_monitor.model.User;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface GroupService {
 
     Group createGroup(GroupRequest request);
 
-    void deleteGroup(Long id);
+    void deleteGroup(UUID id);
 
     List<Group> getAllGroups();
 
-    void addUserToGroup(Long groupId, Long userId);
+    void addUserToGroup(UUID groupId, UUID userId);
 
-    void removeUserFromGroup(Long groupId, Long userId);
+    void removeUserFromGroup(UUID groupId, UUID userId);
 
-    List<User> getGroupUsers(Long groupId);
+    List<User> getGroupUsers(UUID groupId);
 }

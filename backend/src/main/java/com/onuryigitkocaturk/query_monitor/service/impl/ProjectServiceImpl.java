@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -52,7 +53,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
-    public void deleteProject(Long id) {
+    public void deleteProject(UUID id) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + id));
 
@@ -73,12 +74,12 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<Project> getProjectsForUser(Long userId) {
+    public List<Project> getProjectsForUser(UUID userId) {
         return projectRepository.findByUsers_Id(userId);
     }
 
     @Override
-    public void addUserToProject(Long projectId, Long userId) {
+    public void addUserToProject(UUID projectId, UUID userId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
         User user = userRepository.findById(userId)
@@ -89,7 +90,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void removeUserFromProject(Long projectId, Long userId) {
+    public void removeUserFromProject(UUID projectId, UUID userId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
         User user = userRepository.findById(userId)
@@ -100,14 +101,14 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<User> getProjectUsers(Long projectId) {
+    public List<User> getProjectUsers(UUID projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
         return new ArrayList<>(project.getUsers());
     }
 
     @Override
-    public void addTableToProject(Long projectId, String tableName) {
+    public void addTableToProject(UUID projectId, String tableName) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
 
@@ -125,7 +126,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<ProjectTable> getProjectTables(Long projectId) {
+    public List<ProjectTable> getProjectTables(UUID projectId) {
         if (!projectRepository.existsById(projectId)) {
             throw new ProjectNotFoundException("Project not found: " + projectId);
         }
@@ -133,7 +134,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<Map<String, Object>> getTableData(Long projectId, String tableName) {
+    public List<Map<String, Object>> getTableData(UUID projectId, String tableName) {
         if (!projectRepository.existsById(projectId)) {
             throw new ProjectNotFoundException("Project not found: " + projectId);
         }

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -51,21 +52,21 @@ UserManagementController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable UUID id, @Valid @RequestBody UpdateUserRequest request) {
         User user = userService.updateUser(id, request);
         return ResponseEntity.ok(userMapper.toResponse(user));
     }
 
     @PreAuthorize("hasRole('ADMIN') or #id == principal.id")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/role")
-    public ResponseEntity<UserResponse> changeRole(@PathVariable Long id, @Valid @RequestBody ChangeRoleRequest request) {
+    public ResponseEntity<UserResponse> changeRole(@PathVariable UUID id, @Valid @RequestBody ChangeRoleRequest request) {
         User user = userService.changeRole(id, request);
         return ResponseEntity.ok(userMapper.toResponse(user));
     }

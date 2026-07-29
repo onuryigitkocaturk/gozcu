@@ -6,6 +6,7 @@ import com.onuryigitkocaturk.query_monitor.dto.UpdateUserRequest;
 import com.onuryigitkocaturk.query_monitor.model.User;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface UserService {
 
@@ -13,11 +14,11 @@ public interface UserService {
 
     User getByUsername(String username);
 
-    User updateUser(Long id, UpdateUserRequest request);
+    User updateUser(UUID id, UpdateUserRequest request);
 
-    void deleteUser(Long id);
+    void deleteUser(UUID id);
 
     List<User> getAllUsers();
 
-    User changeRole(Long id, ChangeRoleRequest request);
+    User changeRole(UUID id, ChangeRoleRequest request);
 }

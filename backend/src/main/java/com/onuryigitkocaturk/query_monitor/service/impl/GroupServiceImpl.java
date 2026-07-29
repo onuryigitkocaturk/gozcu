@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class GroupServiceImpl implements GroupService {
@@ -39,7 +40,7 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional
-    public void deleteGroup(Long id) {
+    public void deleteGroup(UUID id) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new GroupNotFoundException("Group not found: " + id));
 
@@ -59,7 +60,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void addUserToGroup(Long groupId, Long userId) {
+    public void addUserToGroup(UUID groupId, UUID userId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException("Group not found: " + groupId));
         User user = userRepository.findById(userId)
@@ -70,7 +71,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void removeUserFromGroup(Long groupId, Long userId) {
+    public void removeUserFromGroup(UUID groupId, UUID userId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException("Group not found: " + groupId));
         User user = userRepository.findById(userId)
@@ -81,7 +82,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<User> getGroupUsers(Long groupId) {
+    public List<User> getGroupUsers(UUID groupId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException("Group not found: " + groupId));
         return new ArrayList<>(group.getUsers());
