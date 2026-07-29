@@ -32,7 +32,6 @@ export function RegisterPage() {
       <Card className="auth-card">
         <div className="auth-card__brand">
           <strong className="auth-card__brand-text">gözcü</strong>
-          <img src="/turksat_logotip_cmyk-01.png" alt="Türksat" className="brand-logo" />
         </div>
         <h1 className="auth-card__title">Hesap oluşturun</h1>
 
@@ -68,6 +67,10 @@ export function RegisterPage() {
 
         <div className="auth-card__footer">
           Zaten hesabınız var mı? <Link to="/login">Giriş yapın</Link>
+        </div>
+
+        <div className="auth-card__footer-logo">
+          <img src="/turksat_logotip_cmyk-01.png" alt="Türksat" />
         </div>
       </Card>
     </div>

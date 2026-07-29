@@ -31,7 +31,6 @@ export function LoginPage() {
       <Card className="auth-card">
         <div className="auth-card__brand">
           <strong className="auth-card__brand-text">gözcü</strong>
-          <img src="/turksat_logotip_cmyk-01.png" alt="Türksat" className="brand-logo" />
         </div>
         <h1 className="auth-card__title">Hoş Geldiniz!</h1>
         <p className="auth-card__subtitle">Devam etmek için giriş yapın.</p>
@@ -60,6 +59,10 @@ export function LoginPage() {
 
         <div className="auth-card__footer">
           Hesabınız yok mu? <Link to="/register">Kayıt olun</Link>
+        </div>
+
+        <div className="auth-card__footer-logo">
+          <img src="/turksat_logotip_cmyk-01.png" alt="Türksat" />
         </div>
       </Card>
     </div>

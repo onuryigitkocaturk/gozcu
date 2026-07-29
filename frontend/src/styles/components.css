@@ -604,6 +604,15 @@ table.data-table {
   color: var(--color-text-muted);
   text-align: center;
 }
+.auth-card__footer-logo {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+.auth-card__footer-logo img {
+  height: 32px;
+  width: auto;
+}
 
 /* ---------- Misc utility ---------- */
 .text-muted {
