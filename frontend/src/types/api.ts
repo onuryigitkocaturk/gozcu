@@ -124,6 +124,7 @@ export interface QueryResponse {
   tableName: string;
   definition: QueryNode;
   createdAt: string;
+  createdByUsername: string | null;
 }
 export interface CountResponse {
   count: number;
