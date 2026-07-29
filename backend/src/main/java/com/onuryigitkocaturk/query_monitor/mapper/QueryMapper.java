@@ -33,7 +33,8 @@ public class QueryMapper {
                 query.getProjectTable().getId(),
                 query.getProjectTable().getTableName(),
                 definition,
-                query.getCreatedAt()
+                query.getCreatedAt(),
+                query.getCreatedBy() != null ? query.getCreatedBy().getUsername() : null
         );
     }
 }

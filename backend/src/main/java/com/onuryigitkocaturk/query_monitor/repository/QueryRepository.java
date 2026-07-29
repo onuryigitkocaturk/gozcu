@@ -20,7 +20,7 @@ public interface QueryRepository
     List<com.onuryigitkocaturk.query_monitor.model.Query> findByActiveTrue();
 
     @Query("SELECT q FROM Query q JOIN FETCH q.project JOIN FETCH q.projectTable " +
-            "WHERE q.projectTable.id = :projectTableId")
+            "LEFT JOIN FETCH q.createdBy WHERE q.projectTable.id = :projectTableId")
     List<com.onuryigitkocaturk.query_monitor.model.Query> findByProjectTableId(
             @Param("projectTableId") Long projectTableId);
 }

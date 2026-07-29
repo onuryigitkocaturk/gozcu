@@ -8,7 +8,7 @@ import java.util.Map;
 
 public interface QueryService {
 
-    Query createQuery(Long projectId, Long projectTableId, QueryRequest request);
+    Query createQuery(Long projectId, Long projectTableId, QueryRequest request, Long createdByUserId);
 
     void deleteQuery(Long projectId, Long queryId);
 

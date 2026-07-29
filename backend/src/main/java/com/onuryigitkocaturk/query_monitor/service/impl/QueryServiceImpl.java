@@ -12,10 +12,12 @@ import com.onuryigitkocaturk.query_monitor.exception.TableNotFoundException;
 import com.onuryigitkocaturk.query_monitor.model.Project;
 import com.onuryigitkocaturk.query_monitor.model.ProjectTable;
 import com.onuryigitkocaturk.query_monitor.model.Query;
+import com.onuryigitkocaturk.query_monitor.model.User;
 import com.onuryigitkocaturk.query_monitor.querybuilder.QueryDefinitionValidator;
 import com.onuryigitkocaturk.query_monitor.repository.ProjectRepository;
 import com.onuryigitkocaturk.query_monitor.repository.ProjectTableRepository;
 import com.onuryigitkocaturk.query_monitor.repository.QueryRepository;
+import com.onuryigitkocaturk.query_monitor.repository.UserRepository;
 import com.onuryigitkocaturk.query_monitor.service.QueryService;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +30,7 @@ public class QueryServiceImpl implements QueryService {
     private final QueryRepository queryRepository;
     private final ProjectRepository projectRepository;
     private final ProjectTableRepository projectTableRepository;
+    private final UserRepository userRepository;
     private final TableMetadataService tableMetadataService;
     private final QueryDefinitionValidator queryDefinitionValidator;
     private final QueryExecutionService queryExecutionService;
@@ -36,6 +39,7 @@ public class QueryServiceImpl implements QueryService {
     public QueryServiceImpl(QueryRepository queryRepository,
                              ProjectRepository projectRepository,
                              ProjectTableRepository projectTableRepository,
+                             UserRepository userRepository,
                              TableMetadataService tableMetadataService,
                              QueryDefinitionValidator queryDefinitionValidator,
                              QueryExecutionService queryExecutionService,
@@ -43,6 +47,7 @@ public class QueryServiceImpl implements QueryService {
         this.queryRepository = queryRepository;
         this.projectRepository = projectRepository;
         this.projectTableRepository = projectTableRepository;
+        this.userRepository = userRepository;
         this.tableMetadataService = tableMetadataService;
         this.queryDefinitionValidator = queryDefinitionValidator;
         this.queryExecutionService = queryExecutionService;
@@ -50,7 +55,7 @@ public class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public Query createQuery(Long projectId, Long projectTableId, QueryRequest request) {
+    public Query createQuery(Long projectId, Long projectTableId, QueryRequest request, Long createdByUserId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
 
@@ -68,6 +73,7 @@ public class QueryServiceImpl implements QueryService {
 
         Query query = new Query(request.getName(), definitionJson, request.getFrequency(), project, projectTable);
         query.setActive(true);
+        userRepository.findById(createdByUserId).ifPresent(query::setCreatedBy);
         return queryRepository.save(query);
     }
 

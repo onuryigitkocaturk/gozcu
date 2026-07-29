@@ -63,6 +63,14 @@ public class Query {
     @JoinColumn(name = "project_table_id", nullable = false)
     private ProjectTable projectTable;
 
+    /**
+     * Bu query'yi kim olusturdu. nullable - bu alan eklenmeden once
+     * olusturulmus eski kayitlarda bos olabilir.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_user_id")
+    private User createdBy;
+
     @OneToMany(mappedBy = "query", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Alert> alerts = new ArrayList<>();
 
@@ -135,6 +143,14 @@ public class Query {
 
     public void setProjectTable(ProjectTable projectTable) {
         this.projectTable = projectTable;
+    }
+
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
     }
 
     public List<Alert> getAlerts() {

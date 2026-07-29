@@ -16,13 +16,14 @@ public class QueryResponse {
     private String tableName;
     private QueryNode definition;
     private LocalDateTime createdAt;
+    private String createdByUsername;
 
     public QueryResponse() {
     }
 
     public QueryResponse(Long id, String name, Frequency frequency, boolean active,
                           Long projectId, Long projectTableId, String tableName,
-                          QueryNode definition, LocalDateTime createdAt) {
+                          QueryNode definition, LocalDateTime createdAt, String createdByUsername) {
         this.id = id;
         this.name = name;
         this.frequency = frequency;
@@ -32,6 +33,7 @@ public class QueryResponse {
         this.tableName = tableName;
         this.definition = definition;
         this.createdAt = createdAt;
+        this.createdByUsername = createdByUsername;
     }
 
     public Long getId() {
@@ -104,5 +106,13 @@ public class QueryResponse {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getCreatedByUsername() {
+        return createdByUsername;
+    }
+
+    public void setCreatedByUsername(String createdByUsername) {
+        this.createdByUsername = createdByUsername;
     }
 }

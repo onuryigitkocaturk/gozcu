@@ -4,11 +4,13 @@ import com.onuryigitkocaturk.query_monitor.dto.QueryRequest;
 import com.onuryigitkocaturk.query_monitor.dto.QueryResponse;
 import com.onuryigitkocaturk.query_monitor.mapper.QueryMapper;
 import com.onuryigitkocaturk.query_monitor.model.Query;
+import com.onuryigitkocaturk.query_monitor.security.UserDetailsImpl;
 import com.onuryigitkocaturk.query_monitor.service.QueryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,8 +40,9 @@ public class QueryController {
     @PostMapping
     public ResponseEntity<QueryResponse> createQuery(@PathVariable Long projectId,
                                                        @PathVariable Long tableId,
-                                                       @Valid @RequestBody QueryRequest request) {
-        Query query = queryService.createQuery(projectId, tableId, request);
+                                                       @Valid @RequestBody QueryRequest request,
+                                                       @AuthenticationPrincipal UserDetailsImpl principal) {
+        Query query = queryService.createQuery(projectId, tableId, request, principal.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(queryMapper.toResponse(query));
     }
 
