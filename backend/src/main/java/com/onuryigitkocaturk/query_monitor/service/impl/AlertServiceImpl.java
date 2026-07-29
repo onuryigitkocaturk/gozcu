@@ -65,16 +65,16 @@ public class AlertServiceImpl implements AlertService {
     @Override
     public Alert createAlert(UUID projectId, UUID queryId, AlertRequest request) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
+                .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + projectId));
 
         com.onuryigitkocaturk.query_monitor.model.Query query = queryRepository.findById(queryId)
-                .orElseThrow(() -> new QueryNotFoundException("Query not found: " + queryId));
+                .orElseThrow(() -> new QueryNotFoundException("Sorgu bulunamadı: " + queryId));
         if (!query.getProject().getId().equals(projectId)) {
-            throw new QueryNotFoundException("Query not found: " + queryId);
+            throw new QueryNotFoundException("Sorgu bulunamadı: " + queryId);
         }
 
         Group group = groupRepository.findById(request.getGroupId())
-                .orElseThrow(() -> new GroupNotFoundException("Group not found: " + request.getGroupId()));
+                .orElseThrow(() -> new GroupNotFoundException("Grup bulunamadı: " + request.getGroupId()));
 
         validateCondition(request.getCondition());
 
@@ -82,7 +82,7 @@ public class AlertServiceImpl implements AlertService {
         try {
             conditionJson = objectMapper.writeValueAsString(request.getCondition());
         } catch (JsonProcessingException e) {
-            throw new InvalidAlertConditionException("Alert condition could not be processed");
+            throw new InvalidAlertConditionException("Alert koşulu işlenemedi");
         }
 
         Alert alert = new Alert(conditionJson, query, project, group);
@@ -98,9 +98,9 @@ public class AlertServiceImpl implements AlertService {
     @Override
     public List<Alert> getAlertsForQuery(UUID projectId, UUID queryId) {
         com.onuryigitkocaturk.query_monitor.model.Query query = queryRepository.findById(queryId)
-                .orElseThrow(() -> new QueryNotFoundException("Query not found: " + queryId));
+                .orElseThrow(() -> new QueryNotFoundException("Sorgu bulunamadı: " + queryId));
         if (!query.getProject().getId().equals(projectId)) {
-            throw new QueryNotFoundException("Query not found: " + queryId);
+            throw new QueryNotFoundException("Sorgu bulunamadı: " + queryId);
         }
         return alertRepository.findByQueryId(queryId);
     }
@@ -123,16 +123,16 @@ public class AlertServiceImpl implements AlertService {
     private void validateCondition(AlertConditionValue condition) {
         if (!ALLOWED_ALERT_OPERATORS.contains(condition.getOperator())) {
             throw new InvalidAlertConditionException(
-                    "Unsupported operator for alert condition: " + condition.getOperator());
+                    "Alert koşulu için desteklenmeyen işleç: " + condition.getOperator());
         }
     }
 
     private Alert getValidatedAlert(UUID projectId, UUID alertId) {
         Alert alert = alertRepository.findById(alertId)
-                .orElseThrow(() -> new AlertNotFoundException("Alert not found: " + alertId));
+                .orElseThrow(() -> new AlertNotFoundException("Alert bulunamadı: " + alertId));
 
         if (!alert.getProject().getId().equals(projectId)) {
-            throw new AlertNotFoundException("Alert not found: " + alertId);
+            throw new AlertNotFoundException("Alert bulunamadı: " + alertId);
         }
 
         return alert;

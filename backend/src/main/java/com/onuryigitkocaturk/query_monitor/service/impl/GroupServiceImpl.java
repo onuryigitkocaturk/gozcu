@@ -31,7 +31,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Group createGroup(GroupRequest request) {
         if (groupRepository.existsByName(request.getName())) {
-            throw new DuplicateGroupException("Group already exists: " + request.getName());
+            throw new DuplicateGroupException("Grup zaten mevcut: " + request.getName());
         }
 
         Group group = new Group(request.getName(), request.getDescription());
@@ -42,7 +42,7 @@ public class GroupServiceImpl implements GroupService {
     @Transactional
     public void deleteGroup(UUID id) {
         Group group = groupRepository.findById(id)
-                .orElseThrow(() -> new GroupNotFoundException("Group not found: " + id));
+                .orElseThrow(() -> new GroupNotFoundException("Grup bulunamadı: " + id));
 
         // owning side User; grubu direkt silmeden önce üyelerin
         // koleksiyonundan çıkarmazsak user_group'ta FK ihlali olur.
@@ -62,9 +62,9 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public void addUserToGroup(UUID groupId, UUID userId) {
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupNotFoundException("Group not found: " + groupId));
+                .orElseThrow(() -> new GroupNotFoundException("Grup bulunamadı: " + groupId));
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı: " + userId));
 
         user.getGroups().add(group);
         userRepository.save(user);
@@ -73,9 +73,9 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public void removeUserFromGroup(UUID groupId, UUID userId) {
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupNotFoundException("Group not found: " + groupId));
+                .orElseThrow(() -> new GroupNotFoundException("Grup bulunamadı: " + groupId));
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı: " + userId));
 
         user.getGroups().remove(group);
         userRepository.save(user);
@@ -84,7 +84,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public List<User> getGroupUsers(UUID groupId) {
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupNotFoundException("Group not found: " + groupId));
+                .orElseThrow(() -> new GroupNotFoundException("Grup bulunamadı: " + groupId));
         return new ArrayList<>(group.getUsers());
     }
 }

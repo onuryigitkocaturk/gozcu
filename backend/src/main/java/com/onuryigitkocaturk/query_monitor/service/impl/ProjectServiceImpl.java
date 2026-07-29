@@ -44,7 +44,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Project createProject(ProjectRequest request) {
         if (projectRepository.existsByName(request.getName())) {
-            throw new DuplicateProjectException("Project already exists: " + request.getName());
+            throw new DuplicateProjectException("Proje zaten mevcut: " + request.getName());
         }
 
         Project project = new Project(request.getName(), request.getDescription());
@@ -55,7 +55,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     public void deleteProject(UUID id) {
         Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + id));
+                .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + id));
 
         // owning side User; projeyi direkt silmeden önce üyelerin
         // koleksiyonundan çıkarmazsak user_project'te FK ihlali olur.
@@ -81,9 +81,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void addUserToProject(UUID projectId, UUID userId) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
+                .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + projectId));
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı: " + userId));
 
         user.getProjects().add(project);
         userRepository.save(user);
@@ -92,9 +92,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void removeUserFromProject(UUID projectId, UUID userId) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
+                .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + projectId));
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı: " + userId));
 
         user.getProjects().remove(project);
         userRepository.save(user);
@@ -103,22 +103,22 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public List<User> getProjectUsers(UUID projectId) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
+                .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + projectId));
         return new ArrayList<>(project.getUsers());
     }
 
     @Override
     public void addTableToProject(UUID projectId, String tableName) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
+                .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + projectId));
 
         if (!tableMetadataService.listTables().contains(tableName)) {
-            throw new TableNotFoundException("Table not found in monitored database: " + tableName);
+            throw new TableNotFoundException("İzlenen veritabanında tablo bulunamadı: " + tableName);
         }
 
         if (projectTableRepository.existsByProjectIdAndTableName(projectId, tableName)) {
             throw new DuplicateProjectTableException(
-                    "Table already added to this project: " + tableName);
+                    "Bu tablo zaten bu projeye eklenmiş: " + tableName);
         }
 
         ProjectTable projectTable = new ProjectTable(tableName, project);
@@ -128,7 +128,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public List<ProjectTable> getProjectTables(UUID projectId) {
         if (!projectRepository.existsById(projectId)) {
-            throw new ProjectNotFoundException("Project not found: " + projectId);
+            throw new ProjectNotFoundException("Proje bulunamadı: " + projectId);
         }
         return projectTableRepository.findByProjectId(projectId);
     }
@@ -136,14 +136,14 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public List<Map<String, Object>> getTableData(UUID projectId, String tableName) {
         if (!projectRepository.existsById(projectId)) {
-            throw new ProjectNotFoundException("Project not found: " + projectId);
+            throw new ProjectNotFoundException("Proje bulunamadı: " + projectId);
         }
 
         // whitelist kontrolu: tableName SQL'e concat edilmeden once, bu tablonun
         // gercekten bu projeye bagli oldugu dogrulanmali (SQL injection riski).
         if (!projectTableRepository.existsByProjectIdAndTableName(projectId, tableName)) {
             throw new TableNotFoundException(
-                    "Table not linked to this project: " + tableName);
+                    "Bu tablo bu projeye bağlı değil: " + tableName);
         }
 
         return tableMetadataService.getTableData(tableName);

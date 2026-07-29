@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid username or password");
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Geçersiz kullanıcı adı veya şifre");
     }
 
     @ExceptionHandler(DuplicateProjectException.class)
@@ -84,13 +84,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         return buildResponse(HttpStatus.CONFLICT,
-                "This record cannot be deleted because other records still depend on it");
+                "Bu kayıt silinemez çünkü başka kayıtlar hâlâ buna bağlı");
     }
 
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorResponse> handleDataAccessException(DataAccessException ex) {
         return buildResponse(HttpStatus.BAD_REQUEST,
-                "Query could not be executed, this usually means a value type mismatch (e.g. comparing a text column to a number)");
+                "Sorgu çalıştırılamadı, bu genellikle bir değer tipi uyuşmazlığı anlamına gelir (örn. metin bir kolonu sayı ile karşılaştırmak)");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

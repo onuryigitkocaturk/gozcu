@@ -58,7 +58,7 @@ public class QueryServiceImpl implements QueryService {
     @Override
     public Query createQuery(UUID projectId, UUID projectTableId, QueryRequest request, UUID createdByUserId) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
+                .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + projectId));
 
         ProjectTable projectTable = getValidatedProjectTable(projectId, projectTableId);
 
@@ -69,7 +69,7 @@ public class QueryServiceImpl implements QueryService {
         try {
             definitionJson = objectMapper.writeValueAsString(request.getDefinition());
         } catch (JsonProcessingException e) {
-            throw new InvalidQueryDefinitionException("Query definition could not be processed");
+            throw new InvalidQueryDefinitionException("Sorgu tanımı işlenemedi");
         }
 
         Query query = new Query(request.getName(), definitionJson, request.getFrequency(), project, projectTable);
@@ -105,10 +105,10 @@ public class QueryServiceImpl implements QueryService {
 
     private Query getValidatedQuery(UUID projectId, UUID queryId) {
         Query query = queryRepository.findById(queryId)
-                .orElseThrow(() -> new QueryNotFoundException("Query not found: " + queryId));
+                .orElseThrow(() -> new QueryNotFoundException("Sorgu bulunamadı: " + queryId));
 
         if (!query.getProject().getId().equals(projectId)) {
-            throw new QueryNotFoundException("Query not found: " + queryId);
+            throw new QueryNotFoundException("Sorgu bulunamadı: " + queryId);
         }
 
         return query;
@@ -116,14 +116,14 @@ public class QueryServiceImpl implements QueryService {
 
     private ProjectTable getValidatedProjectTable(UUID projectId, UUID projectTableId) {
         if (!projectRepository.existsById(projectId)) {
-            throw new ProjectNotFoundException("Project not found: " + projectId);
+            throw new ProjectNotFoundException("Proje bulunamadı: " + projectId);
         }
 
         ProjectTable projectTable = projectTableRepository.findById(projectTableId)
-                .orElseThrow(() -> new TableNotFoundException("Project table not found: " + projectTableId));
+                .orElseThrow(() -> new TableNotFoundException("Proje tablosu bulunamadı: " + projectTableId));
 
         if (!projectTable.getProject().getId().equals(projectId)) {
-            throw new TableNotFoundException("This table does not belong to the given project");
+            throw new TableNotFoundException("Bu tablo verilen projeye ait değil");
         }
 
         return projectTable;

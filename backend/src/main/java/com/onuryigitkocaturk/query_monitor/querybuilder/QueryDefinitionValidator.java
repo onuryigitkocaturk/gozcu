@@ -30,7 +30,7 @@ public class QueryDefinitionValidator {
 
     private void validateCondition(ConditionNode condition, List<String> validColumns) {
         if (!validColumns.contains(condition.getField())) {
-            throw new InvalidQueryDefinitionException("Unknown column: " + condition.getField());
+            throw new InvalidQueryDefinitionException("Bilinmeyen kolon: " + condition.getField());
         }
 
         boolean requiresValue = condition.getOperator() != ConditionOperator.IS_NULL
@@ -38,8 +38,8 @@ public class QueryDefinitionValidator {
 
         if (requiresValue && condition.getValue() == null) {
             throw new InvalidQueryDefinitionException(
-                    "Value required for operator " + condition.getOperator()
-                            + " on field " + condition.getField());
+                    condition.getField() + " alanındaki " + condition.getOperator()
+                            + " işleci için bir değer girilmeli");
         }
     }
 }

@@ -30,10 +30,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public User register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new DuplicateUserException("Username already exists: " + request.getUsername());
+            throw new DuplicateUserException("Kullanıcı adı zaten kullanılıyor: " + request.getUsername());
         }
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateUserException("Email already exists: " + request.getEmail());
+            throw new DuplicateUserException("E-posta zaten kullanılıyor: " + request.getEmail());
         }
 
         String hashedPassword = passwordEncoder.encode(request.getPassword());
@@ -45,21 +45,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + username));
+                .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı: " + username));
     }
 
     @Override
     public User updateUser(UUID id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+                .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı: " + id));
 
         if (!user.getUsername().equals(request.getUsername())
                 && userRepository.existsByUsername(request.getUsername())) {
-            throw new DuplicateUserException("Username already exists: " + request.getUsername());
+            throw new DuplicateUserException("Kullanıcı adı zaten kullanılıyor: " + request.getUsername());
         }
         if (!user.getEmail().equals(request.getEmail())
                 && userRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateUserException("Email already exists: " + request.getEmail());
+            throw new DuplicateUserException("E-posta zaten kullanılıyor: " + request.getEmail());
         }
 
         user.setUsername(request.getUsername());
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void deleteUser(UUID id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+                .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı: " + id));
 
         // owning side User üzerinden temizlemezsek, user_group/user_project
         // junction tablosundaki satırlar FK ihlaline yol açar.
@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User changeRole(UUID id, ChangeRoleRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+                .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı: " + id));
 
         user.setRole(request.getRole());
         return userRepository.save(user);
