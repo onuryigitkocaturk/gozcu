@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+// benim User entity'mi Spring Security'nin anladığı UserDetails arayüzüne saran bir adapter.
+// içinde gerçek User nesnesini tutar, dışarıya Spring Security'nin istediği metodları verir.
 public class UserDetailsImpl implements UserDetails {
 
     private final User user;

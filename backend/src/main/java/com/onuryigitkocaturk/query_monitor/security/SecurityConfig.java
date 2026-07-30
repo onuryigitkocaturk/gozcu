@@ -10,15 +10,20 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+// @EnableMethodSecurity, @PreAuthorize gibi anotasyonların controller'da çalışmasını sağlar.
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    // klasik constructor injection
     private final JwtAuthFilter jwtAuthFilter;
 
     public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
     }
 
+    // bu bean HttpSecurity nesnesini alıp, üstünde ayar yapıp hepsini tek bir SecurityFilterChain yapıp
+    // Spring'e bean olarak teslim ediyor.
+    // SecurityFilterChain gelen her HTTP isteğinin üzerinden geçmek zorunda olduğu filtreler bütünü
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
