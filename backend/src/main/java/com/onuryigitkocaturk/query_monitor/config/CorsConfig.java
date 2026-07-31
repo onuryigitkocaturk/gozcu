@@ -14,6 +14,11 @@ import java.util.List;
  * olarak engeller (CORS). Bu config, sadece bilinen local gelistirme
  * origin'lerine izin verir.
  */
+
+/**
+ * Origin = protokol + domain + port
+ * CORS = Cross Origin Resource Sharing
+ */
 @Configuration
 public class CorsConfig {
 

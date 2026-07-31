@@ -17,14 +17,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class AlertEvaluationService {
 
-    private final QueryExecutionService queryExecutionService;
-    private final ObjectMapper objectMapper;
+    private final QueryExecutionService queryExecutionService; // izlenen veritabanına karşı gerçek sql sorguları çalıştıran servis
+    private final ObjectMapper objectMapper; // jackson'a ait json -> java sınıfı çeviricisi
 
     public AlertEvaluationService(QueryExecutionService queryExecutionService, ObjectMapper objectMapper) {
         this.queryExecutionService = queryExecutionService;
         this.objectMapper = objectMapper;
     }
-
+    // dışarıya açılan fonksiyon, alert'i değerlendirip sonucu döndürür.
+    // parametreler: hangi tabloya bakılacak, query'nin filtresi, alert'in koşulu
+    // manuel değerlendir butonu ve AlertSchedular bu fonksiyonu kullanıyor.
     public AlertEvaluationResult evaluate(String tableName, String queryDefinitionJson, String conditionExpressionJson) {
         long matchCount = queryExecutionService.countMatches(tableName, queryDefinitionJson);
         AlertConditionValue condition = parseCondition(conditionExpressionJson);
@@ -32,6 +34,7 @@ public class AlertEvaluationService {
         return new AlertEvaluationResult(triggered, matchCount);
     }
 
+    // JSON stringi kullanılabilir bir AlertConditionValue nesnesine çevirir -> deserialization?
     private AlertConditionValue parseCondition(String conditionExpressionJson) {
         try {
             return objectMapper.readValue(conditionExpressionJson, AlertConditionValue.class);
@@ -40,6 +43,7 @@ public class AlertEvaluationService {
         }
     }
 
+    // matchCount'u operatöre göre threshold ile kıyaslar
     private boolean compare(long matchCount, ConditionOperator operator, long threshold) {
         return switch (operator) {
             case EQUALS -> matchCount == threshold;

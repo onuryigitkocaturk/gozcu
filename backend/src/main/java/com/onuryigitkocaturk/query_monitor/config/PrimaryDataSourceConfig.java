@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
 
+// ikinci data source bean'i ekleyince spring otomatik olarak data source oluşturmayı bıraktı
+// bu yüzden uygulamanın kendi DB'sine bağlanacak asıl data source'u @Primary olarak işaretledik.
 @Configuration
 public class PrimaryDataSourceConfig {
 

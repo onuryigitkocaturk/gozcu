@@ -12,12 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Kayitli bir Query'nin definitionJson'ini gercekten monitored_db'ye karsi
- * calistirir. tableName ve definitionJson bilerek entity yerine ham
- * parametre olarak aliniyor - connector paketi JPA/entity'lerden tamamen
- * bagimsiz kalmali (CLAUDE.md kurali).
- */
+// JSON'daki koşulu SQL'e çevirip izlenen tabloda çalıştırıyor: executeQuery satırları,
+// countMatches kaç satır eşleştiğini döndürüyor.
 @Service
 public class QueryExecutionService {
 

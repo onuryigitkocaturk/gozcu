@@ -9,6 +9,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
 
+// monitored_db'ye bağlanan ayrı bir DataSource + JdbcTemplate bean'i kuruyor, ana uygulama DB'sinden bağımsız.
 @Configuration
 public class MonitoredDataSourceConfig {
 

@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
+// information_schema üzerinden tablo/kolon listeler ve bir tablonun tüm verisini döndürür;
+// tableName whitelist ile önceden doğrulanmazsa SQL injection riski taşır.
 @Service
 public class TableMetadataService {
 
@@ -28,12 +30,6 @@ public class TableMetadataService {
         return monitoredJdbcTemplate.queryForList(sql, String.class, tableName);
     }
 
-    /**
-     * tableName burada bir SQL parametresi degil, bir identifier oldugu icin
-     * '?' ile baglanamaz. Bu yuzden cagiran taraf, tableName'in gercekten
-     * whitelist'te (ProjectTable) oldugunu bu metod cagrilmadan ONCE dogrulamak
-     * zorundadir - aksi halde SQL injection riski olusur.
-     */
     public List<Map<String, Object>> getTableData(String tableName) {
         String sql = "SELECT * FROM " + tableName;
         return monitoredJdbcTemplate.queryForList(sql);
