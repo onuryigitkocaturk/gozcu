@@ -9,12 +9,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/**
- * Surukle-birak agacini (QueryNode) recursive olarak dolasip iki seyi
- * dogrular: (1) her ConditionNode.field, hedef tablonun GERCEK bir kolonu mu
- * (whitelist - SQL'e eklenmeden once burada durdurulmali), (2) operator ile
- * value tutarli mi (orn. IS_NULL bir value ISTEMEZ, GREATER_THAN ISTER).
- */
+// bir query kaydedilmeden önce çalışan güvenlik kontrolüdür.
+// sürükle-bırak ağacını recursive gezip iki şeyi doğruluyor:
+// 1: her field'ın gerçek bir kolon olduğu
+// 2: operator/value uyumu.
+
 @Component
 public class QueryDefinitionValidator {
 

@@ -4,6 +4,10 @@ import com.onuryigitkocaturk.query_monitor.enums.RelativeDateDirection;
 import com.onuryigitkocaturk.query_monitor.enums.RelativeDateUnit;
 import jakarta.validation.constraints.NotNull;
 
+// sabit bir tarih yerine, şu andan itibaren 40 gün sonra tarzı sorgular için
+// her QuerySqlBuişder çalıştığında o anki 'şimdi' ye göre tekrar hesaplanır.
+// implements ConditionValue sayesinde Jackson, JSON'da "kind": "RELATIVE_DATE"
+// gördüğünde bu sınıfı üretiyor.
 public class RelativeDateValue implements ConditionValue {
 
     @NotNull

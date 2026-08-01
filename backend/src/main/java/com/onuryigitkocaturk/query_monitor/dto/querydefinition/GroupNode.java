@@ -7,19 +7,21 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-/**
- * VE/VEYA ile birlestirilmis alt dugumler (GroupNode ya da ConditionNode
- * olabilir) - ic ice gruplamayi bu sekilde destekliyoruz.
- */
+// QueryNode interface'ini implement ederek QueryNode tipinde beklenen her yere koyabileceğimizi garanti ettik.
+// ve/veya ile birleştirilmiş alt düğümleri tutuyor.
 public class GroupNode implements QueryNode {
 
+    // bu grubun altındaki tüm childerenın birbirine nasıl bağlandığını
+    // belirtiyor.
     @NotNull
     private LogicOperator logic;
 
-    @NotEmpty
-    @Valid
+    @NotEmpty // boş bir grup anlamsız.
+    @Valid // listenin içindeki her elemanı kendi validasyon kurallarına
+            // göre kontrol et. recursive validation sağlar.
     private List<QueryNode> children;
 
+    // bu boş constructor Jackson'ın JSON'dan nesne üretebilmesi için.
     public GroupNode() {
     }
 

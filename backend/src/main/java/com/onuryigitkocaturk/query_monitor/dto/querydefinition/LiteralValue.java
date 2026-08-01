@@ -2,6 +2,9 @@ package com.onuryigitkocaturk.query_monitor.dto.querydefinition;
 
 import jakarta.validation.constraints.NotNull;
 
+// sabit bir değeri sarmalayan en basit sınıf
+// value bilinçli olarak object, kolon tipi derleme zamanında bilinmiyor.
+// jackson JSON'da "kind" : "LITERAL"  gördüğü anda bu sınıfı üretiyor.
 public class LiteralValue implements ConditionValue {
 
     @NotNull

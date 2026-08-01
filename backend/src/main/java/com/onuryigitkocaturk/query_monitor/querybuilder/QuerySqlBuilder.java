@@ -17,18 +17,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * QueryNode agacini (surukle-birak JSON'unun Java karsiligi) parametreli bir
- * SQL WHERE kosuluna cevirir. Kolon isimleri (field) cagiran taraf tarafindan
- * ONCEDEN whitelist kontrolunden gecirilmis olmalidir (bkz.
- * QueryDefinitionValidator) - burada tekrar dogrulanmaz, cunku bu sinif
- * sadece SAKLANMIS (daha once olusturma anida dogrulanmis) tanimlar
- * uzerinde calisir. Degerler HICBIR ZAMAN SQL'e concat edilmez, hep '?' ile
- * baglanir.
- */
+// doğrulanmış QueryNode ağacını, gerçek parametreli bir SQL WHERE sorugusuna
+// çevirir. burada herhangi bir doğrulama yok, zaten QueryDefinitionValidator
+// kısmında doğruladık. değerler ASLA string concat ile değil, ? ile bağlandı
+// burada sql injection'a önlem aldım.
+
+// build() -> düğüm tipine göre dallan -> grup ise çocukları recursive birleştir
+// koşul ise tek bir "field OP ?" parçası üret -> hepsini tek bir SqlFragment
+// olarak yukarı toplanıp döner.
 @Component
 public class QuerySqlBuilder {
 
+    // gelen node GroupNode mu ConditionNode mu diye bakıp yönlendiriyor.
     public SqlFragment build(QueryNode node) {
         if (node instanceof GroupNode group) {
             return buildGroup(group);
@@ -39,6 +39,7 @@ public class QuerySqlBuilder {
         throw new IllegalStateException("Unknown query node type: " + node.getClass());
     }
 
+    // bir grubu SQL'e çeviriyor.
     private SqlFragment buildGroup(GroupNode group) {
         List<Object> parameters = new ArrayList<>();
         String joiner = group.getLogic() == LogicOperator.AND ? " AND " : " OR ";
@@ -53,7 +54,7 @@ public class QuerySqlBuilder {
 
         return new SqlFragment(sql, parameters);
     }
-
+    // tek bir koşulu SQL'e çeviriyor.
     private SqlFragment buildCondition(ConditionNode condition) {
         String field = condition.getField();
         ConditionOperator operator = condition.getOperator();
@@ -74,6 +75,7 @@ public class QuerySqlBuilder {
         return new SqlFragment(field + " " + mapOperator(operator) + " ?", List.of(resolvedValue));
     }
 
+    // Java enum'ını SQL sembolüne çeviren sabit bir switch.
     private String mapOperator(ConditionOperator operator) {
         return switch (operator) {
             case EQUALS -> "=";
@@ -88,6 +90,7 @@ public class QuerySqlBuilder {
         };
     }
 
+    // değer türüne göre gerçek Java değerini çıkarıyor.
     private Object resolveValue(ConditionValue value) {
         if (value instanceof LiteralValue literal) {
             return literal.getValue();

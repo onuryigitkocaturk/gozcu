@@ -2,10 +2,8 @@ package com.onuryigitkocaturk.query_monitor.querybuilder;
 
 import java.util.List;
 
-/**
- * Bir QueryNode'un cevrildigi SQL parcasi: parametreli bir WHERE kosulu
- * ("field > ?") ve buna karsilik gelen deger listesi (PreparedStatement'a
- * sirayla baglanacak).
- */
+// sadece 2 alan taşır.SQL string'i ile parametrelerini beraber taşımak için var.
+// record olma sebebi sadece veri taşıyıp immutable olmasını istememiz. class
+// yazıp constructor/getter elle yazmaya gerek kalmıyor.
 public record SqlFragment(String sql, List<Object> parameters) {
 }

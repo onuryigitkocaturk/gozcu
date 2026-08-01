@@ -5,11 +5,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-/**
- * Tek bir koşul: bir kolon (field), bir işleç (operator) ve bir değer.
- * IS_NULL/IS_NOT_NULL için value gerekmez; bu durum servis katmaninda
- * ayrica dogrulanir (annotation ile ifade edilemeyecek kadar kosula bagli).
- */
+// sürükle-bırak ekranda kurduğum her tek kutu burası,
+// örneğin, "km büyüktür 1000" (hangi kolon + hangi işleç + hangi değer)
+// imlplements QueryNode GroupNode'da olduğu gibi children listesine konabilecek
+// bir tip olduğunu garanti ediyor.
 public class ConditionNode implements QueryNode {
 
     @NotBlank
