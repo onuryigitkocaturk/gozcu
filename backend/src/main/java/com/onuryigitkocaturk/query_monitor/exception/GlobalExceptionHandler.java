@@ -5,6 +5,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -85,6 +86,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         return buildResponse(HttpStatus.CONFLICT,
                 "Bu kayıt silinemez çünkü başka kayıtlar hâlâ buna bağlı");
+    }
+
+    // DataAccessException'dan daha spesifik oldugu icin Spring bunu, bir
+    // baglanti hatasinda genel DataAccessException handler'i yerine secer.
+    @ExceptionHandler(CannotGetJdbcConnectionException.class)
+    public ResponseEntity<ErrorResponse> handleCannotGetJdbcConnection(CannotGetJdbcConnectionException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST,
+                "Veritabanına bağlanılamadı, host/port/kullanıcı adı/şifre bilgilerini kontrol edin");
     }
 
     @ExceptionHandler(DataAccessException.class)

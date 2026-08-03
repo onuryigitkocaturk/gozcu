@@ -105,6 +105,11 @@ public class ProjectController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{projectId}/discover-tables")
+    public ResponseEntity<List<String>> discoverTables(@PathVariable UUID projectId) {
+        return ResponseEntity.ok(projectService.discoverTables(projectId));
+    }
+
     @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
     @GetMapping("/{projectId}/tables")
     public ResponseEntity<List<ProjectTableResponse>> getProjectTables(@PathVariable UUID projectId) {
@@ -120,5 +125,12 @@ public class ProjectController {
     public ResponseEntity<List<Map<String, Object>>> getTableData(@PathVariable UUID projectId,
                                                                      @PathVariable String tableName) {
         return ResponseEntity.ok(projectService.getTableData(projectId, tableName));
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
+    @GetMapping("/{projectId}/tables/{tableName}/columns")
+    public ResponseEntity<List<String>> getTableColumns(@PathVariable UUID projectId,
+                                                          @PathVariable String tableName) {
+        return ResponseEntity.ok(projectService.getTableColumns(projectId, tableName));
     }
 }

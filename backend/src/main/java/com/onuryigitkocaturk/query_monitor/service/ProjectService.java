@@ -30,4 +30,8 @@ public interface ProjectService {
     List<ProjectTable> getProjectTables(UUID projectId);
 
     List<Map<String, Object>> getTableData(UUID projectId, String tableName);
+
+    List<String> discoverTables(UUID projectId);
+
+    List<String> getTableColumns(UUID projectId, String tableName);
 }

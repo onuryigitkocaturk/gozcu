@@ -3,12 +3,10 @@ package com.onuryigitkocaturk.query_monitor.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public class ProjectRequest {
-
-    @NotBlank
-    private String name;
-
-    private String description;
+// Bir proje kaydedilmeden ONCE, girilen baglanti bilgisiyle gercekten
+// baglanilabiliyor mu diye test etmek icin kullanilir - hicbir yere
+// kaydedilmez, sadece o istek suresince kullanilir.
+public class ConnectionTestRequest {
 
     @NotBlank
     private String dbHost;
@@ -24,36 +22,6 @@ public class ProjectRequest {
 
     @NotBlank
     private String dbPassword;
-
-    public ProjectRequest() {
-    }
-
-    public ProjectRequest(String name, String description, String dbHost, Integer dbPort,
-                           String dbName, String dbUsername, String dbPassword) {
-        this.name = name;
-        this.description = description;
-        this.dbHost = dbHost;
-        this.dbPort = dbPort;
-        this.dbName = dbName;
-        this.dbUsername = dbUsername;
-        this.dbPassword = dbPassword;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     public String getDbHost() {
         return dbHost;

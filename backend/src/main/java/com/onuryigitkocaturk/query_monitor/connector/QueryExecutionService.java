@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onuryigitkocaturk.query_monitor.dto.querydefinition.QueryNode;
 import com.onuryigitkocaturk.query_monitor.querybuilder.QuerySqlBuilder;
 import com.onuryigitkocaturk.query_monitor.querybuilder.SqlFragment;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,28 +16,29 @@ import java.util.Map;
 @Service
 public class QueryExecutionService {
 
-    private final JdbcTemplate monitoredJdbcTemplate;
+    private final JdbcTemplateFactory jdbcTemplateFactory;
     private final QuerySqlBuilder sqlBuilder;
     private final ObjectMapper objectMapper;
 
-    public QueryExecutionService(@Qualifier("monitoredJdbcTemplate") JdbcTemplate monitoredJdbcTemplate,
+    public QueryExecutionService(JdbcTemplateFactory jdbcTemplateFactory,
                                   QuerySqlBuilder sqlBuilder,
                                   ObjectMapper objectMapper) {
-        this.monitoredJdbcTemplate = monitoredJdbcTemplate;
+        this.jdbcTemplateFactory = jdbcTemplateFactory;
         this.sqlBuilder = sqlBuilder;
         this.objectMapper = objectMapper;
     }
 
-    public List<Map<String, Object>> executeQuery(String tableName, String definitionJson) {
+    public List<Map<String, Object>> executeQuery(ConnectionDetails connection, String tableName, String definitionJson) {
         SqlFragment fragment = buildFragment(definitionJson);
         String sql = "SELECT * FROM " + tableName + " WHERE " + fragment.sql();
-        return monitoredJdbcTemplate.queryForList(sql, fragment.parameters().toArray());
+        return jdbcTemplateFactory.create(connection).queryForList(sql, fragment.parameters().toArray());
     }
 
-    public long countMatches(String tableName, String definitionJson) {
+    public long countMatches(ConnectionDetails connection, String tableName, String definitionJson) {
         SqlFragment fragment = buildFragment(definitionJson);
         String sql = "SELECT COUNT(*) FROM " + tableName + " WHERE " + fragment.sql();
-        Long count = monitoredJdbcTemplate.queryForObject(sql, Long.class, fragment.parameters().toArray());
+        Long count = jdbcTemplateFactory.create(connection)
+                .queryForObject(sql, Long.class, fragment.parameters().toArray());
         return count != null ? count : 0L;
     }
 

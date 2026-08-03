@@ -1,6 +1,5 @@
 package com.onuryigitkocaturk.query_monitor.connector;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -12,26 +11,35 @@ import java.util.Map;
 @Service
 public class TableMetadataService {
 
-    private final JdbcTemplate monitoredJdbcTemplate;
+    private final JdbcTemplateFactory jdbcTemplateFactory;
 
-    public TableMetadataService(@Qualifier("monitoredJdbcTemplate") JdbcTemplate monitoredJdbcTemplate) {
-        this.monitoredJdbcTemplate = monitoredJdbcTemplate;
+    public TableMetadataService(JdbcTemplateFactory jdbcTemplateFactory) {
+        this.jdbcTemplateFactory = jdbcTemplateFactory;
     }
 
-    public List<String> listTables() {
+    public List<String> listTables(ConnectionDetails connection) {
+        JdbcTemplate jdbcTemplate = jdbcTemplateFactory.create(connection);
         String sql = "SELECT table_name FROM information_schema.tables " +
                 "WHERE table_schema = 'public' ORDER BY table_name";
-        return monitoredJdbcTemplate.queryForList(sql, String.class);
+        return jdbcTemplate.queryForList(sql, String.class);
     }
 
-    public List<String> listColumns(String tableName) {
+    public List<String> listColumns(ConnectionDetails connection, String tableName) {
+        JdbcTemplate jdbcTemplate = jdbcTemplateFactory.create(connection);
         String sql = "SELECT column_name FROM information_schema.columns " +
                 "WHERE table_schema = 'public' AND table_name = ? ORDER BY ordinal_position";
-        return monitoredJdbcTemplate.queryForList(sql, String.class, tableName);
+        return jdbcTemplate.queryForList(sql, String.class, tableName);
     }
 
-    public List<Map<String, Object>> getTableData(String tableName) {
+    /**
+     * tableName burada bir SQL parametresi degil, bir identifier oldugu icin
+     * '?' ile baglanamaz. Bu yuzden cagiran taraf, tableName'in gercekten
+     * whitelist'te (ProjectTable) oldugunu bu metod cagrilmadan ONCE dogrulamak
+     * zorundadir - aksi halde SQL injection riski olusur.
+     */
+    public List<Map<String, Object>> getTableData(ConnectionDetails connection, String tableName) {
+        JdbcTemplate jdbcTemplate = jdbcTemplateFactory.create(connection);
         String sql = "SELECT * FROM " + tableName;
-        return monitoredJdbcTemplate.queryForList(sql);
+        return jdbcTemplate.queryForList(sql);
     }
 }

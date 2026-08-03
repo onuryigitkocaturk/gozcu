@@ -1,5 +1,7 @@
 package com.onuryigitkocaturk.query_monitor.service.impl;
 
+import com.onuryigitkocaturk.query_monitor.connector.ConnectionCredentialEncryptor;
+import com.onuryigitkocaturk.query_monitor.connector.ConnectionDetails;
 import com.onuryigitkocaturk.query_monitor.connector.TableMetadataService;
 import com.onuryigitkocaturk.query_monitor.dto.ProjectRequest;
 import com.onuryigitkocaturk.query_monitor.exception.DuplicateProjectException;
@@ -30,15 +32,18 @@ public class ProjectServiceImpl implements ProjectService {
     private final UserRepository userRepository;
     private final ProjectTableRepository projectTableRepository;
     private final TableMetadataService tableMetadataService;
+    private final ConnectionCredentialEncryptor connectionCredentialEncryptor;
 
     public ProjectServiceImpl(ProjectRepository projectRepository,
                                UserRepository userRepository,
                                ProjectTableRepository projectTableRepository,
-                               TableMetadataService tableMetadataService) {
+                               TableMetadataService tableMetadataService,
+                               ConnectionCredentialEncryptor connectionCredentialEncryptor) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.projectTableRepository = projectTableRepository;
         this.tableMetadataService = tableMetadataService;
+        this.connectionCredentialEncryptor = connectionCredentialEncryptor;
     }
 
     @Override
@@ -47,7 +52,18 @@ public class ProjectServiceImpl implements ProjectService {
             throw new DuplicateProjectException("Proje zaten mevcut: " + request.getName());
         }
 
+        ConnectionDetails connection = new ConnectionDetails(
+                request.getDbHost(), request.getDbPort(), request.getDbName(),
+                request.getDbUsername(), request.getDbPassword());
+        // baglanti gercekten calisiyor mu - calismiyorsa proje hic kaydedilmez.
+        tableMetadataService.listTables(connection);
+
         Project project = new Project(request.getName(), request.getDescription());
+        project.setDbHost(request.getDbHost());
+        project.setDbPort(request.getDbPort());
+        project.setDbName(request.getDbName());
+        project.setDbUsername(request.getDbUsername());
+        project.setDbPasswordEncrypted(connectionCredentialEncryptor.encrypt(request.getDbPassword()));
         return projectRepository.save(project);
     }
 
@@ -112,7 +128,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + projectId));
 
-        if (!tableMetadataService.listTables().contains(tableName)) {
+        if (!tableMetadataService.listTables(toConnectionDetails(project)).contains(tableName)) {
             throw new TableNotFoundException("İzlenen veritabanında tablo bulunamadı: " + tableName);
         }
 
@@ -135,9 +151,8 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<Map<String, Object>> getTableData(UUID projectId, String tableName) {
-        if (!projectRepository.existsById(projectId)) {
-            throw new ProjectNotFoundException("Proje bulunamadı: " + projectId);
-        }
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + projectId));
 
         // whitelist kontrolu: tableName SQL'e concat edilmeden once, bu tablonun
         // gercekten bu projeye bagli oldugu dogrulanmali (SQL injection riski).
@@ -146,6 +161,34 @@ public class ProjectServiceImpl implements ProjectService {
                     "Bu tablo bu projeye bağlı değil: " + tableName);
         }
 
-        return tableMetadataService.getTableData(tableName);
+        return tableMetadataService.getTableData(toConnectionDetails(project), tableName);
+    }
+
+    @Override
+    public List<String> discoverTables(UUID projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + projectId));
+        return tableMetadataService.listTables(toConnectionDetails(project));
+    }
+
+    @Override
+    public List<String> getTableColumns(UUID projectId, String tableName) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + projectId));
+
+        if (!projectTableRepository.existsByProjectIdAndTableName(projectId, tableName)) {
+            throw new TableNotFoundException("Bu tablo bu projeye bağlı değil: " + tableName);
+        }
+
+        return tableMetadataService.listColumns(toConnectionDetails(project), tableName);
+    }
+
+    private ConnectionDetails toConnectionDetails(Project project) {
+        return new ConnectionDetails(
+                project.getDbHost(),
+                project.getDbPort(),
+                project.getDbName(),
+                project.getDbUsername(),
+                connectionCredentialEncryptor.decrypt(project.getDbPasswordEncrypted()));
     }
 }

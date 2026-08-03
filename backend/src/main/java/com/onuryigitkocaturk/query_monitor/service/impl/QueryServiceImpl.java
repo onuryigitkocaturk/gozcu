@@ -2,6 +2,8 @@ package com.onuryigitkocaturk.query_monitor.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.onuryigitkocaturk.query_monitor.connector.ConnectionCredentialEncryptor;
+import com.onuryigitkocaturk.query_monitor.connector.ConnectionDetails;
 import com.onuryigitkocaturk.query_monitor.connector.QueryExecutionService;
 import com.onuryigitkocaturk.query_monitor.connector.TableMetadataService;
 import com.onuryigitkocaturk.query_monitor.dto.QueryRequest;
@@ -36,6 +38,7 @@ public class QueryServiceImpl implements QueryService {
     private final QueryDefinitionValidator queryDefinitionValidator;
     private final QueryExecutionService queryExecutionService;
     private final ObjectMapper objectMapper;
+    private final ConnectionCredentialEncryptor connectionCredentialEncryptor;
 
     public QueryServiceImpl(QueryRepository queryRepository,
                              ProjectRepository projectRepository,
@@ -44,7 +47,8 @@ public class QueryServiceImpl implements QueryService {
                              TableMetadataService tableMetadataService,
                              QueryDefinitionValidator queryDefinitionValidator,
                              QueryExecutionService queryExecutionService,
-                             ObjectMapper objectMapper) {
+                             ObjectMapper objectMapper,
+                             ConnectionCredentialEncryptor connectionCredentialEncryptor) {
         this.queryRepository = queryRepository;
         this.projectRepository = projectRepository;
         this.projectTableRepository = projectTableRepository;
@@ -53,6 +57,7 @@ public class QueryServiceImpl implements QueryService {
         this.queryDefinitionValidator = queryDefinitionValidator;
         this.queryExecutionService = queryExecutionService;
         this.objectMapper = objectMapper;
+        this.connectionCredentialEncryptor = connectionCredentialEncryptor;
     }
 
     @Override
@@ -62,7 +67,8 @@ public class QueryServiceImpl implements QueryService {
 
         ProjectTable projectTable = getValidatedProjectTable(projectId, projectTableId);
 
-        List<String> validColumns = tableMetadataService.listColumns(projectTable.getTableName());
+        List<String> validColumns = tableMetadataService.listColumns(
+                toConnectionDetails(project), projectTable.getTableName());
         queryDefinitionValidator.validate(request.getDefinition(), validColumns);
 
         String definitionJson;
@@ -93,14 +99,23 @@ public class QueryServiceImpl implements QueryService {
     public List<Map<String, Object>> runQuery(UUID projectId, UUID queryId) {
         Query query = getValidatedQuery(projectId, queryId);
         return queryExecutionService.executeQuery(
-                query.getProjectTable().getTableName(), query.getDefinitionJson());
+                toConnectionDetails(query.getProject()), query.getProjectTable().getTableName(), query.getDefinitionJson());
     }
 
     @Override
     public long countQueryMatches(UUID projectId, UUID queryId) {
         Query query = getValidatedQuery(projectId, queryId);
         return queryExecutionService.countMatches(
-                query.getProjectTable().getTableName(), query.getDefinitionJson());
+                toConnectionDetails(query.getProject()), query.getProjectTable().getTableName(), query.getDefinitionJson());
+    }
+
+    private ConnectionDetails toConnectionDetails(Project project) {
+        return new ConnectionDetails(
+                project.getDbHost(),
+                project.getDbPort(),
+                project.getDbName(),
+                project.getDbUsername(),
+                connectionCredentialEncryptor.decrypt(project.getDbPasswordEncrypted()));
     }
 
     private Query getValidatedQuery(UUID projectId, UUID queryId) {

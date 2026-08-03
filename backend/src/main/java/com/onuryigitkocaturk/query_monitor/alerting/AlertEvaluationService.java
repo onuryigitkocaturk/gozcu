@@ -2,6 +2,7 @@ package com.onuryigitkocaturk.query_monitor.alerting;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.onuryigitkocaturk.query_monitor.connector.ConnectionDetails;
 import com.onuryigitkocaturk.query_monitor.connector.QueryExecutionService;
 import com.onuryigitkocaturk.query_monitor.dto.AlertConditionValue;
 import com.onuryigitkocaturk.query_monitor.enums.ConditionOperator;
@@ -27,8 +28,9 @@ public class AlertEvaluationService {
     // dışarıya açılan fonksiyon, alert'i değerlendirip sonucu döndürür.
     // parametreler: hangi tabloya bakılacak, query'nin filtresi, alert'in koşulu
     // manuel değerlendir butonu ve AlertSchedular bu fonksiyonu kullanıyor.
-    public AlertEvaluationResult evaluate(String tableName, String queryDefinitionJson, String conditionExpressionJson) {
-        long matchCount = queryExecutionService.countMatches(tableName, queryDefinitionJson);
+    public AlertEvaluationResult evaluate(ConnectionDetails connection, String tableName,
+                                           String queryDefinitionJson, String conditionExpressionJson) {
+        long matchCount = queryExecutionService.countMatches(connection, tableName, queryDefinitionJson);
         AlertConditionValue condition = parseCondition(conditionExpressionJson);
         boolean triggered = compare(matchCount, condition.getOperator(), condition.getValue());
         return new AlertEvaluationResult(triggered, matchCount);

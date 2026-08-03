@@ -2,11 +2,14 @@ package com.onuryigitkocaturk.query_monitor.scheduler;
 
 import com.onuryigitkocaturk.query_monitor.alerting.AlertEvaluationResult;
 import com.onuryigitkocaturk.query_monitor.alerting.AlertEvaluationService;
+import com.onuryigitkocaturk.query_monitor.connector.ConnectionCredentialEncryptor;
+import com.onuryigitkocaturk.query_monitor.connector.ConnectionDetails;
 import com.onuryigitkocaturk.query_monitor.connector.QueryExecutionService;
 import com.onuryigitkocaturk.query_monitor.enums.Frequency;
 import com.onuryigitkocaturk.query_monitor.enums.LogStatus;
 import com.onuryigitkocaturk.query_monitor.model.Alert;
 import com.onuryigitkocaturk.query_monitor.model.AlertLog;
+import com.onuryigitkocaturk.query_monitor.model.Project;
 import com.onuryigitkocaturk.query_monitor.model.Query;
 import com.onuryigitkocaturk.query_monitor.model.User;
 import com.onuryigitkocaturk.query_monitor.notification.NotificationService;
@@ -22,17 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Aktif Query'leri kendi frequency'sine gore periyodik olarak degerlendirir,
- * tetiklenirse Group'un uyelerine mail atar (NotificationService uzerinden,
- * MailHog'a - gercek internete gitmez) ve sonucu AlertLog'a yazar.
- *
- * fixedRate degerleri (ms) application.properties'ten override edilebilir -
- * gercek saatlik/gunluk donguyu beklemeden hizli test yapabilmek icin.
- * cron degil fixedRate kullaniliyor cunku test sirasinda 90 saniye gibi
- * 60'i tam bolmeyen araliklar istenebiliyor, cron'un saniye alani bunu
- * ifade edemiyor.
- */
+// Aktif query'leri kendi frequency'sine göre periyodik olarak değerlendirir
+// tetiklenirse Group'un üyelerine mail atar (NotificiationService üzerinden, MailHog'a - internete gitmez)
+// ve sonucu AlertLog'a yazar.
 @Component
 public class AlertScheduler {
 
@@ -44,19 +39,22 @@ public class AlertScheduler {
     private final AlertEvaluationService alertEvaluationService;
     private final QueryExecutionService queryExecutionService;
     private final NotificationService notificationService;
+    private final ConnectionCredentialEncryptor connectionCredentialEncryptor;
 
     public AlertScheduler(QueryRepository queryRepository,
                            AlertRepository alertRepository,
                            AlertLogRepository alertLogRepository,
                            AlertEvaluationService alertEvaluationService,
                            QueryExecutionService queryExecutionService,
-                           NotificationService notificationService) {
+                           NotificationService notificationService,
+                           ConnectionCredentialEncryptor connectionCredentialEncryptor) {
         this.queryRepository = queryRepository;
         this.alertRepository = alertRepository;
         this.alertLogRepository = alertLogRepository;
         this.alertEvaluationService = alertEvaluationService;
         this.queryExecutionService = queryExecutionService;
         this.notificationService = notificationService;
+        this.connectionCredentialEncryptor = connectionCredentialEncryptor;
     }
 
     @Transactional
@@ -94,7 +92,9 @@ public class AlertScheduler {
         String message;
 
         try {
+            ConnectionDetails connection = toConnectionDetails(alert.getProject());
             AlertEvaluationResult result = alertEvaluationService.evaluate(
+                    connection,
                     alert.getQuery().getProjectTable().getTableName(),
                     alert.getQuery().getDefinitionJson(),
                     alert.getConditionExpression());
@@ -105,6 +105,7 @@ public class AlertScheduler {
                         .map(User::getEmail)
                         .toList();
                 List<Map<String, Object>> matchedRows = queryExecutionService.executeQuery(
+                        connection,
                         alert.getQuery().getProjectTable().getTableName(),
                         alert.getQuery().getDefinitionJson());
                 notificationService.sendAlertTriggeredEmail(
@@ -122,5 +123,14 @@ public class AlertScheduler {
         }
 
         alertLogRepository.save(new AlertLog(alert, status, message));
+    }
+
+    private ConnectionDetails toConnectionDetails(Project project) {
+        return new ConnectionDetails(
+                project.getDbHost(),
+                project.getDbPort(),
+                project.getDbName(),
+                project.getDbUsername(),
+                connectionCredentialEncryptor.decrypt(project.getDbPasswordEncrypted()));
     }
 }

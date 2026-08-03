@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onuryigitkocaturk.query_monitor.alerting.AlertEvaluationResult;
 import com.onuryigitkocaturk.query_monitor.alerting.AlertEvaluationService;
+import com.onuryigitkocaturk.query_monitor.connector.ConnectionCredentialEncryptor;
+import com.onuryigitkocaturk.query_monitor.connector.ConnectionDetails;
 import com.onuryigitkocaturk.query_monitor.dto.AlertConditionValue;
 import com.onuryigitkocaturk.query_monitor.dto.AlertRequest;
 import com.onuryigitkocaturk.query_monitor.enums.ConditionOperator;
@@ -45,6 +47,7 @@ public class AlertServiceImpl implements AlertService {
     private final GroupRepository groupRepository;
     private final AlertEvaluationService alertEvaluationService;
     private final ObjectMapper objectMapper;
+    private final ConnectionCredentialEncryptor connectionCredentialEncryptor;
 
     public AlertServiceImpl(AlertRepository alertRepository,
                              AlertLogRepository alertLogRepository,
@@ -52,7 +55,8 @@ public class AlertServiceImpl implements AlertService {
                              QueryRepository queryRepository,
                              GroupRepository groupRepository,
                              AlertEvaluationService alertEvaluationService,
-                             ObjectMapper objectMapper) {
+                             ObjectMapper objectMapper,
+                             ConnectionCredentialEncryptor connectionCredentialEncryptor) {
         this.alertRepository = alertRepository;
         this.alertLogRepository = alertLogRepository;
         this.projectRepository = projectRepository;
@@ -60,6 +64,7 @@ public class AlertServiceImpl implements AlertService {
         this.groupRepository = groupRepository;
         this.alertEvaluationService = alertEvaluationService;
         this.objectMapper = objectMapper;
+        this.connectionCredentialEncryptor = connectionCredentialEncryptor;
     }
 
     @Override
@@ -109,9 +114,19 @@ public class AlertServiceImpl implements AlertService {
     public AlertEvaluationResult evaluateAlert(UUID projectId, UUID alertId) {
         Alert alert = getValidatedAlert(projectId, alertId);
         return alertEvaluationService.evaluate(
+                toConnectionDetails(alert.getProject()),
                 alert.getQuery().getProjectTable().getTableName(),
                 alert.getQuery().getDefinitionJson(),
                 alert.getConditionExpression());
+    }
+
+    private ConnectionDetails toConnectionDetails(Project project) {
+        return new ConnectionDetails(
+                project.getDbHost(),
+                project.getDbPort(),
+                project.getDbName(),
+                project.getDbUsername(),
+                connectionCredentialEncryptor.decrypt(project.getDbPasswordEncrypted()));
     }
 
     @Override

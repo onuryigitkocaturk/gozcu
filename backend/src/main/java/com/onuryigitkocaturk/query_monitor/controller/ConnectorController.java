@@ -1,15 +1,22 @@
 package com.onuryigitkocaturk.query_monitor.controller;
 
+import com.onuryigitkocaturk.query_monitor.connector.ConnectionDetails;
 import com.onuryigitkocaturk.query_monitor.connector.TableMetadataService;
+import com.onuryigitkocaturk.query_monitor.dto.ConnectionTestRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+// Bir proje oluşturulmadan önce girilen host/port/db bilgisiyle gerçekten
+// bağlanılabiliyor mu diye test etmek için kullanılır. Proje oluşturulduktan
+// sonraki tablo keşfi artık ProjectController.discoverTables üzerinden,
+// projenin KAYITLI (şifrelenmiş) bağlantı bilgisiyle yapılıyor.
 @RestController
 @RequestMapping("/api/connector")
 @PreAuthorize("hasRole('ADMIN')")
@@ -21,14 +28,11 @@ public class ConnectorController {
         this.tableMetadataService = tableMetadataService;
     }
 
-    @GetMapping("/tables")
-    public ResponseEntity<List<String>> listTables() {
-        return ResponseEntity.ok(tableMetadataService.listTables());
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/tables/{tableName}/columns")
-    public ResponseEntity<List<String>> listColumns(@PathVariable String tableName) {
-        return ResponseEntity.ok(tableMetadataService.listColumns(tableName));
+    @PostMapping("/test-connection")
+    public ResponseEntity<List<String>> testConnection(@Valid @RequestBody ConnectionTestRequest request) {
+        ConnectionDetails connection = new ConnectionDetails(
+                request.getDbHost(), request.getDbPort(), request.getDbName(),
+                request.getDbUsername(), request.getDbPassword());
+        return ResponseEntity.ok(tableMetadataService.listTables(connection));
     }
 }

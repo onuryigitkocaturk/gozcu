@@ -35,6 +35,26 @@ public class Project {
     @Column
     private String description;
 
+    // Bu projenin izledigi veritabanina baglanmak icin gereken bilgiler.
+    // Eskiden tek/sabit bir mock DB vardi (monitored.datasource.*); artik
+    // her proje kendi veritabanina (farkli host/port olabilir) baglanabiliyor.
+    // dbPassword HICBIR ZAMAN duz metin degil, ConnectionCredentialEncryptor
+    // ile sifrelenmis olarak saklanir.
+    @Column(name = "db_host")
+    private String dbHost;
+
+    @Column(name = "db_port")
+    private Integer dbPort;
+
+    @Column(name = "db_name")
+    private String dbName;
+
+    @Column(name = "db_username")
+    private String dbUsername;
+
+    @Column(name = "db_password_encrypted", columnDefinition = "TEXT")
+    private String dbPasswordEncrypted;
+
     @ManyToMany(mappedBy = "projects", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>();
 
@@ -87,6 +107,46 @@ public class Project {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getDbHost() {
+        return dbHost;
+    }
+
+    public void setDbHost(String dbHost) {
+        this.dbHost = dbHost;
+    }
+
+    public Integer getDbPort() {
+        return dbPort;
+    }
+
+    public void setDbPort(Integer dbPort) {
+        this.dbPort = dbPort;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
+    }
+
+    public String getDbUsername() {
+        return dbUsername;
+    }
+
+    public void setDbUsername(String dbUsername) {
+        this.dbUsername = dbUsername;
+    }
+
+    public String getDbPasswordEncrypted() {
+        return dbPasswordEncrypted;
+    }
+
+    public void setDbPasswordEncrypted(String dbPasswordEncrypted) {
+        this.dbPasswordEncrypted = dbPasswordEncrypted;
     }
 
     public Set<User> getUsers() {
