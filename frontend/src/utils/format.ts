@@ -23,7 +23,6 @@ export function formatCellValue(value: unknown): string {
   if (value === null || value === undefined) return "—";
   if (typeof value === "boolean") return value ? "Evet" : "Hayır";
   if (isDateLike(value)) return formatDateTime(value);
-  if (typeof value === "number") return value.toLocaleString("tr-TR");
   return String(value);
 }
 

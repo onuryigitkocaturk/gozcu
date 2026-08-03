@@ -5,9 +5,11 @@ import { useToast } from "../context/ToastContext";
 import { useAsync } from "../hooks/useAsync";
 import { projectsApi } from "../api/projects";
 import { usersApi } from "../api/users";
+import { queriesApi } from "../api/queries";
 import { ApiError } from "../api/client";
 import { Badge, Button, Card, CardHeader, EmptyState, Modal, Select, SpinnerCenter } from "../components/ui";
 import { formatDateTime } from "../utils/format";
+import type { ProjectTableResponse } from "../types/api";
 
 export function ProjectDetailPage() {
   const { projectId } = useParams();
@@ -108,33 +110,14 @@ export function ProjectDetailPage() {
           {!loadingTables &&
             tables &&
             tables.map((t) => (
-              <div className="list-row" key={t.id}>
-                <div className="list-row__main">
-                  <a
-                    className="list-row__title"
-                    href={`/projects/${id}/tables/${t.id}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate(`/projects/${id}/tables/${t.id}`);
-                    }}
-                  >
-                    {t.tableName}
-                  </a>
-                  <div className="list-row__meta">
-                    <span>Bağlandı: {formatDateTime(t.createdAt)}</span>
-                  </div>
-                </div>
-                <div className="list-row__actions">
-                  <Button size="sm" variant="secondary" onClick={() => navigate(`/projects/${id}/tables/${t.id}`)}>
-                    Aç
-                  </Button>
-                  {isAdmin && (
-                    <Button size="sm" variant="danger" onClick={() => handleRemoveTable(t.tableName)}>
-                      Çıkar
-                    </Button>
-                  )}
-                </div>
-              </div>
+              <TableAccordionRow
+                key={t.id}
+                projectId={id}
+                table={t}
+                isAdmin={isAdmin}
+                onOpen={() => navigate(`/projects/${id}/tables/${t.id}`)}
+                onRemove={() => handleRemoveTable(t.tableName)}
+              />
             ))}
         </Card>
       )}
@@ -203,6 +186,95 @@ export function ProjectDetailPage() {
             reloadMembers();
           }}
         />
+      )}
+    </div>
+  );
+}
+
+function TableAccordionRow({
+  projectId,
+  table,
+  isAdmin,
+  onOpen,
+  onRemove,
+}: {
+  projectId: string;
+  table: ProjectTableResponse;
+  isAdmin: boolean;
+  onOpen: () => void;
+  onRemove: () => void;
+}) {
+  const navigate = useNavigate();
+  const [expanded, setExpanded] = useState(false);
+
+  const {
+    data: queries,
+    loading: loadingQueries,
+    error: queriesError,
+  } = useAsync(() => (expanded ? queriesApi.list(projectId, table.id) : Promise.resolve([])), [
+    expanded,
+    projectId,
+    table.id,
+  ]);
+
+  return (
+    <div className="list-row list-row--stacked">
+      <div className="list-row">
+        <div className="list-row__main">
+          <button
+            className="list-row__title"
+            style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}
+            onClick={() => setExpanded((v) => !v)}
+          >
+            {expanded ? "▾" : "▸"} {table.tableName}
+          </button>
+          <div className="list-row__meta">
+            <span>Bağlandı: {formatDateTime(table.createdAt)}</span>
+          </div>
+        </div>
+        <div className="list-row__actions">
+          <Button size="sm" variant="secondary" onClick={onOpen}>
+            Aç
+          </Button>
+          {isAdmin && (
+            <Button size="sm" variant="danger" onClick={onRemove}>
+              Çıkar
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {expanded && (
+        <div style={{ paddingLeft: 24, paddingBottom: 12 }}>
+          {loadingQueries && <SpinnerCenter />}
+          {queriesError && <div className="alert-banner alert-banner--error">{queriesError}</div>}
+          {!loadingQueries && !queriesError && queries && queries.length === 0 && (
+            <EmptyState title="Bu tabloya bağlı sorgu yok" />
+          )}
+          {!loadingQueries &&
+            queries &&
+            queries.map((q) => (
+              <div className="list-row" key={q.id}>
+                <div className="list-row__main">
+                  <a
+                    className="list-row__title"
+                    href={`/projects/${projectId}/tables/${table.id}/queries/${q.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate(`/projects/${projectId}/tables/${table.id}/queries/${q.id}`);
+                    }}
+                  >
+                    {q.name}
+                  </a>
+                  <div className="list-row__meta">
+                    <Badge color="blue">{q.frequency === "HOURLY" ? "Saatlik" : "Günlük"}</Badge>
+                    <Badge color={q.active ? "green" : "neutral"}>{q.active ? "Aktif" : "Pasif"}</Badge>
+                    <span>Oluşturan: {q.createdByUsername ?? "Bilinmiyor"}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
       )}
     </div>
   );

@@ -26,12 +26,14 @@ export function GroupBlock({
 
   const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     e.dataTransfer.dropEffect = "copy";
     setDragOver(true);
   };
 
   const handleDrop = (e: DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setDragOver(false);
     const field = e.dataTransfer.getData("text/plain");
     if (field) onAddCondition(node.id, field);
