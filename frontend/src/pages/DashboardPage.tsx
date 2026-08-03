@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useAsync } from "../hooks/useAsync";
 import { projectsApi } from "../api/projects";
+import { connectorApi } from "../api/connector";
 import { ApiError } from "../api/client";
 import { Button, Card, CardHeader, EmptyState, Input, Modal, SpinnerCenter } from "../components/ui";
 import { formatDateTime } from "../utils/format";
@@ -20,17 +21,58 @@ function AdminDashboard() {
   const [modalOpen, setModalOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [dbHost, setDbHost] = useState("");
+  const [dbPort, setDbPort] = useState("5432");
+  const [dbName, setDbName] = useState("");
+  const [dbUsername, setDbUsername] = useState("");
+  const [dbPassword, setDbPassword] = useState("");
   const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+
+  const resetForm = () => {
+    setName("");
+    setDescription("");
+    setDbHost("");
+    setDbPort("5432");
+    setDbName("");
+    setDbUsername("");
+    setDbPassword("");
+  };
+
+  const handleTestConnection = async () => {
+    setTesting(true);
+    try {
+      const tables = await connectorApi.testConnection({
+        dbHost,
+        dbPort: Number(dbPort),
+        dbName,
+        dbUsername,
+        dbPassword,
+      });
+      notifySuccess(`Bağlantı başarılı, ${tables.length} tablo bulundu.`);
+    } catch (err) {
+      notifyError(err instanceof ApiError ? err.message : "Bağlantı kurulamadı.");
+    } finally {
+      setTesting(false);
+    }
+  };
 
   const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      await projectsApi.create({ name, description: description || undefined });
+      await projectsApi.create({
+        name,
+        description: description || undefined,
+        dbHost,
+        dbPort: Number(dbPort),
+        dbName,
+        dbUsername,
+        dbPassword,
+      });
       notifySuccess(`"${name}" projesi oluşturuldu.`);
       setModalOpen(false);
-      setName("");
-      setDescription("");
+      resetForm();
       reload();
     } catch (err) {
       notifyError(err instanceof ApiError ? err.message : "Proje oluşturulamadı.");
@@ -39,7 +81,7 @@ function AdminDashboard() {
     }
   };
 
-  const handleDelete = async (id: number, projectName: string) => {
+  const handleDelete = async (id: string, projectName: string) => {
     if (!confirm(`"${projectName}" projesini silmek istediğine emin misin? Bağlı tüm tablolar da silinecek.`)) return;
     try {
       await projectsApi.remove(id);
@@ -132,6 +174,35 @@ function AdminDashboard() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+          <div className="form-row">
+            <Input label="Host" value={dbHost} onChange={(e) => setDbHost(e.target.value)} required />
+            <Input label="Port" type="number" value={dbPort} onChange={(e) => setDbPort(e.target.value)} required />
+          </div>
+          <Input label="Veritabanı adı" value={dbName} onChange={(e) => setDbName(e.target.value)} required />
+          <div className="form-row">
+            <Input
+              label="Kullanıcı adı"
+              value={dbUsername}
+              onChange={(e) => setDbUsername(e.target.value)}
+              required
+            />
+            <Input
+              label="Şifre"
+              type="password"
+              value={dbPassword}
+              onChange={(e) => setDbPassword(e.target.value)}
+              required
+            />
+          </div>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={handleTestConnection}
+            disabled={testing || !dbHost || !dbPort || !dbName || !dbUsername || !dbPassword}
+          >
+            {testing ? "Test ediliyor…" : "Bağlantıyı Test Et"}
+          </Button>
         </form>
       </Modal>
     </div>

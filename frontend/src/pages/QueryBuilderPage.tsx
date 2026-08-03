@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "../context/ToastContext";
 import { useAsync } from "../hooks/useAsync";
-import { connectorApi } from "../api/connector";
 import { projectsApi } from "../api/projects";
 import { queriesApi } from "../api/queries";
 import { ApiError } from "../api/client";
@@ -26,8 +25,8 @@ export function QueryBuilderPage() {
     loading: loadingColumns,
     error: columnsError,
   } = useAsync(
-    () => (currentTable ? connectorApi.listColumns(currentTable.tableName) : Promise.resolve([])),
-    [currentTable?.tableName],
+    () => (currentTable ? projectsApi.getTableColumns(pId, currentTable.tableName) : Promise.resolve([])),
+    [pId, currentTable?.tableName],
   );
 
   const [name, setName] = useState("");

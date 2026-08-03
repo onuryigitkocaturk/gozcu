@@ -1,7 +1,6 @@
 import { api } from "./client";
+import type { ConnectionTestRequest } from "../types/api";
 
 export const connectorApi = {
-  listTables: () => api.get<string[]>("/api/connector/tables"),
-  listColumns: (tableName: string) =>
-    api.get<string[]>(`/api/connector/tables/${encodeURIComponent(tableName)}/columns`),
+  testConnection: (body: ConnectionTestRequest) => api.post<string[]>("/api/connector/test-connection", body),
 };

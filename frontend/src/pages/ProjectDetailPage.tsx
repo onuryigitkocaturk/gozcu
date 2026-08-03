@@ -4,7 +4,6 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useAsync } from "../hooks/useAsync";
 import { projectsApi } from "../api/projects";
-import { connectorApi } from "../api/connector";
 import { usersApi } from "../api/users";
 import { ApiError } from "../api/client";
 import { Badge, Button, Card, CardHeader, EmptyState, Modal, Select, SpinnerCenter } from "../components/ui";
@@ -221,9 +220,10 @@ function AddTableModal({
   onAdded: () => void;
 }) {
   const { notifySuccess, notifyError } = useToast();
-  const { data: allTables, loading } = useAsync(() => (open ? connectorApi.listTables() : Promise.resolve([])), [
-    open,
-  ]);
+  const { data: allTables, loading } = useAsync(
+    () => (open ? projectsApi.discoverTables(projectId) : Promise.resolve([])),
+    [open, projectId],
+  );
   const [selected, setSelected] = useState("");
   const [saving, setSaving] = useState(false);
 

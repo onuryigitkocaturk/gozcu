@@ -23,4 +23,7 @@ export const projectsApi = {
   listTables: (projectId: string) => api.get<ProjectTableResponse[]>(`/api/projects/${projectId}/tables`),
   getTableData: (projectId: string, tableName: string) =>
     api.get<TableRow[]>(`/api/projects/${projectId}/tables/${encodeURIComponent(tableName)}/data`),
+  discoverTables: (projectId: string) => api.get<string[]>(`/api/projects/${projectId}/discover-tables`),
+  getTableColumns: (projectId: string, tableName: string) =>
+    api.get<string[]>(`/api/projects/${projectId}/tables/${encodeURIComponent(tableName)}/columns`),
 };

@@ -62,12 +62,29 @@ export interface GroupResponse {
 export interface ProjectRequest {
   name: string;
   description?: string;
+  dbHost: string;
+  dbPort: number;
+  dbName: string;
+  dbUsername: string;
+  dbPassword: string;
 }
 export interface ProjectResponse {
   id: string;
   name: string;
   description: string | null;
+  dbHost: string | null;
+  dbPort: number | null;
+  dbName: string | null;
+  dbUsername: string | null;
   createdAt: string;
+}
+
+export interface ConnectionTestRequest {
+  dbHost: string;
+  dbPort: number;
+  dbName: string;
+  dbUsername: string;
+  dbPassword: string;
 }
 
 // ---- ProjectTable ----
