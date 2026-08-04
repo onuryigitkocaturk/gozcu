@@ -16,7 +16,8 @@ import java.util.Map;
 @Service
 public class QueryExecutionService {
 
-    private final JdbcTemplateFactory jdbcTemplateFactory;
+    private final JdbcTemplateFactory jdbcTemplateFactory; // ConnectionDetails alıp, runtime'da çalışan bir JdbcTemplate
+                                                           // üretmek.
     private final QuerySqlBuilder sqlBuilder;
     private final ObjectMapper objectMapper;
 
@@ -31,6 +32,11 @@ public class QueryExecutionService {
     public List<Map<String, Object>> executeQuery(ConnectionDetails connection, String tableName, String definitionJson) {
         SqlFragment fragment = buildFragment(definitionJson);
         String sql = "SELECT * FROM " + tableName + " WHERE " + fragment.sql();
+
+        // Burada sql (içinde ?'ler olan string) ve fragment.parameters().toArray() (gerçek değerler dizisi) birlikte
+        // JdbcTemplate'e veriliyor. JdbcTemplate, arka planda bir PreparedStatement oluşturup, parameters dizisindeki
+        // her değeri sırasıyla (1. ?'ye 1. eleman, 2. ?'ye 2. eleman...) setObject() ile bağlıyor — bu, kod
+        // tabanında görünmeyen, Spring'in JdbcTemplate'i ile JDBC driver'ının kendi içinde yaptığı iş.
         return jdbcTemplateFactory.create(connection).queryForList(sql, fragment.parameters().toArray());
     }
 
