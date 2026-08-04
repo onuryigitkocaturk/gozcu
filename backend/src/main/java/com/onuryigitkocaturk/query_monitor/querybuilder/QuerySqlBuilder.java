@@ -28,7 +28,8 @@ import java.util.stream.Collectors;
 @Component
 public class QuerySqlBuilder {
 
-    // gelen node GroupNode mu ConditionNode mu diye bakıp yönlendiriyor.
+    // gelen node GroupNode mu ConditionNode mu diye bakıp SqlFragment'a dönüştürüyor.
+    //
     public SqlFragment build(QueryNode node) {
         if (node instanceof GroupNode group) {
             return buildGroup(group);
@@ -44,6 +45,8 @@ public class QuerySqlBuilder {
         List<Object> parameters = new ArrayList<>();
         String joiner = group.getLogic() == LogicOperator.AND ? " AND " : " OR ";
 
+        // grubun her çocuğunu SQL parçasına çevirip parametrelerini toplayarak,
+        // hepsini VE/VEYA ile tek bir SQL string'inde birleştiriyor.
         String sql = group.getChildren().stream()
                 .map(child -> {
                     SqlFragment childFragment = build(child);

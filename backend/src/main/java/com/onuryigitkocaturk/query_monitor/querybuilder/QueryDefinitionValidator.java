@@ -32,8 +32,14 @@ public class QueryDefinitionValidator {
             throw new InvalidQueryDefinitionException("Bilinmeyen kolon: " + condition.getField());
         }
 
-        boolean requiresValue = condition.getOperator() != ConditionOperator.IS_NULL
-                && condition.getOperator() != ConditionOperator.IS_NOT_NULL;
+        boolean requiresValue;
+        if (condition.getOperator() == ConditionOperator.IS_NULL) {
+            requiresValue = false;
+        } else if (condition.getOperator() == ConditionOperator.IS_NOT_NULL) {
+            requiresValue = false;
+        } else {
+            requiresValue = true;
+        }
 
         if (requiresValue && condition.getValue() == null) {
             throw new InvalidQueryDefinitionException(

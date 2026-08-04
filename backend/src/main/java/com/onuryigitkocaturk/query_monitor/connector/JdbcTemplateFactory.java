@@ -5,10 +5,10 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Component;
 
 // Her proje kendi izlenen veritabanina (farkli host/port/db olabilir)
-// baglanabildigi icin, artik sabit tek bir DataSource bean'i yeterli degil.
-// Bu sinif, verilen ConnectionDetails'e gore RUNTIME'da bir JdbcTemplate
-// uretir - pool'lamaz (DriverManagerDataSource), cunku izlenen DB'lere
-// erisim sik/yogun degil.
+// bağlanabildiği için, artık sabit tek bir DataSource bean'i yeterli değil.
+// Bu sınıf, verilen ConnectionDetails'e gore RUNTIME'da bir JdbcTemplate
+// üretir - pool'lamaz (DriverManagerDataSource), çünkü izlenen DB'lere
+// erişim yoğun degil.
 @Component
 public class JdbcTemplateFactory {
 
