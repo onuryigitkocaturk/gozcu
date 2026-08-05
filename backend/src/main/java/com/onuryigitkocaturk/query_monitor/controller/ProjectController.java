@@ -88,7 +88,7 @@ public class ProjectController {
         projectService.removeUserFromProject(projectId, userId);
         return ResponseEntity.noContent().build();
     }
-
+    // #, SpEL'e "bu, metodun bir parametresidir, ismiyle eriş" demenin işareti.
     @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
     @GetMapping("/{projectId}/users")
     public ResponseEntity<List<UserResponse>> getProjectUsers(@PathVariable UUID projectId) {

@@ -31,12 +31,8 @@ public class TableMetadataService {
         return jdbcTemplate.queryForList(sql, String.class, tableName);
     }
 
-    /**
-     * tableName burada bir SQL parametresi degil, bir identifier oldugu icin
-     * '?' ile baglanamaz. Bu yuzden cagiran taraf, tableName'in gercekten
-     * whitelist'te (ProjectTable) oldugunu bu metod cagrilmadan ONCE dogrulamak
-     * zorundadir - aksi halde SQL injection riski olusur.
-     */
+   // Tablo adı bir değer değil, SQL'in yapısının kendisi olduğu için ? ile bağlanamaz — bu yüzden güvenlik,
+   // ? yerine, tablo adının önceden onaylı bir whitelist'te (ProjectTable) olup olmadığının kontrol edilmesiyle sağlanıyor.
     public List<Map<String, Object>> getTableData(ConnectionDetails connection, String tableName) {
         JdbcTemplate jdbcTemplate = jdbcTemplateFactory.create(connection);
         String sql = "SELECT * FROM " + tableName;

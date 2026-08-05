@@ -13,14 +13,20 @@ import java.util.Base64;
 // Project'e bagli izlenen veritabani sifresini AES/GCM ile sifreler/cozer.
 // Anahtar (CONNECTION_ENCRYPTION_KEY) JWT_SECRET ile ayni desende - env
 // variable'da tutulur, kodda/repoda sabit deger YOK.
+
+// project'e bağlı izlenen veritabanı şifresini AES/GCM ile şifreler/çözer.
+// anahtar JWT_SECRET ile aynı desende, env variable'da tutuluyor.
+// varlık sebebi db şifresini şifreli tutmak
 @Component
 public class ConnectionCredentialEncryptor {
 
-    private static final String ALGORITHM = "AES/GCM/NoPadding";
+    private static final String ALGORITHM = "AES/GCM/NoPadding"; // AES simetrik şifreleme algoritması, standart.
+                                                                 // GCM, AES'in hem şifreleyen hem de
+                                                                 // veri değiştirilmiş mi diye doğrulayan çalışma modu.
     private static final int GCM_IV_LENGTH_BYTES = 12;
     private static final int GCM_TAG_LENGTH_BITS = 128;
 
-    private final SecretKeySpec key;
+    private final SecretKeySpec key; // Ham AES anahtarını, Java'nın şifreleme API'sinin (Cipher) kullanabileceği bir nesneye sarmalıyor.
 
     public ConnectionCredentialEncryptor(@Value("${connection.encryption.key}") String base64Key) {
         byte[] keyBytes = Base64.getDecoder().decode(base64Key);

@@ -13,11 +13,16 @@ import org.springframework.stereotype.Component;
 public class JdbcTemplateFactory {
 
     public JdbcTemplate create(ConnectionDetails connection) {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        DriverManagerDataSource dataSource = new DriverManagerDataSource(); // pool'suz, her seferinde yeni bağlantı açan bir DataSource oluşturuyor.
+
+        // ConnectionDetails'ten gelen bilgilerle bu DataSource'u dolduruyor (şifre zaten çözülmüş halde geliyor).
         dataSource.setUrl(connection.toJdbcUrl());
         dataSource.setUsername(connection.username());
         dataSource.setPassword(connection.password());
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        return new JdbcTemplate(dataSource);
+
+        dataSource.setDriverClassName("org.postgresql.Driver"); // PostgreSQL JDBC driver'ını kullanacağını belirtiyor.
+
+        return new JdbcTemplate(dataSource);    // bu DataSource üzerine kurulu bir JdbcTemplate döndürüyor,
+                                                // TableMetadataService/QueryExecutionService bunu kullanıyor.
     }
 }
