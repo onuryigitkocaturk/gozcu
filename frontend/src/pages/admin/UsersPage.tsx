@@ -72,7 +72,7 @@ export function UsersPage() {
                 <span className="list-row__title">{u.username}</span>
                 <div className="list-row__meta">
                   <span>{u.email}</span>
-                  <Badge color={u.role === "ADMIN" ? "blue" : "neutral"}>{u.role}</Badge>
+                  <Badge color={u.role === "ADMIN" ? "blue" : "neutral"}>{u.role === "ADMIN" ? "Super Admin" : u.role}</Badge>
                 </div>
               </div>
               <div className="list-row__actions">
@@ -83,7 +83,7 @@ export function UsersPage() {
                   disabled={u.id === currentUser?.id}
                 >
                   <option value="USER">USER</option>
-                  <option value="ADMIN">ADMIN</option>
+                  <option value="ADMIN">Super Admin</option>
                 </InlineSelect>
                 <Button
                   size="sm"

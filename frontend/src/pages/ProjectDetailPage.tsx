@@ -7,14 +7,29 @@ import { projectsApi } from "../api/projects";
 import { usersApi } from "../api/users";
 import { queriesApi } from "../api/queries";
 import { ApiError } from "../api/client";
-import { Badge, Button, Card, CardHeader, EmptyState, Modal, Select, SpinnerCenter } from "../components/ui";
+import { Badge, Button, Card, CardHeader, EmptyState, InlineSelect, Modal, Select, SpinnerCenter } from "../components/ui";
 import { formatDateTime } from "../utils/format";
-import type { ProjectTableResponse } from "../types/api";
+import type { ProjectMemberResponse, ProjectRole, ProjectTableResponse } from "../types/api";
+
+const PROJECT_ROLES: ProjectRole[] = ["REPORTER", "DEVELOPER", "MAINTAINER", "OWNER"];
+const ROLE_LABELS: Record<ProjectRole, string> = {
+  REPORTER: "Reporter",
+  DEVELOPER: "Developer",
+  MAINTAINER: "Maintainer",
+  OWNER: "Owner",
+};
+const ROLE_COLORS: Record<ProjectRole, "neutral" | "blue" | "green" | "amber" | "red"> = {
+  REPORTER: "neutral",
+  DEVELOPER: "blue",
+  MAINTAINER: "amber",
+  OWNER: "red",
+};
+const ROLE_RANK: Record<ProjectRole, number> = { REPORTER: 0, DEVELOPER: 1, MAINTAINER: 2, OWNER: 3 };
 
 export function ProjectDetailPage() {
   const { projectId } = useParams();
   const id = projectId as string;
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { notifySuccess, notifyError } = useToast();
   const navigate = useNavigate();
 
@@ -33,6 +48,9 @@ export function ProjectDetailPage() {
     error: membersError,
     reload: reloadMembers,
   } = useAsync(() => projectsApi.listUsers(id), [id]);
+
+  const myRole = members?.find((m) => m.userId === user?.id)?.role ?? null;
+  const canManage = isAdmin || (myRole !== null && ROLE_RANK[myRole] >= ROLE_RANK.MAINTAINER);
 
   const [addTableOpen, setAddTableOpen] = useState(false);
   const [addMemberOpen, setAddMemberOpen] = useState(false);
@@ -91,7 +109,7 @@ export function ProjectDetailPage() {
             <CardHeader
               title="Bağlı Tablolar"
               action={
-                isAdmin && (
+                canManage && (
                   <Button size="sm" variant="primary" onClick={() => setAddTableOpen(true)}>
                     + Tablo Ekle
                   </Button>
@@ -114,7 +132,7 @@ export function ProjectDetailPage() {
                 key={t.id}
                 projectId={id}
                 table={t}
-                isAdmin={isAdmin}
+                isAdmin={canManage}
                 onOpen={() => navigate(`/projects/${id}/tables/${t.id}`)}
                 onRemove={() => handleRemoveTable(t.tableName)}
               />
@@ -128,7 +146,7 @@ export function ProjectDetailPage() {
             <CardHeader
               title="Proje Üyeleri"
               action={
-                isAdmin && (
+                canManage && (
                   <Button size="sm" variant="primary" onClick={() => setAddMemberOpen(true)}>
                     + Üye Ekle
                   </Button>
@@ -143,28 +161,20 @@ export function ProjectDetailPage() {
           )}
           {!loadingMembers &&
             members &&
-            members.map((u) => (
-              <div className="list-row" key={u.id}>
-                <div className="list-row__main">
-                  <span className="list-row__title">{u.username}</span>
-                  <div className="list-row__meta">
-                    <span>{u.email}</span>
-                    <Badge color={u.role === "ADMIN" ? "blue" : "neutral"}>{u.role}</Badge>
-                  </div>
-                </div>
-                {isAdmin && (
-                  <div className="list-row__actions">
-                    <Button size="sm" variant="danger" onClick={() => handleRemoveMember(u.id, u.username)}>
-                      Çıkar
-                    </Button>
-                  </div>
-                )}
-              </div>
+            members.map((m) => (
+              <MemberRow
+                key={m.userId}
+                projectId={id}
+                member={m}
+                isAdmin={canManage}
+                onRemove={() => handleRemoveMember(m.userId, m.username)}
+                onRoleChanged={reloadMembers}
+              />
             ))}
         </Card>
       )}
 
-      {isAdmin && (
+      {canManage && (
         <AddTableModal
           open={addTableOpen}
           onClose={() => setAddTableOpen(false)}
@@ -175,12 +185,12 @@ export function ProjectDetailPage() {
           }}
         />
       )}
-      {isAdmin && (
+      {canManage && (
         <AddMemberModal
           open={addMemberOpen}
           onClose={() => setAddMemberOpen(false)}
           projectId={id}
-          existingMemberIds={members?.map((m) => m.id) ?? []}
+          existingMemberIds={members?.map((m) => m.userId) ?? []}
           onAdded={() => {
             setAddMemberOpen(false);
             reloadMembers();
@@ -280,6 +290,67 @@ function TableAccordionRow({
   );
 }
 
+function MemberRow({
+  projectId,
+  member,
+  isAdmin,
+  onRemove,
+  onRoleChanged,
+}: {
+  projectId: string;
+  member: ProjectMemberResponse;
+  isAdmin: boolean;
+  onRemove: () => void;
+  onRoleChanged: () => void;
+}) {
+  const { notifySuccess, notifyError } = useToast();
+  const [changing, setChanging] = useState(false);
+
+  const handleRoleChange = async (newRole: ProjectRole) => {
+    if (newRole === member.role) return;
+    setChanging(true);
+    try {
+      await projectsApi.changeMemberRole(projectId, member.userId, { role: newRole });
+      notifySuccess(`${member.username} artık ${ROLE_LABELS[newRole]}.`);
+      onRoleChanged();
+    } catch (err) {
+      notifyError(err instanceof ApiError ? err.message : "Rol değiştirilemedi.");
+    } finally {
+      setChanging(false);
+    }
+  };
+
+  return (
+    <div className="list-row">
+      <div className="list-row__main">
+        <span className="list-row__title">{member.username}</span>
+        <div className="list-row__meta">
+          <span>{member.email}</span>
+          <Badge color={ROLE_COLORS[member.role]}>{ROLE_LABELS[member.role]}</Badge>
+        </div>
+      </div>
+      {isAdmin && (
+        <div className="list-row__actions">
+          <InlineSelect
+            value={member.role}
+            onChange={(e) => handleRoleChange(e.target.value as ProjectRole)}
+            disabled={changing}
+          >
+            {PROJECT_ROLES.map((role) => (
+              <option key={role} value={role}>
+                {ROLE_LABELS[role]}
+              </option>
+            ))}
+          </InlineSelect>
+          <Button size="sm" variant="danger" onClick={onRemove}>
+            Çıkar
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AddTableModal({
   open,
   onClose,
@@ -362,6 +433,7 @@ function AddMemberModal({
   const { notifySuccess, notifyError } = useToast();
   const { data: allUsers, loading } = useAsync(() => (open ? usersApi.list() : Promise.resolve([])), [open]);
   const [selected, setSelected] = useState("");
+  const [role, setRole] = useState<ProjectRole>("REPORTER");
   const [saving, setSaving] = useState(false);
 
   const candidates = allUsers?.filter((u) => !existingMemberIds.includes(u.id)) ?? [];
@@ -370,9 +442,10 @@ function AddMemberModal({
     if (!selected) return;
     setSaving(true);
     try {
-      await projectsApi.addUser(projectId, selected);
+      await projectsApi.addUser(projectId, selected, { role });
       notifySuccess("Kullanıcı projeye eklendi.");
       setSelected("");
+      setRole("REPORTER");
       onAdded();
     } catch (err) {
       notifyError(err instanceof ApiError ? err.message : "Kullanıcı eklenemedi.");
@@ -400,14 +473,23 @@ function AddMemberModal({
       {loading ? (
         <SpinnerCenter />
       ) : (
-        <Select label="Kullanıcı" value={selected} onChange={(e) => setSelected(e.target.value)}>
-          <option value="">Bir kullanıcı seç…</option>
-          {candidates.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.username} ({u.email})
-            </option>
-          ))}
-        </Select>
+        <>
+          <Select label="Kullanıcı" value={selected} onChange={(e) => setSelected(e.target.value)}>
+            <option value="">Bir kullanıcı seç…</option>
+            {candidates.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.username} ({u.email})
+              </option>
+            ))}
+          </Select>
+          <Select label="Rol" value={role} onChange={(e) => setRole(e.target.value as ProjectRole)}>
+            {PROJECT_ROLES.map((r) => (
+              <option key={r} value={r}>
+                {ROLE_LABELS[r]}
+              </option>
+            ))}
+          </Select>
+        </>
       )}
     </Modal>
   );

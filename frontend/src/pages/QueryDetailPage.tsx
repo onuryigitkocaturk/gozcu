@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useAsync } from "../hooks/useAsync";
+import { useMyProjectRole } from "../hooks/useMyProjectRole";
 import { queriesApi } from "../api/queries";
 import { alertsApi } from "../api/alerts";
 import { groupsApi } from "../api/groups";
@@ -36,7 +36,7 @@ export function QueryDetailPage() {
   const pId = projectId as string;
   const tId = tableId as string;
   const qId = queryId as string;
-  const { isAdmin } = useAuth();
+  const { isAtLeastDeveloper, isAtLeastMaintainer } = useMyProjectRole(pId);
   const { notifySuccess, notifyError } = useToast();
   const navigate = useNavigate();
 
@@ -143,7 +143,7 @@ export function QueryDetailPage() {
           <CardHeader
             title="Alertler"
             action={
-              isAdmin && (
+              isAtLeastDeveloper && (
                 <Button size="sm" variant="primary" onClick={() => setAddAlertOpen(true)}>
                   + Alert Ekle
                 </Button>
@@ -161,11 +161,11 @@ export function QueryDetailPage() {
         {!loadingAlerts &&
           alerts &&
           alerts.map((a) => (
-            <AlertRow key={a.id} projectId={pId} tableId={tId} queryId={qId} alert={a} onDelete={handleDeleteAlert} isAdmin={isAdmin} />
+            <AlertRow key={a.id} projectId={pId} tableId={tId} queryId={qId} alert={a} onDelete={handleDeleteAlert} isAdmin={isAtLeastMaintainer} />
           ))}
       </Card>
 
-      {isAdmin && (
+      {isAtLeastDeveloper && (
         <AddAlertModal
           open={addAlertOpen}
           onClose={() => setAddAlertOpen(false)}

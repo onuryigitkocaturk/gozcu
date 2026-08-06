@@ -87,6 +87,21 @@ export interface ConnectionTestRequest {
   dbPassword: string;
 }
 
+// ---- ProjectMembership ----
+export type ProjectRole = "REPORTER" | "DEVELOPER" | "MAINTAINER" | "OWNER";
+
+export interface ProjectMembershipRequest {
+  role: ProjectRole;
+}
+
+export interface ProjectMemberResponse {
+  userId: string;
+  username: string;
+  email: string;
+  role: ProjectRole;
+  joinedAt: string;
+}
+
 // ---- ProjectTable ----
 export interface ProjectTableRequest {
   tableName: string;

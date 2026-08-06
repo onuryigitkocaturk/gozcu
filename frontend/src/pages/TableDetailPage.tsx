@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useAsync } from "../hooks/useAsync";
+import { useMyProjectRole } from "../hooks/useMyProjectRole";
 import { projectsApi } from "../api/projects";
 import { queriesApi } from "../api/queries";
 import { ApiError } from "../api/client";
@@ -11,7 +11,7 @@ export function TableDetailPage() {
   const { projectId, tableId } = useParams();
   const pId = projectId as string;
   const tId = tableId as string;
-  const { isAdmin } = useAuth();
+  const { isAtLeastDeveloper, isAtLeastMaintainer } = useMyProjectRole(pId);
   const { notifySuccess, notifyError } = useToast();
   const navigate = useNavigate();
 
@@ -78,9 +78,11 @@ export function TableDetailPage() {
           <CardHeader
             title="Sorgular"
             action={
-              <Button size="sm" variant="primary" onClick={() => navigate(`/projects/${pId}/tables/${tId}/queries/new`)}>
-                + Yeni Sorgu
-              </Button>
+              isAtLeastDeveloper && (
+                <Button size="sm" variant="primary" onClick={() => navigate(`/projects/${pId}/tables/${tId}/queries/new`)}>
+                  + Yeni Sorgu
+                </Button>
+              )
             }
           />
         </div>
@@ -118,7 +120,7 @@ export function TableDetailPage() {
                 >
                   Aç
                 </Button>
-                {isAdmin && (
+                {isAtLeastMaintainer && (
                   <Button size="sm" variant="danger" onClick={() => handleDeleteQuery(q.id, q.name)}>
                     Sil
                   </Button>
