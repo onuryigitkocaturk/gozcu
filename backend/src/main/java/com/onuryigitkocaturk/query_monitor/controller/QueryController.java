@@ -29,6 +29,13 @@ import java.util.stream.Collectors;
 @PreAuthorize("hasRole('ADMIN')")
 public class QueryController {
 
+    private static final String AT_LEAST_REPORTER =
+            "hasRole('ADMIN') or @projectAuthorizationService.isAtLeastReporter(principal.id, #projectId)";
+    private static final String AT_LEAST_DEVELOPER =
+            "hasRole('ADMIN') or @projectAuthorizationService.isAtLeastDeveloper(principal.id, #projectId)";
+    private static final String AT_LEAST_MAINTAINER =
+            "hasRole('ADMIN') or @projectAuthorizationService.isAtLeastMaintainer(principal.id, #projectId)";
+
     private final QueryService queryService;
     private final QueryMapper queryMapper;
 
@@ -37,7 +44,7 @@ public class QueryController {
         this.queryMapper = queryMapper;
     }
 
-    @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
+    @PreAuthorize(AT_LEAST_DEVELOPER)
     @PostMapping
     public ResponseEntity<QueryResponse> createQuery(@PathVariable UUID projectId,
                                                        @PathVariable UUID tableId,
@@ -47,7 +54,7 @@ public class QueryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(queryMapper.toResponse(query));
     }
 
-    @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
+    @PreAuthorize(AT_LEAST_REPORTER)
     @GetMapping
     public ResponseEntity<List<QueryResponse>> getQueries(@PathVariable UUID projectId,
                                                             @PathVariable UUID tableId) {
@@ -58,6 +65,7 @@ public class QueryController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize(AT_LEAST_MAINTAINER)
     @DeleteMapping("/{queryId}")
     public ResponseEntity<Void> deleteQuery(@PathVariable UUID projectId,
                                               @PathVariable UUID tableId,
@@ -66,7 +74,7 @@ public class QueryController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
+    @PreAuthorize(AT_LEAST_REPORTER)
     @GetMapping("/{queryId}/run")
     public ResponseEntity<List<Map<String, Object>>> runQuery(@PathVariable UUID projectId,
                                                                 @PathVariable UUID tableId,
@@ -74,7 +82,7 @@ public class QueryController {
         return ResponseEntity.ok(queryService.runQuery(projectId, queryId));
     }
 
-    @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
+    @PreAuthorize(AT_LEAST_REPORTER)
     @GetMapping("/{queryId}/count")
     public ResponseEntity<Map<String, Long>> countQueryMatches(@PathVariable UUID projectId,
                                                                   @PathVariable UUID tableId,

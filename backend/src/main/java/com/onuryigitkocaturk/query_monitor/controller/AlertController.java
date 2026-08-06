@@ -29,6 +29,13 @@ import java.util.stream.Collectors;
 @PreAuthorize("hasRole('ADMIN')")
 public class AlertController {
 
+    private static final String AT_LEAST_REPORTER =
+            "hasRole('ADMIN') or @projectAuthorizationService.isAtLeastReporter(principal.id, #projectId)";
+    private static final String AT_LEAST_DEVELOPER =
+            "hasRole('ADMIN') or @projectAuthorizationService.isAtLeastDeveloper(principal.id, #projectId)";
+    private static final String AT_LEAST_MAINTAINER =
+            "hasRole('ADMIN') or @projectAuthorizationService.isAtLeastMaintainer(principal.id, #projectId)";
+
     private final AlertService alertService;
     private final AlertMapper alertMapper;
     private final AlertLogMapper alertLogMapper;
@@ -39,6 +46,7 @@ public class AlertController {
         this.alertLogMapper = alertLogMapper;
     }
 
+    @PreAuthorize(AT_LEAST_DEVELOPER)
     @PostMapping
     public ResponseEntity<AlertResponse> createAlert(@PathVariable UUID projectId,
                                                        @PathVariable UUID tableId,
@@ -48,7 +56,7 @@ public class AlertController {
         return ResponseEntity.status(HttpStatus.CREATED).body(alertMapper.toResponse(alert));
     }
 
-    @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
+    @PreAuthorize(AT_LEAST_REPORTER)
     @GetMapping
     public ResponseEntity<List<AlertResponse>> getAlerts(@PathVariable UUID projectId,
                                                            @PathVariable UUID tableId,
@@ -60,6 +68,7 @@ public class AlertController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize(AT_LEAST_MAINTAINER)
     @DeleteMapping("/{alertId}")
     public ResponseEntity<Void> deleteAlert(@PathVariable UUID projectId,
                                               @PathVariable UUID tableId,
@@ -69,7 +78,7 @@ public class AlertController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
+    @PreAuthorize(AT_LEAST_REPORTER)
     @GetMapping("/{alertId}/evaluate")
     public ResponseEntity<AlertEvaluationResult> evaluateAlert(@PathVariable UUID projectId,
                                                                  @PathVariable UUID tableId,
@@ -78,7 +87,7 @@ public class AlertController {
         return ResponseEntity.ok(alertService.evaluateAlert(projectId, alertId));
     }
 
-    @PreAuthorize("hasRole('ADMIN') or @userRepository.existsByIdAndProjects_Id(principal.id, #projectId)")
+    @PreAuthorize(AT_LEAST_REPORTER)
     @GetMapping("/{alertId}/logs")
     public ResponseEntity<List<AlertLogResponse>> getAlertLogs(@PathVariable UUID projectId,
                                                                  @PathVariable UUID tableId,

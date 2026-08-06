@@ -11,12 +11,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -55,13 +58,11 @@ public class User {
     )
     private Set<Group> groups = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "user_project",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "project_id")
-    )
-    private Set<Project> projects = new HashSet<>();
+    // Eskiden @ManyToMany + user_project ara tablosuydu (sadece "uye mi
+    // degil mi"). Artik rol bilgisi de gerektigi icin ProjectMembership
+    // ara entity'sine cevrildi - bkz. ProjectMembership.
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<ProjectMembership> projectMemberships = new ArrayList<>();
 
     public User() {
     }
@@ -129,12 +130,12 @@ public class User {
         this.groups = groups;
     }
 
-    public Set<Project> getProjects() {
-        return projects;
+    public List<ProjectMembership> getProjectMemberships() {
+        return projectMemberships;
     }
 
-    public void setProjects(Set<Project> projects) {
-        this.projects = projects;
+    public void setProjectMemberships(List<ProjectMembership> projectMemberships) {
+        this.projectMemberships = projectMemberships;
     }
 
     @Override

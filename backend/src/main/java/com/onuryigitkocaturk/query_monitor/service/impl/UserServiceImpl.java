@@ -7,6 +7,7 @@ import com.onuryigitkocaturk.query_monitor.enums.Role;
 import com.onuryigitkocaturk.query_monitor.exception.DuplicateUserException;
 import com.onuryigitkocaturk.query_monitor.exception.UserNotFoundException;
 import com.onuryigitkocaturk.query_monitor.model.User;
+import com.onuryigitkocaturk.query_monitor.repository.ProjectMembershipRepository;
 import com.onuryigitkocaturk.query_monitor.repository.UserRepository;
 import com.onuryigitkocaturk.query_monitor.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,10 +21,14 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final ProjectMembershipRepository projectMembershipRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository,
+                            ProjectMembershipRepository projectMembershipRepository,
+                            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.projectMembershipRepository = projectMembershipRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -73,11 +78,14 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı: " + id));
 
-        // owning side User üzerinden temizlemezsek, user_group/user_project
-        // junction tablosundaki satırlar FK ihlaline yol açar.
+        // owning side User uzerinden temizlemezsek, user_group junction
+        // tablosundaki satirlar FK ihlaline yol acar.
         user.getGroups().clear();
-        user.getProjects().clear();
         userRepository.save(user);
+
+        // ProjectMembership artik ayri bir entity - User'in koleksiyonunu
+        // temizlemek DB'deki satirlari silmez, elle silinmesi gerekiyor.
+        projectMembershipRepository.deleteByUserId(id);
 
         userRepository.delete(user);
     }

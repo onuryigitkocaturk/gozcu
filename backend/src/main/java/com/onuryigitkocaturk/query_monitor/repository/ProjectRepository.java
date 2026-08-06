@@ -12,6 +12,4 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
     Optional<Project> findByName(String name);
 
     boolean existsByName(String name);
-
-    List<Project> findByUsers_Id(UUID userId);
 }

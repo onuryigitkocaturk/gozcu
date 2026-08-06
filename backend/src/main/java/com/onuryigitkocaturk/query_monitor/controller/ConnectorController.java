@@ -17,7 +17,7 @@ import java.util.List;
 // bağlanılabiliyor mu diye test etmek için kullanılır. Proje oluşturulduktan
 // sonraki tablo keşfi artık ProjectController.discoverTables üzerinden,
 // projenin KAYITLI (şifrelenmiş) bağlantı bilgisiyle yapılıyor.
-@RestController
+@RestController // -> @ResponseBody + @Controller
 @RequestMapping("/api/connector")
 @PreAuthorize("hasRole('ADMIN')")
 public class ConnectorController {

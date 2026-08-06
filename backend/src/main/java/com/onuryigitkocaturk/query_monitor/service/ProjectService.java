@@ -1,9 +1,10 @@
 package com.onuryigitkocaturk.query_monitor.service;
 
 import com.onuryigitkocaturk.query_monitor.dto.ProjectRequest;
+import com.onuryigitkocaturk.query_monitor.enums.ProjectRole;
 import com.onuryigitkocaturk.query_monitor.model.Project;
+import com.onuryigitkocaturk.query_monitor.model.ProjectMembership;
 import com.onuryigitkocaturk.query_monitor.model.ProjectTable;
-import com.onuryigitkocaturk.query_monitor.model.User;
 
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,7 @@ import java.util.UUID;
 
 public interface ProjectService {
 
-    Project createProject(ProjectRequest request);
+    Project createProject(ProjectRequest request, UUID creatorUserId);
 
     void deleteProject(UUID id);
 
@@ -19,11 +20,13 @@ public interface ProjectService {
 
     List<Project> getProjectsForUser(UUID userId);
 
-    void addUserToProject(UUID projectId, UUID userId);
+    void addUserToProject(UUID projectId, UUID userId, ProjectRole role, UUID actingUserId);
 
     void removeUserFromProject(UUID projectId, UUID userId);
 
-    List<User> getProjectUsers(UUID projectId);
+    void changeMemberRole(UUID projectId, UUID userId, ProjectRole newRole, UUID actingUserId);
+
+    List<ProjectMembership> getProjectMembers(UUID projectId);
 
     void addTableToProject(UUID projectId, String tableName);
 

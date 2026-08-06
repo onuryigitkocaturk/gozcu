@@ -6,7 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
@@ -14,11 +13,9 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.Set;
 
 @Entity
 @Table(name = "projects")
@@ -55,8 +52,11 @@ public class Project {
     @Column(name = "db_password_encrypted", columnDefinition = "TEXT")
     private String dbPasswordEncrypted;
 
-    @ManyToMany(mappedBy = "projects", fetch = FetchType.LAZY)
-    private Set<User> users = new HashSet<>();
+    // cascade + orphanRemoval: bir ProjectMembership projesiz var olamaz,
+    // proje silinince uyelik kayitlari da otomatik silinsin diye.
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectMembership> memberships = new ArrayList<>();
 
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY,
             cascade = CascadeType.ALL, orphanRemoval = true)
@@ -149,12 +149,12 @@ public class Project {
         this.dbPasswordEncrypted = dbPasswordEncrypted;
     }
 
-    public Set<User> getUsers() {
-        return users;
+    public List<ProjectMembership> getMemberships() {
+        return memberships;
     }
 
-    public void setUsers(Set<User> users) {
-        this.users = users;
+    public void setMemberships(List<ProjectMembership> memberships) {
+        this.memberships = memberships;
     }
 
     public List<Query> getQueries() {

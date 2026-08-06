@@ -62,6 +62,16 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
+    @ExceptionHandler(DuplicateProjectMembershipException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateProjectMembership(DuplicateProjectMembershipException ex) {
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(InsufficientProjectRoleException.class)
+    public ResponseEntity<ErrorResponse> handleInsufficientProjectRole(InsufficientProjectRoleException ex) {
+        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
+    }
+
     @ExceptionHandler(QueryNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleQueryNotFound(QueryNotFoundException ex) {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
