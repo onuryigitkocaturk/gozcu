@@ -12,6 +12,7 @@ import type {
 export const projectsApi = {
   list: () => api.get<ProjectResponse[]>("/api/projects"),
   listMine: () => api.get<ProjectResponse[]>("/api/projects/my"),
+  getById: (id: string) => api.get<ProjectResponse>(`/api/projects/${id}`),
   create: (body: ProjectRequest) => api.post<ProjectResponse>("/api/projects", body),
   remove: (id: string) => api.del<void>(`/api/projects/${id}`),
   addUser: (projectId: string, userId: string, body: ProjectMembershipRequest) =>

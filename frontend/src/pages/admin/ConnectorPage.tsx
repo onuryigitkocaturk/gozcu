@@ -38,10 +38,6 @@ export function ConnectorPage() {
       <div className="page__header">
         <div>
           <h1 className="page__title">Bağlantı Testi</h1>
-          <p className="page__subtitle">
-            Bir proje oluşturmadan önce, izlemek istediğin veritabanının bilgilerini girip gerçekten
-            bağlanılabiliyor mu ve hangi tabloların göründüğünü kontrol et.
-          </p>
         </div>
       </div>
 

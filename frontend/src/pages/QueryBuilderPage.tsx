@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "../context/ToastContext";
 import { useAsync } from "../hooks/useAsync";
@@ -7,18 +7,32 @@ import { queriesApi } from "../api/queries";
 import { ApiError } from "../api/client";
 import { Button, Card, CardHeader, Input, Select, SpinnerCenter } from "../components/ui";
 import { QueryBuilder } from "../components/querybuilder/QueryBuilder";
-import { createEmptyGroup, findEmptyGroup, toQueryNode, type BuilderGroup } from "../components/querybuilder/builderTypes";
+import {
+  createEmptyGroup,
+  findEmptyGroup,
+  fromQueryNode,
+  toQueryNode,
+  type BuilderGroup,
+} from "../components/querybuilder/builderTypes";
 import type { Frequency } from "../types/api";
 
 export function QueryBuilderPage() {
-  const { projectId, tableId } = useParams();
+  const { projectId, tableId, queryId } = useParams();
   const pId = projectId as string;
   const tId = tableId as string;
+  const qId = queryId;
+  const isEditMode = qId !== undefined;
   const navigate = useNavigate();
   const { notifySuccess, notifyError } = useToast();
 
   const { data: tables, error: tablesError } = useAsync(() => projectsApi.listTables(pId), [pId]);
   const currentTable = tables?.find((t) => t.id === tId);
+
+  const { data: queries } = useAsync(
+    () => (isEditMode ? queriesApi.list(pId, tId) : Promise.resolve([])),
+    [pId, tId, isEditMode],
+  );
+  const existingQuery = qId ? queries?.find((q) => q.id === qId) : undefined;
 
   const {
     data: columns,
@@ -34,6 +48,16 @@ export function QueryBuilderPage() {
   const [tree, setTree] = useState<BuilderGroup>(() => createEmptyGroup());
   const [saving, setSaving] = useState(false);
   const [showJson, setShowJson] = useState(false);
+  const [loadedExisting, setLoadedExisting] = useState(false);
+
+  useEffect(() => {
+    if (existingQuery && !loadedExisting) {
+      setName(existingQuery.name);
+      setFrequency(existingQuery.frequency);
+      setTree(fromQueryNode(existingQuery.definition) as BuilderGroup);
+      setLoadedExisting(true);
+    }
+  }, [existingQuery, loadedExisting]);
 
   const queryNodePreview = useMemo(() => toQueryNode(tree), [tree]);
   const isEmpty = findEmptyGroup(tree);
@@ -49,15 +73,21 @@ export function QueryBuilderPage() {
     }
     setSaving(true);
     try {
-      const created = await queriesApi.create(pId, tId, {
-        name,
-        frequency,
-        definition: queryNodePreview,
-      });
-      notifySuccess(`"${name}" sorgusu oluşturuldu.`);
-      navigate(`/projects/${pId}/tables/${tId}/queries/${created.id}`);
+      if (isEditMode && qId) {
+        await queriesApi.update(pId, tId, qId, { name, frequency, definition: queryNodePreview });
+        notifySuccess(`"${name}" sorgusu güncellendi.`);
+        navigate(`/projects/${pId}/tables/${tId}/queries/${qId}`);
+      } else {
+        const created = await queriesApi.create(pId, tId, {
+          name,
+          frequency,
+          definition: queryNodePreview,
+        });
+        notifySuccess(`"${name}" sorgusu oluşturuldu.`);
+        navigate(`/projects/${pId}/tables/${tId}/queries/${created.id}`);
+      }
     } catch (err) {
-      notifyError(err instanceof ApiError ? err.message : "Sorgu oluşturulamadı.");
+      notifyError(err instanceof ApiError ? err.message : "Sorgu kaydedilemedi.");
     } finally {
       setSaving(false);
     }
@@ -70,18 +100,18 @@ export function QueryBuilderPage() {
           {currentTable?.tableName ?? "Tablo"}
         </a>
         <span>/</span>
-        <span>Yeni Sorgu</span>
+        <span>{isEditMode ? "Sorguyu Düzenle" : "Yeni Sorgu"}</span>
       </div>
 
       <div className="page__header">
         <div>
-          <h1 className="page__title">Yeni Sorgu Oluştur</h1>
+          <h1 className="page__title">{isEditMode ? "Sorguyu Düzenle" : "Yeni Sorgu Oluştur"}</h1>
           <p className="page__subtitle">
             Sol taraftaki kolonları sürükleyerek koşullar oluştur, VE/VEYA ile birleştir.
           </p>
         </div>
         <Button variant="primary" onClick={handleSubmit} disabled={saving}>
-          {saving ? "Kaydediliyor…" : "Sorguyu Kaydet"}
+          {saving ? "Kaydediliyor…" : isEditMode ? "Değişiklikleri Kaydet" : "Sorguyu Kaydet"}
         </Button>
       </div>
 

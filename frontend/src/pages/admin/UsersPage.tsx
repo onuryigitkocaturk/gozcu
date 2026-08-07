@@ -57,7 +57,6 @@ export function UsersPage() {
       <div className="page__header">
         <div>
           <h1 className="page__title">Kullanıcılar</h1>
-          <p className="page__subtitle">Sistemdeki tüm kullanıcılar ve rolleri.</p>
         </div>
       </div>
 

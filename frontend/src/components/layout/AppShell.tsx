@@ -39,10 +39,10 @@ export function AppShell() {
               Kullanıcılar
             </SidebarLink>
             <SidebarLink to="/admin/groups">
-              Gruplar
+              Mail Grupları
             </SidebarLink>
             <SidebarLink to="/admin/connector">
-              İzlenen Veritabanı
+              Bağlantı Testi
             </SidebarLink>
           </>
         )}

@@ -53,7 +53,7 @@ export function TableDetailPage() {
         </a>
         <span>/</span>
         <a href={`/projects/${pId}`} onClick={(e) => (e.preventDefault(), navigate(`/projects/${pId}`))}>
-          Proje #{pId}
+          {currentTable?.projectName ?? "Proje"}
         </a>
         <span>/</span>
         <span>{currentTable?.tableName ?? `Tablo #${tId}`}</span>
@@ -62,7 +62,6 @@ export function TableDetailPage() {
       <div className="page__header">
         <div>
           <h1 className="page__title">{currentTable?.tableName ?? "Tablo"}</h1>
-          <p className="page__subtitle">İzlenen tablonun verisi ve bu tabloya tanımlı sorgular.</p>
         </div>
       </div>
 

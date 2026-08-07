@@ -97,7 +97,6 @@ function AdminDashboard() {
       <div className="page__header">
         <div>
           <h1 className="page__title">Projeler</h1>
-          <p className="page__subtitle">İzlenen tabloları ve sorguları organize ettiğin çalışma alanları.</p>
         </div>
         <Button variant="primary" onClick={() => setModalOpen(true)}>
           + Yeni Proje

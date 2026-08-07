@@ -118,6 +118,14 @@ export function QueryDetailPage() {
           </div>
         </div>
         <div className="flex gap-8">
+          {isAtLeastDeveloper && (
+            <Button
+              variant="secondary"
+              onClick={() => navigate(`/projects/${pId}/tables/${tId}/queries/${qId}/edit`)}
+            >
+              Düzenle
+            </Button>
+          )}
           <Button variant="secondary" onClick={handleCount} disabled={runningAction !== null}>
             {runningAction === "count" ? "Sayılıyor…" : "Say"}
           </Button>

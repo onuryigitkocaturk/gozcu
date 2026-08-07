@@ -51,8 +51,7 @@ export function GroupsPage() {
     <div className="page">
       <div className="page__header">
         <div>
-          <h1 className="page__title">Gruplar</h1>
-          <p className="page__subtitle">Alert tetiklendiğinde mail bildirimi alacak kullanıcı grupları.</p>
+          <h1 className="page__title">Mail Grupları</h1>
         </div>
         <Button variant="primary" onClick={() => setCreateOpen(true)}>
           + Yeni Grup

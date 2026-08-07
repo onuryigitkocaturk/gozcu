@@ -35,6 +35,8 @@ export function ProjectDetailPage() {
 
   const [tab, setTab] = useState<"tables" | "members">("tables");
 
+  const { data: project } = useAsync(() => projectsApi.getById(id), [id]);
+
   const {
     data: tables,
     loading: loadingTables,
@@ -84,13 +86,12 @@ export function ProjectDetailPage() {
           Projeler
         </a>
         <span>/</span>
-        <span>Proje #{id}</span>
+        <span>{project?.name ?? "Proje"}</span>
       </div>
 
       <div className="page__header">
         <div>
-          <h1 className="page__title">Proje #{id}</h1>
-          <p className="page__subtitle">Bu projeye bağlı tablolar, sorgular ve üyeler.</p>
+          <h1 className="page__title">{project?.name ?? "Proje"}</h1>
         </div>
       </div>
 

@@ -24,6 +24,7 @@ export function App() {
           <Route path="/projects/:projectId" element={<ProjectDetailPage />} />
           <Route path="/projects/:projectId/tables/:tableId" element={<TableDetailPage />} />
           <Route path="/projects/:projectId/tables/:tableId/queries/new" element={<QueryBuilderPage />} />
+          <Route path="/projects/:projectId/tables/:tableId/queries/:queryId/edit" element={<QueryBuilderPage />} />
           <Route path="/projects/:projectId/tables/:tableId/queries/:queryId" element={<QueryDetailPage />} />
 
           <Route element={<AdminRoute />}>
