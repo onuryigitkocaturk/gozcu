@@ -32,6 +32,11 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.UNAUTHORIZED, "Geçersiz kullanıcı adı veya şifre");
     }
 
+    @ExceptionHandler(InvalidVerificationCodeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidVerificationCode(InvalidVerificationCodeException ex) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
     @ExceptionHandler(DuplicateProjectException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateProject(DuplicateProjectException ex) {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());

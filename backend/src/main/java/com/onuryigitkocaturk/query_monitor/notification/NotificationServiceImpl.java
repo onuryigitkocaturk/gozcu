@@ -54,6 +54,42 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
+    @Override
+    public void sendLoginVerificationCodeEmail(String recipientEmail, String code) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "UTF-8");
+            helper.setFrom(fromAddress);
+            helper.setTo(recipientEmail);
+            helper.setSubject("[Gözcü] Giriş doğrulama kodun");
+            helper.setText(buildVerificationCodeHtmlBody(code), true);
+
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            throw new IllegalStateException("Doğrulama kodu maili oluşturulamadı", e);
+        }
+    }
+
+    private String buildVerificationCodeHtmlBody(String code) {
+        return """
+                <div style="font-family: -apple-system, Segoe UI, Arial, sans-serif; max-width: 480px; margin: 0 auto;">
+                  <div style="background: #4a90e2; padding: 20px 24px; border-radius: 8px 8px 0 0;">
+                    <span style="color: #ffffff; font-size: 20px; font-weight: 700;">gözcü</span>
+                  </div>
+                  <div style="border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px; padding: 28px; text-align: center;">
+                    <p style="font-size: 15px; color: #1a2233; margin: 0 0 20px;">
+                      Bilinmeyen bir cihazdan giriş denemesi algılandı. Bu sen değilsen bu kodu kimseyle paylaşma.
+                    </p>
+                    <div style="font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #4a90e2; ">"""
+                + escape(code) +
+                """
+                    </div>
+                    <p style="font-size: 13px; color: #8a94a6; margin: 20px 0 0;">Bu kod 10 dakika içinde geçerliliğini yitirir.</p>
+                  </div>
+                </div>
+                """;
+    }
+
     private String buildHtmlBody(String queryName, long matchCount, List<Map<String, Object>> matchedRows) {
         StringBuilder html = new StringBuilder();
         html.append("""
