@@ -96,6 +96,12 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public Project getProjectById(UUID id) {
+        return projectRepository.findById(id)
+                .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + id));
+    }
+
+    @Override
     public List<Project> getProjectsForUser(UUID userId) {
         return projectMembershipRepository.findByUserId(userId).stream()
                 .map(ProjectMembership::getProject)

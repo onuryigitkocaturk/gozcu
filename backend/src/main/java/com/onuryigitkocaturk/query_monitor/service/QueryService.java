@@ -11,6 +11,8 @@ public interface QueryService {
 
     Query createQuery(UUID projectId, UUID projectTableId, QueryRequest request, UUID createdByUserId);
 
+    Query updateQuery(UUID projectId, UUID queryId, QueryRequest request);
+
     void deleteQuery(UUID projectId, UUID queryId);
 
     List<Query> getQueriesForTable(UUID projectId, UUID projectTableId);

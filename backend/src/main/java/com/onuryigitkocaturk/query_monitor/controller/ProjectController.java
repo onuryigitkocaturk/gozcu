@@ -79,6 +79,12 @@ public class ProjectController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize(AT_LEAST_REPORTER)
+    @GetMapping("/{projectId}")
+    public ResponseEntity<ProjectResponse> getProject(@PathVariable UUID projectId) {
+        return ResponseEntity.ok(projectMapper.toResponse(projectService.getProjectById(projectId)));
+    }
+
     @PreAuthorize("hasRole('ADMIN') or @projectAuthorizationService.isOwner(principal.id, #id)")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable UUID id) {

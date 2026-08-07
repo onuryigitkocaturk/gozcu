@@ -18,6 +18,8 @@ public interface ProjectService {
 
     List<Project> getAllProjects();
 
+    Project getProjectById(UUID id);
+
     List<Project> getProjectsForUser(UUID userId);
 
     void addUserToProject(UUID projectId, UUID userId, ProjectRole role, UUID actingUserId);

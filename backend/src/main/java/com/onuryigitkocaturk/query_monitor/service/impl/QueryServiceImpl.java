@@ -85,6 +85,27 @@ public class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public Query updateQuery(UUID projectId, UUID queryId, QueryRequest request) {
+        Query query = getValidatedQuery(projectId, queryId);
+
+        List<String> validColumns = tableMetadataService.listColumns(
+                toConnectionDetails(query.getProject()), query.getProjectTable().getTableName());
+        queryDefinitionValidator.validate(request.getDefinition(), validColumns);
+
+        String definitionJson;
+        try {
+            definitionJson = objectMapper.writeValueAsString(request.getDefinition());
+        } catch (JsonProcessingException e) {
+            throw new InvalidQueryDefinitionException("Sorgu tanımı işlenemedi");
+        }
+
+        query.setName(request.getName());
+        query.setDefinitionJson(definitionJson);
+        query.setFrequency(request.getFrequency());
+        return queryRepository.save(query);
+    }
+
+    @Override
     public void deleteQuery(UUID projectId, UUID queryId) {
         queryRepository.delete(getValidatedQuery(projectId, queryId));
     }

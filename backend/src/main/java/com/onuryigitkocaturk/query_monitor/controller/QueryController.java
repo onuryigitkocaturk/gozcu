@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,6 +53,16 @@ public class QueryController {
                                                        @AuthenticationPrincipal UserDetailsImpl principal) {
         Query query = queryService.createQuery(projectId, tableId, request, principal.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(queryMapper.toResponse(query));
+    }
+
+    @PreAuthorize(AT_LEAST_DEVELOPER)
+    @PutMapping("/{queryId}")
+    public ResponseEntity<QueryResponse> updateQuery(@PathVariable UUID projectId,
+                                                       @PathVariable UUID tableId,
+                                                       @PathVariable UUID queryId,
+                                                       @Valid @RequestBody QueryRequest request) {
+        Query query = queryService.updateQuery(projectId, queryId, request);
+        return ResponseEntity.ok(queryMapper.toResponse(query));
     }
 
     @PreAuthorize(AT_LEAST_REPORTER)
