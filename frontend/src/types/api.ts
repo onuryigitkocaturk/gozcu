@@ -28,8 +28,14 @@ export interface LoginRequest {
   username: string;
   password: string;
 }
-export interface AuthResponse {
-  token: string;
+export interface LoginResponse {
+  token: string | null;
+  verificationRequired: boolean;
+  verificationToken: string | null;
+}
+export interface VerifyLoginCodeRequest {
+  verificationToken: string;
+  code: string;
 }
 export interface UserResponse {
   id: string;

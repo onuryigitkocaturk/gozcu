@@ -1,7 +1,8 @@
 import { api } from "./client";
-import type { AuthResponse, LoginRequest, RegisterRequest, UserResponse } from "../types/api";
+import type { LoginRequest, LoginResponse, RegisterRequest, UserResponse, VerifyLoginCodeRequest } from "../types/api";
 
 export const authApi = {
   register: (body: RegisterRequest) => api.post<UserResponse>("/api/auth/register", body),
-  login: (body: LoginRequest) => api.post<AuthResponse>("/api/auth/login", body),
+  login: (body: LoginRequest) => api.post<LoginResponse>("/api/auth/login", body),
+  verifyLoginCode: (body: VerifyLoginCodeRequest) => api.post<LoginResponse>("/api/auth/verify-login-code", body),
 };

@@ -604,6 +604,18 @@ table.data-table {
   color: var(--color-text-muted);
   text-align: center;
 }
+.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-primary);
+  font-size: inherit;
+  cursor: pointer;
+}
+.link-button:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
 .auth-card__footer-logo {
   display: flex;
   justify-content: center;

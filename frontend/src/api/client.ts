@@ -56,6 +56,8 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: options.method ?? "GET",
     headers,
+    // device_token (yeni cihaz dogrulama) cookie'sinin gonderilip/alinabilmesi icin gerekli.
+    credentials: "include",
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
   });
 
