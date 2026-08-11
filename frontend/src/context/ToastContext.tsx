@@ -1,4 +1,5 @@
-import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 
 interface Toast {
   id: number;
@@ -16,6 +17,14 @@ const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const nextId = useRef(1);
+  const location = useLocation();
+
+  // Sayfa degistiginde eski sayfaya ait bekleyen toast'lar yeni sayfanin
+  // ustune binmesin diye temizlenir (bkz. login dogrulama ekraninda query
+  // hatasi toast'inin gorunmesi bug'i).
+  useEffect(() => {
+    setToasts([]);
+  }, [location.pathname]);
 
   const push = useCallback((message: string, type: Toast["type"]) => {
     const id = nextId.current++;

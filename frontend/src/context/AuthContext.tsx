@@ -16,6 +16,13 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+// Cihaz guven kontrolune (bkz. DeviceTrustService) ucuncu bir zayif sinyal
+// olarak eklenen ekran cozunurlugu - gizli bir bilgi degil, sadece cookie
+// calinip farkli bir cihazdan kullanilirsa bunu yakalamaya yardimci olur.
+function getScreenResolution(): string {
+  return `${window.screen.width}x${window.screen.height}`;
+}
+
 // Token ve kullanici bilgisi SADECE bellekte (React state) tutulur.
 // localStorage/sessionStorage KULLANILMAZ - sayfa yenilenince oturum
 // bilerek kapanir (backend'in "access token localStorage'da saklanmaz"
@@ -39,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (body: LoginRequest) => {
-      const result = await authApi.login(body);
+      const result = await authApi.login({ ...body, screenResolution: getScreenResolution() });
       if (result.verificationRequired && result.verificationToken) {
         setPendingVerificationToken(result.verificationToken);
         return { verificationRequired: true };
@@ -55,7 +62,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!pendingVerificationToken) {
         throw new Error("Doğrulama isteği bulunamadı, tekrar giriş yapmayı dene.");
       }
-      const result = await authApi.verifyLoginCode({ verificationToken: pendingVerificationToken, code });
+      const result = await authApi.verifyLoginCode({
+        verificationToken: pendingVerificationToken,
+        code,
+        screenResolution: getScreenResolution(),
+      });
       await completeLogin(result.token as string);
       setPendingVerificationToken(null);
     },
