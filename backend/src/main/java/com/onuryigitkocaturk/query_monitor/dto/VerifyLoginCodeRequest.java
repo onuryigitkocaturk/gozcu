@@ -10,6 +10,9 @@ public class VerifyLoginCodeRequest {
     @NotBlank
     private String code;
 
+    // zorunlu değil
+    private String screenResolution;
+
     public String getVerificationToken() {
         return verificationToken;
     }
@@ -24,5 +27,13 @@ public class VerifyLoginCodeRequest {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getScreenResolution() {
+        return screenResolution;
+    }
+
+    public void setScreenResolution(String screenResolution) {
+        this.screenResolution = screenResolution;
     }
 }

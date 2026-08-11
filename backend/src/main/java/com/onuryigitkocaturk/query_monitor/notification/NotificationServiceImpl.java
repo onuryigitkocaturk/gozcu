@@ -7,22 +7,23 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Gercek SMTP protokolu ile mail gonderir (JavaMailSender). Su an
- * MailHog'a (Docker, sahte SMTP sunucusu, localhost:8025'te web arayuzu)
- * baglaniyor - gercekten internete/gercek bir mail kutusuna gitmiyor,
- * ama gercek mail gonderim kod yolunu test etmemizi sagliyor.
- */
+// gerçek SMTP protokolü ile mail gönderir (JavaMailSender).
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
-    /** Mail cok uzun olmasin diye eslesen satirlardan en fazla bu kadari listelenir. */
+    // mail çok uzun olmasın diye eşleşen satırlardan en fazla bu kadarı listelenir.
     private static final int MAX_ROWS_IN_EMAIL = 20;
+
+    private static final DateTimeFormatter ATTEMPT_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm", new Locale("tr", "TR"));
 
     private final JavaMailSender mailSender;
     private final String fromAddress;
@@ -55,14 +56,14 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendLoginVerificationCodeEmail(String recipientEmail, String code) {
+    public void sendLoginVerificationCodeEmail(String recipientEmail, String code, String requestIp, String userAgent) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "UTF-8");
             helper.setFrom(fromAddress);
             helper.setTo(recipientEmail);
             helper.setSubject("[Gözcü] Giriş doğrulama kodun");
-            helper.setText(buildVerificationCodeHtmlBody(code), true);
+            helper.setText(buildVerificationCodeHtmlBody(code, requestIp, userAgent), true);
 
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
@@ -70,7 +71,10 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    private String buildVerificationCodeHtmlBody(String code) {
+    private String buildVerificationCodeHtmlBody(String code, String requestIp, String userAgent) {
+        String displayIp = (requestIp == null || requestIp.isBlank()) ? "bilinmiyor" : escape(requestIp);
+        String displayUserAgent = summarizeUserAgent(userAgent);
+        String displayAttemptTime = ATTEMPT_TIME_FORMATTER.format(LocalDateTime.now());
         return """
                 <div style="font-family: -apple-system, Segoe UI, Arial, sans-serif; max-width: 480px; margin: 0 auto;">
                   <div style="background: #4a90e2; padding: 20px 24px; border-radius: 8px 8px 0 0;">
@@ -85,9 +89,60 @@ public class NotificationServiceImpl implements NotificationService {
                 """
                     </div>
                     <p style="font-size: 13px; color: #8a94a6; margin: 20px 0 0;">Bu kod 10 dakika içinde geçerliliğini yitirir.</p>
+                    <p style="font-size: 13px; color: #8a94a6; margin: 8px 0 0;">Deneme zamanı: <strong>"""
+                + escape(displayAttemptTime) +
+                """
+                    </strong></p>
+                    <p style="font-size: 13px; color: #8a94a6; margin: 8px 0 0;">Giriş denemesinin IP adresi: <strong>"""
+                + displayIp +
+                """
+                    </strong></p>
+                    <p style="font-size: 13px; color: #8a94a6; margin: 8px 0 0;">Cihaz/tarayıcı: <strong>"""
+                + escape(displayUserAgent) +
+                """
+                    </strong></p>
                   </div>
                 </div>
                 """;
+    }
+
+    // Ham User-Agent'i genel okunur bir özete indirger.
+    private String summarizeUserAgent(String userAgent) {
+        if (userAgent == null || userAgent.isBlank()) {
+            return "bilinmiyor";
+        }
+
+        String browser;
+        if (userAgent.contains("Edg/")) {
+            browser = "Edge";
+        } else if (userAgent.contains("OPR/") || userAgent.contains("Opera")) {
+            browser = "Opera";
+        } else if (userAgent.contains("Firefox/")) {
+            browser = "Firefox";
+        } else if (userAgent.contains("Chrome/")) {
+            browser = "Chrome";
+        } else if (userAgent.contains("Safari/")) {
+            browser = "Safari";
+        } else {
+            browser = "bilinmeyen tarayıcı";
+        }
+
+        String os;
+        if (userAgent.contains("Windows")) {
+            os = "Windows";
+        } else if (userAgent.contains("Mac OS X")) {
+            os = "macOS";
+        } else if (userAgent.contains("Android")) {
+            os = "Android";
+        } else if (userAgent.contains("iPhone") || userAgent.contains("iPad") || userAgent.contains("iOS")) {
+            os = "iOS";
+        } else if (userAgent.contains("Linux")) {
+            os = "Linux";
+        } else {
+            os = "bilinmeyen işletim sistemi";
+        }
+
+        return browser + " (" + os + ")";
     }
 
     private String buildHtmlBody(String queryName, long matchCount, List<Map<String, Object>> matchedRows) {

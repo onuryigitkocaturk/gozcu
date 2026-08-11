@@ -15,12 +15,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * Bir kullanicinin daha once e-posta koduyla dogruladigi bir tarayici/cihazi
- * temsil eder. deviceTokenHash, tarayicidaki HttpOnly cookie'nin (device_token)
- * SHA-256 hash'i - JWT'den tamamen ayri bir mekanizma, ayni cihazdan tekrar
- * giris yapildiginda kod istenmemesini saglar.
- */
+// kullanıcının doğruladığı cihazı temsil eder.
 @Entity
 @Table(name = "trusted_devices")
 public class TrustedDevice {
@@ -37,6 +32,12 @@ public class TrustedDevice {
     @Column(name = "device_token_hash", nullable = false)
     private String deviceTokenHash;
 
+    @Column(name = "user_agent_hash", nullable = false)
+    private String userAgentHash;
+
+    @Column(name = "screen_resolution", nullable = false)
+    private String screenResolution;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -44,9 +45,11 @@ public class TrustedDevice {
     public TrustedDevice() {
     }
 
-    public TrustedDevice(User user, String deviceTokenHash) {
+    public TrustedDevice(User user, String deviceTokenHash, String userAgentHash, String screenResolution) {
         this.user = user;
         this.deviceTokenHash = deviceTokenHash;
+        this.userAgentHash = userAgentHash;
+        this.screenResolution = screenResolution;
     }
 
     public UUID getId() {
@@ -71,6 +74,22 @@ public class TrustedDevice {
 
     public void setDeviceTokenHash(String deviceTokenHash) {
         this.deviceTokenHash = deviceTokenHash;
+    }
+
+    public String getUserAgentHash() {
+        return userAgentHash;
+    }
+
+    public void setUserAgentHash(String userAgentHash) {
+        this.userAgentHash = userAgentHash;
+    }
+
+    public String getScreenResolution() {
+        return screenResolution;
+    }
+
+    public void setScreenResolution(String screenResolution) {
+        this.screenResolution = screenResolution;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -8,5 +8,5 @@ public interface NotificationService {
     void sendAlertTriggeredEmail(List<String> recipientEmails, String queryName, long matchCount,
                                   List<Map<String, Object>> matchedRows);
 
-    void sendLoginVerificationCodeEmail(String recipientEmail, String code);
+    void sendLoginVerificationCodeEmail(String recipientEmail, String code, String requestIp, String userAgent);
 }

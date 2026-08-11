@@ -11,6 +11,7 @@ import com.onuryigitkocaturk.query_monitor.security.DeviceTrustService;
 import com.onuryigitkocaturk.query_monitor.security.JwtUtil;
 import com.onuryigitkocaturk.query_monitor.service.LoginVerificationService;
 import com.onuryigitkocaturk.query_monitor.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -60,29 +62,40 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request,
-                                                @CookieValue(name = DEVICE_TOKEN_COOKIE, required = false) String deviceToken) {
+                                                @CookieValue(name = DEVICE_TOKEN_COOKIE, required = false) String deviceToken,
+                                                @RequestHeader(name = "User-Agent", required = false) String userAgent,
+                                                HttpServletRequest httpRequest) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
 
         User user = userService.getByUsername(request.getUsername());
 
-        if (deviceTrustService.isTrusted(user.getId(), deviceToken)) {
+        if (deviceTrustService.isTrusted(user.getId(), deviceToken, userAgent, request.getScreenResolution())) {
             String token = jwtUtil.generateToken(user.getUsername());
             return ResponseEntity.ok(new LoginResponse(token, false, null));
         }
 
-        // bilinmeyen cihaz - JWT hemen verilmiyor, once mail dogrulamasi gerekiyor.
-        String verificationToken = loginVerificationService.startVerification(user);
+        // bilinmeyen cihaza JWT hemen verilmiyor, mail doğrulaması gerekli.
+        String verificationToken = loginVerificationService.startVerification(user, normalizeIp(httpRequest.getRemoteAddr()), userAgent);
         return ResponseEntity.ok(new LoginResponse(null, true, verificationToken));
+    }
+
+    // IPv6 IPv4'e çevrilir.
+    private String normalizeIp(String ip) {
+        if ("0:0:0:0:0:0:0:1".equals(ip) || "::1".equals(ip)) {
+            return "127.0.0.1";
+        }
+        return ip;
     }
 
     @PostMapping("/verify-login-code")
     public ResponseEntity<LoginResponse> verifyLoginCode(@Valid @RequestBody VerifyLoginCodeRequest request,
+                                                          @RequestHeader(name = "User-Agent", required = false) String userAgent,
                                                           HttpServletResponse response) {
         User user = loginVerificationService.verifyCode(request.getVerificationToken(), request.getCode());
 
-        String newDeviceToken = deviceTrustService.trustNewDevice(user);
+        String newDeviceToken = deviceTrustService.trustNewDevice(user, userAgent, request.getScreenResolution());
         ResponseCookie cookie = ResponseCookie.from(DEVICE_TOKEN_COOKIE, newDeviceToken)
                 .httpOnly(true)
                 .secure(false) // production'da HTTPS ile true olmali

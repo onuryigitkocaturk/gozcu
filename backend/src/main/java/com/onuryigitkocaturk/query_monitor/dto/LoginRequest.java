@@ -10,6 +10,9 @@ public class LoginRequest {
     @NotBlank
     private String password;
 
+    // zorunlu değil
+    private String screenResolution;
+
     public LoginRequest() {
     }
 
@@ -32,5 +35,13 @@ public class LoginRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getScreenResolution() {
+        return screenResolution;
+    }
+
+    public void setScreenResolution(String screenResolution) {
+        this.screenResolution = screenResolution;
     }
 }

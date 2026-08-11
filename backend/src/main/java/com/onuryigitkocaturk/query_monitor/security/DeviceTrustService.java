@@ -12,12 +12,7 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.UUID;
 
-/**
- * Tarayicidaki HttpOnly "device_token" cookie'sini yonetir - JWT'den tamamen
- * ayri bir mekanizma. Cookie'nin kendisi rastgele, yuksek entropili (256 bit)
- * bir deger oldugu icin BCrypt gibi yavas bir hash'e gerek yok; SHA-256 (hizli,
- * deterministik) yeterli - brute-force zaten pratik degil (2^256 ihtimal).
- */
+// tarayıcıdaki HttpOnly "device_token" cookie'sini yönetir.
 @Component
 public class DeviceTrustService {
 
@@ -28,21 +23,27 @@ public class DeviceTrustService {
         this.trustedDeviceRepository = trustedDeviceRepository;
     }
 
-    public boolean isTrusted(UUID userId, String rawDeviceToken) {
+    public boolean isTrusted(UUID userId, String rawDeviceToken, String userAgent, String screenResolution) {
         if (rawDeviceToken == null || rawDeviceToken.isBlank()) {
             return false;
         }
-        return trustedDeviceRepository.existsByUserIdAndDeviceTokenHash(userId, hash(rawDeviceToken));
+        return trustedDeviceRepository.existsByUserIdAndDeviceTokenHashAndUserAgentHashAndScreenResolution(
+                userId, hash(rawDeviceToken), hash(normalize(userAgent)), normalize(screenResolution));
     }
 
-    /** Yeni bir cihazi guvenilir olarak isaretler, tarayiciya konacak HAM token'i doner. */
-    public String trustNewDevice(User user) {
+    // yeni cihazı güvenilir olarak işaretler, tarayıcıya ham token'ı döner.
+    public String trustNewDevice(User user, String userAgent, String screenResolution) {
         byte[] randomBytes = new byte[32];
         secureRandom.nextBytes(randomBytes);
         String rawDeviceToken = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
 
-        trustedDeviceRepository.save(new TrustedDevice(user, hash(rawDeviceToken)));
+        trustedDeviceRepository.save(new TrustedDevice(
+                user, hash(rawDeviceToken), hash(normalize(userAgent)), normalize(screenResolution)));
         return rawDeviceToken;
+    }
+
+    private String normalize(String value) {
+        return (value == null || value.isBlank()) ? "bilinmiyor" : value;
     }
 
     private String hash(String value) {

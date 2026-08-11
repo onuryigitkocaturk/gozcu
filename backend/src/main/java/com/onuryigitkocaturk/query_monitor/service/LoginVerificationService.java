@@ -4,9 +4,9 @@ import com.onuryigitkocaturk.query_monitor.model.User;
 
 public interface LoginVerificationService {
 
-    /** Bir kullanici icin dogrulama kodu uretir, mailler, verificationToken doner. */
-    String startVerification(User user);
+    // bir kullanıcı için doğrulama kodu üretir, verificationToken döner.
+    String startVerification(User user, String requestIp, String userAgent);
 
-    /** Kodu dogrular, gecerliyse ilgili kullaniciyi doner - aksi halde exception firlatir. */
+    // kodu doğrular, geçerliyse ilgili kullanıcıyı döner değilse exception fırlatır.
     User verifyCode(String verificationToken, String code);
 }

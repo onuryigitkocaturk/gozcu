@@ -39,7 +39,7 @@ public class LoginVerificationServiceImpl implements LoginVerificationService {
     }
 
     @Override
-    public String startVerification(User user) {
+    public String startVerification(User user, String requestIp, String userAgent) {
         String code = generateSixDigitCode();
         String verificationToken = UUID.randomUUID().toString();
 
@@ -48,7 +48,7 @@ public class LoginVerificationServiceImpl implements LoginVerificationService {
                 LocalDateTime.now().plusMinutes(CODE_EXPIRATION_MINUTES));
         loginVerificationRepository.save(verification);
 
-        notificationService.sendLoginVerificationCodeEmail(user.getEmail(), code);
+        notificationService.sendLoginVerificationCodeEmail(user.getEmail(), code, requestIp, userAgent);
         return verificationToken;
     }
 
