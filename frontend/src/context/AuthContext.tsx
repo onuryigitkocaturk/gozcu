@@ -16,11 +16,21 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-// Cihaz guven kontrolune (bkz. DeviceTrustService) ucuncu bir zayif sinyal
-// olarak eklenen ekran cozunurlugu - gizli bir bilgi degil, sadece cookie
-// calinip farkli bir cihazdan kullanilirsa bunu yakalamaya yardimci olur.
-function getScreenResolution(): string {
-  return `${window.screen.width}x${window.screen.height}`;
+// Login mailine eklenebilmesi icin tarayicidan konum istenir - kullanici
+// izin vermezse/tarayici desteklemezse (ya da 5sn icinde yanit gelmezse)
+// sessizce bos deger doner, giris akisini hicbir zaman bloklamaz.
+function getGeolocation(): Promise<{ latitude?: number; longitude?: number }> {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve({});
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => resolve({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
+      () => resolve({}),
+      { timeout: 5000 },
+    );
+  });
 }
 
 // Token ve kullanici bilgisi SADECE bellekte (React state) tutulur.
@@ -46,7 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (body: LoginRequest) => {
-      const result = await authApi.login({ ...body, screenResolution: getScreenResolution() });
+      const geolocation = await getGeolocation();
+      const result = await authApi.login({ ...body, ...geolocation });
       if (result.verificationRequired && result.verificationToken) {
         setPendingVerificationToken(result.verificationToken);
         return { verificationRequired: true };
@@ -62,11 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!pendingVerificationToken) {
         throw new Error("Doğrulama isteği bulunamadı, tekrar giriş yapmayı dene.");
       }
-      const result = await authApi.verifyLoginCode({
-        verificationToken: pendingVerificationToken,
-        code,
-        screenResolution: getScreenResolution(),
-      });
+      const result = await authApi.verifyLoginCode({ verificationToken: pendingVerificationToken, code });
       await completeLogin(result.token as string);
       setPendingVerificationToken(null);
     },

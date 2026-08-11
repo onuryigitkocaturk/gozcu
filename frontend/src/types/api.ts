@@ -27,7 +27,8 @@ export interface RegisterRequest {
 export interface LoginRequest {
   username: string;
   password: string;
-  screenResolution?: string;
+  latitude?: number;
+  longitude?: number;
 }
 export interface LoginResponse {
   token: string | null;
@@ -37,7 +38,6 @@ export interface LoginResponse {
 export interface VerifyLoginCodeRequest {
   verificationToken: string;
   code: string;
-  screenResolution?: string;
 }
 export interface UserResponse {
   id: string;
