@@ -23,22 +23,21 @@ public class DeviceTrustService {
         this.trustedDeviceRepository = trustedDeviceRepository;
     }
 
-    public boolean isTrusted(UUID userId, String rawDeviceToken, String userAgent, String screenResolution) {
+    public boolean isTrusted(UUID userId, String rawDeviceToken, String userAgent) {
         if (rawDeviceToken == null || rawDeviceToken.isBlank()) {
             return false;
         }
-        return trustedDeviceRepository.existsByUserIdAndDeviceTokenHashAndUserAgentHashAndScreenResolution(
-                userId, hash(rawDeviceToken), hash(normalize(userAgent)), normalize(screenResolution));
+        return trustedDeviceRepository.existsByUserIdAndDeviceTokenHashAndUserAgentHash(
+                userId, hash(rawDeviceToken), hash(normalize(userAgent)));
     }
 
     // yeni cihazı güvenilir olarak işaretler, tarayıcıya ham token'ı döner.
-    public String trustNewDevice(User user, String userAgent, String screenResolution) {
+    public String trustNewDevice(User user, String userAgent) {
         byte[] randomBytes = new byte[32];
         secureRandom.nextBytes(randomBytes);
         String rawDeviceToken = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
 
-        trustedDeviceRepository.save(new TrustedDevice(
-                user, hash(rawDeviceToken), hash(normalize(userAgent)), normalize(screenResolution)));
+        trustedDeviceRepository.save(new TrustedDevice(user, hash(rawDeviceToken), hash(normalize(userAgent))));
         return rawDeviceToken;
     }
 

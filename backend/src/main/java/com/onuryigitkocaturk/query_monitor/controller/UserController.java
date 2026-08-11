@@ -71,17 +71,19 @@ public class UserController {
 
         User user = userService.getByUsername(request.getUsername());
 
-        if (deviceTrustService.isTrusted(user.getId(), deviceToken, userAgent, request.getScreenResolution())) {
+        if (deviceTrustService.isTrusted(user.getId(), deviceToken, userAgent)) {
             String token = jwtUtil.generateToken(user.getUsername());
             return ResponseEntity.ok(new LoginResponse(token, false, null));
         }
 
         // bilinmeyen cihaza JWT hemen verilmiyor, mail doğrulaması gerekli.
-        String verificationToken = loginVerificationService.startVerification(user, normalizeIp(httpRequest.getRemoteAddr()), userAgent);
+        String verificationToken = loginVerificationService.startVerification(
+                user, normalizeIp(httpRequest.getRemoteAddr()), userAgent, request.getLatitude(), request.getLongitude());
         return ResponseEntity.ok(new LoginResponse(null, true, verificationToken));
     }
 
     // IPv6 IPv4'e çevrilir.
+
     private String normalizeIp(String ip) {
         if ("0:0:0:0:0:0:0:1".equals(ip) || "::1".equals(ip)) {
             return "127.0.0.1";
@@ -95,7 +97,7 @@ public class UserController {
                                                           HttpServletResponse response) {
         User user = loginVerificationService.verifyCode(request.getVerificationToken(), request.getCode());
 
-        String newDeviceToken = deviceTrustService.trustNewDevice(user, userAgent, request.getScreenResolution());
+        String newDeviceToken = deviceTrustService.trustNewDevice(user, userAgent);
         ResponseCookie cookie = ResponseCookie.from(DEVICE_TOKEN_COOKIE, newDeviceToken)
                 .httpOnly(true)
                 .secure(false) // production'da HTTPS ile true olmali

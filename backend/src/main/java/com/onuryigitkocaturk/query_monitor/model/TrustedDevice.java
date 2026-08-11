@@ -35,9 +35,6 @@ public class TrustedDevice {
     @Column(name = "user_agent_hash", nullable = false)
     private String userAgentHash;
 
-    @Column(name = "screen_resolution", nullable = false)
-    private String screenResolution;
-
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -45,11 +42,10 @@ public class TrustedDevice {
     public TrustedDevice() {
     }
 
-    public TrustedDevice(User user, String deviceTokenHash, String userAgentHash, String screenResolution) {
+    public TrustedDevice(User user, String deviceTokenHash, String userAgentHash) {
         this.user = user;
         this.deviceTokenHash = deviceTokenHash;
         this.userAgentHash = userAgentHash;
-        this.screenResolution = screenResolution;
     }
 
     public UUID getId() {
@@ -82,14 +78,6 @@ public class TrustedDevice {
 
     public void setUserAgentHash(String userAgentHash) {
         this.userAgentHash = userAgentHash;
-    }
-
-    public String getScreenResolution() {
-        return screenResolution;
-    }
-
-    public void setScreenResolution(String screenResolution) {
-        this.screenResolution = screenResolution;
     }
 
     public LocalDateTime getCreatedAt() {

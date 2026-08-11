@@ -56,14 +56,15 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendLoginVerificationCodeEmail(String recipientEmail, String code, String requestIp, String userAgent) {
+    public void sendLoginVerificationCodeEmail(String recipientEmail, String code, String requestIp, String userAgent,
+                                                Double latitude, Double longitude, String locationLabel) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "UTF-8");
             helper.setFrom(fromAddress);
             helper.setTo(recipientEmail);
             helper.setSubject("[Gözcü] Giriş doğrulama kodun");
-            helper.setText(buildVerificationCodeHtmlBody(code, requestIp, userAgent), true);
+            helper.setText(buildVerificationCodeHtmlBody(code, requestIp, userAgent, latitude, longitude, locationLabel), true);
 
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
@@ -71,10 +72,27 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    private String buildVerificationCodeHtmlBody(String code, String requestIp, String userAgent) {
+    // Tarayicidan (navigator.geolocation) izinle alinan konum. locationLabel
+    // varsa ("Cankaya, Ankara" gibi, GeocodingService ile cozulmus) o gosterilir;
+    // geocoding basarisiz olduysa (null) ham koordinatlara geri donulur.
+    private String buildLocationLine(Double latitude, Double longitude, String locationLabel) {
+        if (latitude == null || longitude == null) {
+            return "";
+        }
+        String displayLocation = (locationLabel != null && !locationLabel.isBlank())
+                ? escape(locationLabel)
+                : latitude + ", " + longitude;
+        return "<p style=\"font-size: 13px; color: #8a94a6; margin: 8px 0 0;\">Yaklaşık konum: <strong>"
+                + displayLocation
+                + "</strong></p>";
+    }
+
+    private String buildVerificationCodeHtmlBody(String code, String requestIp, String userAgent,
+                                                  Double latitude, Double longitude, String locationLabel) {
         String displayIp = (requestIp == null || requestIp.isBlank()) ? "bilinmiyor" : escape(requestIp);
         String displayUserAgent = summarizeUserAgent(userAgent);
         String displayAttemptTime = ATTEMPT_TIME_FORMATTER.format(LocalDateTime.now());
+        String locationLine = buildLocationLine(latitude, longitude, locationLabel);
         return """
                 <div style="font-family: -apple-system, Segoe UI, Arial, sans-serif; max-width: 480px; margin: 0 auto;">
                   <div style="background: #4a90e2; padding: 20px 24px; border-radius: 8px 8px 0 0;">
@@ -100,11 +118,14 @@ public class NotificationServiceImpl implements NotificationService {
                     <p style="font-size: 13px; color: #8a94a6; margin: 8px 0 0;">Cihaz/tarayıcı: <strong>"""
                 + escape(displayUserAgent) +
                 """
-                    </strong></p>
+                    </strong></p>"""
+                + locationLine +
+                """
                   </div>
                 </div>
                 """;
     }
+
 
     // Ham User-Agent'i genel okunur bir özete indirger.
     private String summarizeUserAgent(String userAgent) {

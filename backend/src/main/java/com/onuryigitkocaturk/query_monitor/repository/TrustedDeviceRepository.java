@@ -7,6 +7,6 @@ import java.util.UUID;
 
 public interface TrustedDeviceRepository extends JpaRepository<TrustedDevice, UUID> {
 
-    boolean existsByUserIdAndDeviceTokenHashAndUserAgentHashAndScreenResolution(
-            UUID userId, String deviceTokenHash, String userAgentHash, String screenResolution);
+    boolean existsByUserIdAndDeviceTokenHashAndUserAgentHash(
+            UUID userId, String deviceTokenHash, String userAgentHash);
 }

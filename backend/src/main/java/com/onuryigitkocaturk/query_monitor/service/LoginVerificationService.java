@@ -5,7 +5,7 @@ import com.onuryigitkocaturk.query_monitor.model.User;
 public interface LoginVerificationService {
 
     // bir kullanıcı için doğrulama kodu üretir, verificationToken döner.
-    String startVerification(User user, String requestIp, String userAgent);
+    String startVerification(User user, String requestIp, String userAgent, Double latitude, Double longitude);
 
     // kodu doğrular, geçerliyse ilgili kullanıcıyı döner değilse exception fırlatır.
     User verifyCode(String verificationToken, String code);

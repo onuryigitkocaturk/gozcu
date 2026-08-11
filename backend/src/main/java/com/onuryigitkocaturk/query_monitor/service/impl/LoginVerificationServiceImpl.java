@@ -1,6 +1,7 @@
 package com.onuryigitkocaturk.query_monitor.service.impl;
 
 import com.onuryigitkocaturk.query_monitor.exception.InvalidVerificationCodeException;
+import com.onuryigitkocaturk.query_monitor.geocoding.GeocodingService;
 import com.onuryigitkocaturk.query_monitor.model.LoginVerification;
 import com.onuryigitkocaturk.query_monitor.model.User;
 import com.onuryigitkocaturk.query_monitor.notification.NotificationService;
@@ -27,19 +28,22 @@ public class LoginVerificationServiceImpl implements LoginVerificationService {
 
     private final LoginVerificationRepository loginVerificationRepository;
     private final NotificationService notificationService;
+    private final GeocodingService geocodingService;
     private final PasswordEncoder passwordEncoder;
     private final SecureRandom secureRandom = new SecureRandom();
 
     public LoginVerificationServiceImpl(LoginVerificationRepository loginVerificationRepository,
                                          NotificationService notificationService,
+                                         GeocodingService geocodingService,
                                          PasswordEncoder passwordEncoder) {
         this.loginVerificationRepository = loginVerificationRepository;
         this.notificationService = notificationService;
+        this.geocodingService = geocodingService;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public String startVerification(User user, String requestIp, String userAgent) {
+    public String startVerification(User user, String requestIp, String userAgent, Double latitude, Double longitude) {
         String code = generateSixDigitCode();
         String verificationToken = UUID.randomUUID().toString();
 
@@ -48,7 +52,14 @@ public class LoginVerificationServiceImpl implements LoginVerificationService {
                 LocalDateTime.now().plusMinutes(CODE_EXPIRATION_MINUTES));
         loginVerificationRepository.save(verification);
 
-        notificationService.sendLoginVerificationCodeEmail(user.getEmail(), code, requestIp, userAgent);
+        // Nominatim basarisiz olursa (zaman asimi, servis hatasi) locationLabel
+        // null kalir - NotificationServiceImpl bu durumda ham koordinatlara doner.
+        String locationLabel = (latitude != null && longitude != null)
+                ? geocodingService.reverseGeocode(latitude, longitude)
+                : null;
+
+        notificationService.sendLoginVerificationCodeEmail(
+                user.getEmail(), code, requestIp, userAgent, latitude, longitude, locationLabel);
         return verificationToken;
     }
 
