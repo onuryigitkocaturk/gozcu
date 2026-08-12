@@ -110,6 +110,14 @@ export interface ProjectMemberResponse {
   joinedAt: string;
 }
 
+export interface MyProjectResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  role: ProjectRole;
+  createdAt: string;
+}
+
 // ---- ProjectTable ----
 export interface ProjectTableRequest {
   tableName: string;

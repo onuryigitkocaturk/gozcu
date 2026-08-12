@@ -6,8 +6,22 @@ import { useAsync } from "../hooks/useAsync";
 import { projectsApi } from "../api/projects";
 import { connectorApi } from "../api/connector";
 import { ApiError } from "../api/client";
-import { Button, Card, CardHeader, EmptyState, Input, Modal, SpinnerCenter } from "../components/ui";
+import { Badge, Button, Card, CardHeader, EmptyState, Input, Modal, SpinnerCenter } from "../components/ui";
 import { formatDateTime } from "../utils/format";
+import type { ProjectRole } from "../types/api";
+
+const ROLE_LABELS: Record<ProjectRole, string> = {
+  REPORTER: "Reporter",
+  DEVELOPER: "Developer",
+  MAINTAINER: "Maintainer",
+  OWNER: "Owner",
+};
+const ROLE_COLORS: Record<ProjectRole, "neutral" | "blue" | "green" | "amber" | "red"> = {
+  REPORTER: "neutral",
+  DEVELOPER: "blue",
+  MAINTAINER: "amber",
+  OWNER: "red",
+};
 
 export function DashboardPage() {
   const { isAdmin } = useAuth();
@@ -246,6 +260,7 @@ function MemberDashboard() {
                   {project.name}
                 </a>
                 <div className="list-row__meta">
+                  <Badge color={ROLE_COLORS[project.role]}>{ROLE_LABELS[project.role]}</Badge>
                   {project.description && <span>{project.description}</span>}
                   <span>· {formatDateTime(project.createdAt)}</span>
                 </div>
