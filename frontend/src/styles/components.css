@@ -17,6 +17,7 @@
 .sidebar__brand {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   padding: 6px 10px 22px;
   font-weight: 700;
@@ -59,8 +60,14 @@
 
 .sidebar__footer {
   margin-top: auto;
-  padding: 10px;
+  padding: 14px 10px;
   border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: center;
+}
+
+.sidebar__footer .brand-logo {
+  height: 28px;
 }
 
 .main-area {
@@ -92,11 +99,60 @@
 }
 
 .topbar__user {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+}
+
+.topbar__user-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
   font-size: 15.6px;
+  font-weight: 500;
   color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.topbar__user-trigger:hover {
+  background: var(--color-primary-lighter);
+  color: var(--color-primary-hover);
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 160px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 6px;
+  z-index: 20;
+}
+
+.user-dropdown__item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-size: 14.4px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.user-dropdown__item:hover {
+  background: var(--color-primary-lighter);
+  color: var(--color-primary-hover);
 }
 
 .avatar {
@@ -110,6 +166,35 @@
   justify-content: center;
   font-weight: 700;
   font-size: 14.4px;
+}
+
+.device-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+  transition: border-color 0.12s ease, transform 0.12s ease;
+}
+.device-tile:hover {
+  border-color: var(--color-primary-light);
+  transform: translateY(-1px);
+}
+.device-tile__title {
+  font-size: 15.6px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.device-tile__location {
+  font-size: 13.8px;
+  color: var(--color-primary-hover);
+  font-weight: 500;
+}
+.device-tile__date {
+  font-size: 13px;
+  color: var(--color-text-faint);
 }
 
 .page {
@@ -431,6 +516,12 @@ table.data-table {
   display: flex;
   gap: 8px;
   align-items: center;
+}
+.list-row__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
 }
 .list-row__actions {
   display: flex;

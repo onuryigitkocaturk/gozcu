@@ -1,6 +1,7 @@
 import { api } from "./client";
 import type {
   MyProjectResponse,
+  ProjectDashboardStatsResponse,
   ProjectMemberResponse,
   ProjectMembershipRequest,
   ProjectRequest,
@@ -13,6 +14,8 @@ import type {
 export const projectsApi = {
   list: () => api.get<ProjectResponse[]>("/api/projects"),
   listMine: () => api.get<MyProjectResponse[]>("/api/projects/my"),
+  getDashboardStats: (projectId: string) =>
+    api.get<ProjectDashboardStatsResponse>(`/api/projects/${projectId}/dashboard-stats`),
   getById: (id: string) => api.get<ProjectResponse>(`/api/projects/${id}`),
   create: (body: ProjectRequest) => api.post<ProjectResponse>("/api/projects", body),
   remove: (id: string) => api.del<void>(`/api/projects/${id}`),

@@ -53,6 +53,16 @@ export interface UpdateUserRequest {
 export interface ChangeRoleRequest {
   role: Role;
 }
+export interface TrustedDeviceResponse {
+  id: string;
+  browserLabel: string | null;
+  locationLabel: string | null;
+  createdAt: string;
+}
+export interface MyAccountResponse {
+  totalQueriesWritten: number;
+  trustedDevices: TrustedDeviceResponse[];
+}
 
 // ---- Group ----
 export interface GroupRequest {
@@ -116,6 +126,15 @@ export interface MyProjectResponse {
   description: string | null;
   role: ProjectRole;
   createdAt: string;
+}
+
+export interface ProjectDashboardStatsResponse {
+  tableCount: number;
+  queryCount: number;
+  activeQueryCount: number;
+  activeAlertCount: number;
+  triggeredLast7Days: number;
+  lastTriggeredAt: string | null;
 }
 
 // ---- ProjectTable ----

@@ -28,6 +28,27 @@ export function DashboardPage() {
   return isAdmin ? <AdminDashboard /> : <MemberDashboard />;
 }
 
+function ProjectStatsBadges({ projectId }: { projectId: string }) {
+  const { data: stats, loading, error } = useAsync(() => projectsApi.getDashboardStats(projectId), [projectId]);
+
+  if (loading || error || !stats) return null;
+
+  return (
+    <div className="list-row__stats">
+      <Badge color="neutral">{stats.tableCount} tablo</Badge>
+      <Badge color="neutral">
+        {stats.queryCount} sorgu ({stats.activeQueryCount} aktif)
+      </Badge>
+      <Badge color="blue">{stats.activeAlertCount} aktif alarm</Badge>
+      {stats.triggeredLast7Days > 0 ? (
+        <Badge color="amber">Son 7 günde {stats.triggeredLast7Days} kez tetiklendi</Badge>
+      ) : (
+        <Badge color="green">Son 7 günde tetiklenme yok</Badge>
+      )}
+    </div>
+  );
+}
+
 function AdminDashboard() {
   const navigate = useNavigate();
   const { notifySuccess, notifyError } = useToast();
@@ -151,6 +172,7 @@ function AdminDashboard() {
                   {project.description && <span>{project.description}</span>}
                   <span>· {formatDateTime(project.createdAt)}</span>
                 </div>
+                <ProjectStatsBadges projectId={project.id} />
               </div>
               <div className="list-row__actions">
                 <Button size="sm" variant="secondary" onClick={() => navigate(`/projects/${project.id}`)}>
@@ -264,6 +286,7 @@ function MemberDashboard() {
                   {project.description && <span>{project.description}</span>}
                   <span>· {formatDateTime(project.createdAt)}</span>
                 </div>
+                <ProjectStatsBadges projectId={project.id} />
               </div>
               <div className="list-row__actions">
                 <Button size="sm" variant="secondary" onClick={() => navigate(`/projects/${project.id}`)}>

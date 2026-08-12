@@ -4,6 +4,8 @@ import { AdminRoute, ProtectedRoute } from "./components/layout/ProtectedRoute";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { RegisterPage } from "./pages/auth/RegisterPage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { AboutPage } from "./pages/AboutPage";
+import { AccountPage } from "./pages/AccountPage";
 import { ProjectDetailPage } from "./pages/ProjectDetailPage";
 import { TableDetailPage } from "./pages/TableDetailPage";
 import { QueryBuilderPage } from "./pages/QueryBuilderPage";
@@ -21,6 +23,8 @@ export function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
           <Route path="/" element={<DashboardPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/account" element={<AccountPage />} />
           <Route path="/projects/:projectId" element={<ProjectDetailPage />} />
           <Route path="/projects/:projectId/tables/:tableId" element={<TableDetailPage />} />
           <Route path="/projects/:projectId/tables/:tableId/queries/new" element={<QueryBuilderPage />} />
