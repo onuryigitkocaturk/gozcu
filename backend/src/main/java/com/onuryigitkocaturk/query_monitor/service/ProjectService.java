@@ -20,7 +20,7 @@ public interface ProjectService {
 
     Project getProjectById(UUID id);
 
-    List<Project> getProjectsForUser(UUID userId);
+    List<ProjectMembership> getProjectsForUser(UUID userId);
 
     void addUserToProject(UUID projectId, UUID userId, ProjectRole role, UUID actingUserId);
 

@@ -1,5 +1,6 @@
 package com.onuryigitkocaturk.query_monitor.controller;
 
+import com.onuryigitkocaturk.query_monitor.dto.MyProjectResponse;
 import com.onuryigitkocaturk.query_monitor.dto.ProjectMemberResponse;
 import com.onuryigitkocaturk.query_monitor.dto.ProjectMembershipRequest;
 import com.onuryigitkocaturk.query_monitor.dto.ProjectRequest;
@@ -72,9 +73,9 @@ public class ProjectController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/my")
-    public ResponseEntity<List<ProjectResponse>> getMyProjects(@AuthenticationPrincipal UserDetailsImpl principal) {
-        List<ProjectResponse> response = projectService.getProjectsForUser(principal.getId()).stream()
-                .map(projectMapper::toResponse)
+    public ResponseEntity<List<MyProjectResponse>> getMyProjects(@AuthenticationPrincipal UserDetailsImpl principal) {
+        List<MyProjectResponse> response = projectService.getProjectsForUser(principal.getId()).stream()
+                .map(projectMembershipMapper::toMyProjectResponse)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }

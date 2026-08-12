@@ -102,10 +102,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<Project> getProjectsForUser(UUID userId) {
-        return projectMembershipRepository.findByUserId(userId).stream()
-                .map(ProjectMembership::getProject)
-                .toList();
+    public List<ProjectMembership> getProjectsForUser(UUID userId) {
+        return projectMembershipRepository.findByUserId(userId);
     }
 
     @Override
