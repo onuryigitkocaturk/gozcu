@@ -35,6 +35,15 @@ public class TrustedDevice {
     @Column(name = "user_agent_hash", nullable = false)
     private String userAgentHash;
 
+    // guvenlik kontrolu icin degil, sadece "Hesabim" sayfasinda okunakli
+    // gosterim icin - UserAgentSummarizer ile hesaplanir, hash'lenmez.
+    @Column(name = "browser_label")
+    private String browserLabel;
+
+    // GeocodingService ile cozulmus konum, LoginVerification'dan tasinir.
+    @Column(name = "location_label")
+    private String locationLabel;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -42,10 +51,13 @@ public class TrustedDevice {
     public TrustedDevice() {
     }
 
-    public TrustedDevice(User user, String deviceTokenHash, String userAgentHash) {
+    public TrustedDevice(User user, String deviceTokenHash, String userAgentHash,
+                          String browserLabel, String locationLabel) {
         this.user = user;
         this.deviceTokenHash = deviceTokenHash;
         this.userAgentHash = userAgentHash;
+        this.browserLabel = browserLabel;
+        this.locationLabel = locationLabel;
     }
 
     public UUID getId() {
@@ -78,6 +90,22 @@ public class TrustedDevice {
 
     public void setUserAgentHash(String userAgentHash) {
         this.userAgentHash = userAgentHash;
+    }
+
+    public String getBrowserLabel() {
+        return browserLabel;
+    }
+
+    public void setBrowserLabel(String browserLabel) {
+        this.browserLabel = browserLabel;
+    }
+
+    public String getLocationLabel() {
+        return locationLabel;
+    }
+
+    public void setLocationLabel(String locationLabel) {
+        this.locationLabel = locationLabel;
     }
 
     public LocalDateTime getCreatedAt() {

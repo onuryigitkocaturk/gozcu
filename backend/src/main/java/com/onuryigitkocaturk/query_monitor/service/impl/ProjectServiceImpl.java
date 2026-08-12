@@ -3,7 +3,9 @@ package com.onuryigitkocaturk.query_monitor.service.impl;
 import com.onuryigitkocaturk.query_monitor.connector.ConnectionCredentialEncryptor;
 import com.onuryigitkocaturk.query_monitor.connector.ConnectionDetails;
 import com.onuryigitkocaturk.query_monitor.connector.TableMetadataService;
+import com.onuryigitkocaturk.query_monitor.dto.ProjectDashboardStatsResponse;
 import com.onuryigitkocaturk.query_monitor.dto.ProjectRequest;
+import com.onuryigitkocaturk.query_monitor.enums.LogStatus;
 import com.onuryigitkocaturk.query_monitor.enums.ProjectRole;
 import com.onuryigitkocaturk.query_monitor.enums.Role;
 import com.onuryigitkocaturk.query_monitor.exception.DuplicateProjectException;
@@ -13,18 +15,23 @@ import com.onuryigitkocaturk.query_monitor.exception.InsufficientProjectRoleExce
 import com.onuryigitkocaturk.query_monitor.exception.ProjectNotFoundException;
 import com.onuryigitkocaturk.query_monitor.exception.TableNotFoundException;
 import com.onuryigitkocaturk.query_monitor.exception.UserNotFoundException;
+import com.onuryigitkocaturk.query_monitor.model.AlertLog;
 import com.onuryigitkocaturk.query_monitor.model.Project;
 import com.onuryigitkocaturk.query_monitor.model.ProjectMembership;
 import com.onuryigitkocaturk.query_monitor.model.ProjectTable;
 import com.onuryigitkocaturk.query_monitor.model.User;
+import com.onuryigitkocaturk.query_monitor.repository.AlertLogRepository;
+import com.onuryigitkocaturk.query_monitor.repository.AlertRepository;
 import com.onuryigitkocaturk.query_monitor.repository.ProjectMembershipRepository;
 import com.onuryigitkocaturk.query_monitor.repository.ProjectRepository;
 import com.onuryigitkocaturk.query_monitor.repository.ProjectTableRepository;
+import com.onuryigitkocaturk.query_monitor.repository.QueryRepository;
 import com.onuryigitkocaturk.query_monitor.repository.UserRepository;
 import com.onuryigitkocaturk.query_monitor.service.ProjectService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -36,6 +43,9 @@ public class ProjectServiceImpl implements ProjectService {
     private final UserRepository userRepository;
     private final ProjectMembershipRepository projectMembershipRepository;
     private final ProjectTableRepository projectTableRepository;
+    private final QueryRepository queryRepository;
+    private final AlertRepository alertRepository;
+    private final AlertLogRepository alertLogRepository;
     private final TableMetadataService tableMetadataService;
     private final ConnectionCredentialEncryptor connectionCredentialEncryptor;
 
@@ -43,12 +53,18 @@ public class ProjectServiceImpl implements ProjectService {
                                UserRepository userRepository,
                                ProjectMembershipRepository projectMembershipRepository,
                                ProjectTableRepository projectTableRepository,
+                               QueryRepository queryRepository,
+                               AlertRepository alertRepository,
+                               AlertLogRepository alertLogRepository,
                                TableMetadataService tableMetadataService,
                                ConnectionCredentialEncryptor connectionCredentialEncryptor) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.projectMembershipRepository = projectMembershipRepository;
         this.projectTableRepository = projectTableRepository;
+        this.queryRepository = queryRepository;
+        this.alertRepository = alertRepository;
+        this.alertLogRepository = alertLogRepository;
         this.tableMetadataService = tableMetadataService;
         this.connectionCredentialEncryptor = connectionCredentialEncryptor;
     }
@@ -233,6 +249,29 @@ public class ProjectServiceImpl implements ProjectService {
         if (!actingUserIsOwner) {
             throw new InsufficientProjectRoleException("Sadece proje Owner'ı başka birini Owner yapabilir");
         }
+    }
+
+    @Override
+    public ProjectDashboardStatsResponse getDashboardStats(UUID projectId) {
+        if (!projectRepository.existsById(projectId)) {
+            throw new ProjectNotFoundException("Proje bulunamadı: " + projectId);
+        }
+
+        long tableCount = projectTableRepository.countByProjectId(projectId);
+        long queryCount = queryRepository.countByProjectId(projectId);
+        long activeQueryCount = queryRepository.countByProjectIdAndActiveTrue(projectId);
+        long activeAlertCount = alertRepository.countByProjectIdAndActiveTrue(projectId);
+
+        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+        long triggeredLast7Days = alertLogRepository.countByAlert_ProjectIdAndStatusAndExecutedAtAfter(
+                projectId, LogStatus.TRIGGERED, sevenDaysAgo);
+        LocalDateTime lastTriggeredAt = alertLogRepository
+                .findTopByAlert_ProjectIdAndStatusOrderByExecutedAtDesc(projectId, LogStatus.TRIGGERED)
+                .map(AlertLog::getExecutedAt)
+                .orElse(null);
+
+        return new ProjectDashboardStatsResponse(
+                tableCount, queryCount, activeQueryCount, activeAlertCount, triggeredLast7Days, lastTriggeredAt);
     }
 
     private ConnectionDetails toConnectionDetails(Project project) {

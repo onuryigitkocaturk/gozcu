@@ -1,6 +1,7 @@
 package com.onuryigitkocaturk.query_monitor.controller;
 
 import com.onuryigitkocaturk.query_monitor.dto.ChangeRoleRequest;
+import com.onuryigitkocaturk.query_monitor.dto.MyAccountResponse;
 import com.onuryigitkocaturk.query_monitor.dto.UpdateUserRequest;
 import com.onuryigitkocaturk.query_monitor.dto.UserResponse;
 import com.onuryigitkocaturk.query_monitor.mapper.UserMapper;
@@ -39,6 +40,11 @@ UserManagementController {
     public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal UserDetailsImpl principal) {
         User user = userService.getByUsername(principal.getUsername());
         return ResponseEntity.ok(userMapper.toResponse(user));
+    }
+
+    @GetMapping("/me/account")
+    public ResponseEntity<MyAccountResponse> getMyAccountOverview(@AuthenticationPrincipal UserDetailsImpl principal) {
+        return ResponseEntity.ok(userService.getMyAccountOverview(principal.getId()));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

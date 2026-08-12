@@ -1,6 +1,7 @@
 package com.onuryigitkocaturk.query_monitor.controller;
 
 import com.onuryigitkocaturk.query_monitor.dto.MyProjectResponse;
+import com.onuryigitkocaturk.query_monitor.dto.ProjectDashboardStatsResponse;
 import com.onuryigitkocaturk.query_monitor.dto.ProjectMemberResponse;
 import com.onuryigitkocaturk.query_monitor.dto.ProjectMembershipRequest;
 import com.onuryigitkocaturk.query_monitor.dto.ProjectRequest;
@@ -156,6 +157,12 @@ public class ProjectController {
     public ResponseEntity<List<Map<String, Object>>> getTableData(@PathVariable UUID projectId,
                                                                      @PathVariable String tableName) {
         return ResponseEntity.ok(projectService.getTableData(projectId, tableName));
+    }
+
+    @PreAuthorize(AT_LEAST_REPORTER)
+    @GetMapping("/{projectId}/dashboard-stats")
+    public ResponseEntity<ProjectDashboardStatsResponse> getDashboardStats(@PathVariable UUID projectId) {
+        return ResponseEntity.ok(projectService.getDashboardStats(projectId));
     }
 
     @PreAuthorize(AT_LEAST_REPORTER)

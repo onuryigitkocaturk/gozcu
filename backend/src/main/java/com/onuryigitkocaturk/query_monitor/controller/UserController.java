@@ -6,6 +6,7 @@ import com.onuryigitkocaturk.query_monitor.dto.RegisterRequest;
 import com.onuryigitkocaturk.query_monitor.dto.UserResponse;
 import com.onuryigitkocaturk.query_monitor.dto.VerifyLoginCodeRequest;
 import com.onuryigitkocaturk.query_monitor.mapper.UserMapper;
+import com.onuryigitkocaturk.query_monitor.model.LoginVerification;
 import com.onuryigitkocaturk.query_monitor.model.User;
 import com.onuryigitkocaturk.query_monitor.security.DeviceTrustService;
 import com.onuryigitkocaturk.query_monitor.security.JwtUtil;
@@ -95,9 +96,10 @@ public class UserController {
     public ResponseEntity<LoginResponse> verifyLoginCode(@Valid @RequestBody VerifyLoginCodeRequest request,
                                                           @RequestHeader(name = "User-Agent", required = false) String userAgent,
                                                           HttpServletResponse response) {
-        User user = loginVerificationService.verifyCode(request.getVerificationToken(), request.getCode());
+        LoginVerification verification = loginVerificationService.verifyCode(request.getVerificationToken(), request.getCode());
+        User user = verification.getUser();
 
-        String newDeviceToken = deviceTrustService.trustNewDevice(user, userAgent);
+        String newDeviceToken = deviceTrustService.trustNewDevice(user, userAgent, verification.getLocationLabel());
         ResponseCookie cookie = ResponseCookie.from(DEVICE_TOKEN_COOKIE, newDeviceToken)
                 .httpOnly(true)
                 .secure(false) // production'da HTTPS ile true olmali

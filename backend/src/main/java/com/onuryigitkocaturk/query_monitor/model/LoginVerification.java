@@ -49,6 +49,11 @@ public class LoginVerification {
     @Column(name = "attempt_count", nullable = false)
     private int attemptCount;
 
+    // GeocodingService ile cozulmus konum ("Cankaya, Ankara" gibi) - login
+    // aninda hesaplanir, dogrulama basarili olunca TrustedDevice'a tasinir.
+    @Column(name = "location_label")
+    private String locationLabel;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -111,6 +116,14 @@ public class LoginVerification {
 
     public void setUsed(boolean used) {
         this.used = used;
+    }
+
+    public String getLocationLabel() {
+        return locationLabel;
+    }
+
+    public void setLocationLabel(String locationLabel) {
+        this.locationLabel = locationLabel;
     }
 
     public int getAttemptCount() {

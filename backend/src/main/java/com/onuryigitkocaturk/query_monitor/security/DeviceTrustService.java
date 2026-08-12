@@ -32,12 +32,14 @@ public class DeviceTrustService {
     }
 
     // yeni cihazı güvenilir olarak işaretler, tarayıcıya ham token'ı döner.
-    public String trustNewDevice(User user, String userAgent) {
+    public String trustNewDevice(User user, String userAgent, String locationLabel) {
         byte[] randomBytes = new byte[32];
         secureRandom.nextBytes(randomBytes);
         String rawDeviceToken = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
 
-        trustedDeviceRepository.save(new TrustedDevice(user, hash(rawDeviceToken), hash(normalize(userAgent))));
+        trustedDeviceRepository.save(new TrustedDevice(
+                user, hash(rawDeviceToken), hash(normalize(userAgent)),
+                UserAgentSummarizer.summarize(userAgent), locationLabel));
         return rawDeviceToken;
     }
 

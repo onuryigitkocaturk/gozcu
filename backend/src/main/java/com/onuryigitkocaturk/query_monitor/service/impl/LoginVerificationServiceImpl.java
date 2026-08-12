@@ -47,16 +47,17 @@ public class LoginVerificationServiceImpl implements LoginVerificationService {
         String code = generateSixDigitCode();
         String verificationToken = UUID.randomUUID().toString();
 
-        LoginVerification verification = new LoginVerification(
-                user, verificationToken, passwordEncoder.encode(code),
-                LocalDateTime.now().plusMinutes(CODE_EXPIRATION_MINUTES));
-        loginVerificationRepository.save(verification);
-
         // Nominatim basarisiz olursa (zaman asimi, servis hatasi) locationLabel
         // null kalir - NotificationServiceImpl bu durumda ham koordinatlara doner.
         String locationLabel = (latitude != null && longitude != null)
                 ? geocodingService.reverseGeocode(latitude, longitude)
                 : null;
+
+        LoginVerification verification = new LoginVerification(
+                user, verificationToken, passwordEncoder.encode(code),
+                LocalDateTime.now().plusMinutes(CODE_EXPIRATION_MINUTES));
+        verification.setLocationLabel(locationLabel);
+        loginVerificationRepository.save(verification);
 
         notificationService.sendLoginVerificationCodeEmail(
                 user.getEmail(), code, requestIp, userAgent, latitude, longitude, locationLabel);
@@ -64,7 +65,7 @@ public class LoginVerificationServiceImpl implements LoginVerificationService {
     }
 
     @Override
-    public User verifyCode(String verificationToken, String code) {
+    public LoginVerification verifyCode(String verificationToken, String code) {
         LoginVerification verification = loginVerificationRepository.findByVerificationToken(verificationToken)
                 .orElseThrow(() -> new InvalidVerificationCodeException("Doğrulama isteği bulunamadı"));
 
@@ -86,7 +87,7 @@ public class LoginVerificationServiceImpl implements LoginVerificationService {
 
         verification.setUsed(true);
         loginVerificationRepository.save(verification);
-        return verification.getUser();
+        return verification;
     }
 
     private String generateSixDigitCode() {

@@ -1,5 +1,6 @@
 package com.onuryigitkocaturk.query_monitor.notification;
 
+import com.onuryigitkocaturk.query_monitor.security.UserAgentSummarizer;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
@@ -90,7 +91,7 @@ public class NotificationServiceImpl implements NotificationService {
     private String buildVerificationCodeHtmlBody(String code, String requestIp, String userAgent,
                                                   Double latitude, Double longitude, String locationLabel) {
         String displayIp = (requestIp == null || requestIp.isBlank()) ? "bilinmiyor" : escape(requestIp);
-        String displayUserAgent = summarizeUserAgent(userAgent);
+        String displayUserAgent = UserAgentSummarizer.summarize(userAgent);
         String displayAttemptTime = ATTEMPT_TIME_FORMATTER.format(LocalDateTime.now());
         String locationLine = buildLocationLine(latitude, longitude, locationLabel);
         return """
@@ -126,45 +127,6 @@ public class NotificationServiceImpl implements NotificationService {
                 """;
     }
 
-
-    // Ham User-Agent'i genel okunur bir özete indirger.
-    private String summarizeUserAgent(String userAgent) {
-        if (userAgent == null || userAgent.isBlank()) {
-            return "bilinmiyor";
-        }
-
-        String browser;
-        if (userAgent.contains("Edg/")) {
-            browser = "Edge";
-        } else if (userAgent.contains("OPR/") || userAgent.contains("Opera")) {
-            browser = "Opera";
-        } else if (userAgent.contains("Firefox/")) {
-            browser = "Firefox";
-        } else if (userAgent.contains("Chrome/")) {
-            browser = "Chrome";
-        } else if (userAgent.contains("Safari/")) {
-            browser = "Safari";
-        } else {
-            browser = "bilinmeyen tarayıcı";
-        }
-
-        String os;
-        if (userAgent.contains("Windows")) {
-            os = "Windows";
-        } else if (userAgent.contains("Mac OS X")) {
-            os = "macOS";
-        } else if (userAgent.contains("Android")) {
-            os = "Android";
-        } else if (userAgent.contains("iPhone") || userAgent.contains("iPad") || userAgent.contains("iOS")) {
-            os = "iOS";
-        } else if (userAgent.contains("Linux")) {
-            os = "Linux";
-        } else {
-            os = "bilinmeyen işletim sistemi";
-        }
-
-        return browser + " (" + os + ")";
-    }
 
     private String buildHtmlBody(String queryName, long matchCount, List<Map<String, Object>> matchedRows) {
         StringBuilder html = new StringBuilder();

@@ -20,6 +20,12 @@ public interface QueryRepository
 
     List<com.onuryigitkocaturk.query_monitor.model.Query> findByActiveTrue();
 
+    long countByProjectId(UUID projectId);
+
+    long countByProjectIdAndActiveTrue(UUID projectId);
+
+    long countByCreatedById(UUID userId);
+
     @Query("SELECT q FROM Query q JOIN FETCH q.project JOIN FETCH q.projectTable " +
             "LEFT JOIN FETCH q.createdBy WHERE q.projectTable.id = :projectTableId")
     List<com.onuryigitkocaturk.query_monitor.model.Query> findByProjectTableId(

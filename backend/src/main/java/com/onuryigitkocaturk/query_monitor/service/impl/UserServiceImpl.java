@@ -1,13 +1,18 @@
 package com.onuryigitkocaturk.query_monitor.service.impl;
 
 import com.onuryigitkocaturk.query_monitor.dto.ChangeRoleRequest;
+import com.onuryigitkocaturk.query_monitor.dto.MyAccountResponse;
 import com.onuryigitkocaturk.query_monitor.dto.RegisterRequest;
+import com.onuryigitkocaturk.query_monitor.dto.TrustedDeviceResponse;
 import com.onuryigitkocaturk.query_monitor.dto.UpdateUserRequest;
 import com.onuryigitkocaturk.query_monitor.enums.Role;
 import com.onuryigitkocaturk.query_monitor.exception.DuplicateUserException;
 import com.onuryigitkocaturk.query_monitor.exception.UserNotFoundException;
+import com.onuryigitkocaturk.query_monitor.model.TrustedDevice;
 import com.onuryigitkocaturk.query_monitor.model.User;
 import com.onuryigitkocaturk.query_monitor.repository.ProjectMembershipRepository;
+import com.onuryigitkocaturk.query_monitor.repository.QueryRepository;
+import com.onuryigitkocaturk.query_monitor.repository.TrustedDeviceRepository;
 import com.onuryigitkocaturk.query_monitor.repository.UserRepository;
 import com.onuryigitkocaturk.query_monitor.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,13 +27,19 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ProjectMembershipRepository projectMembershipRepository;
+    private final QueryRepository queryRepository;
+    private final TrustedDeviceRepository trustedDeviceRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UserServiceImpl(UserRepository userRepository,
                             ProjectMembershipRepository projectMembershipRepository,
+                            QueryRepository queryRepository,
+                            TrustedDeviceRepository trustedDeviceRepository,
                             PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.projectMembershipRepository = projectMembershipRepository;
+        this.queryRepository = queryRepository;
+        this.trustedDeviceRepository = trustedDeviceRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -102,5 +113,18 @@ public class UserServiceImpl implements UserService {
 
         user.setRole(request.getRole());
         return userRepository.save(user);
+    }
+
+    @Override
+    public MyAccountResponse getMyAccountOverview(UUID userId) {
+        long totalQueriesWritten = queryRepository.countByCreatedById(userId);
+
+        List<TrustedDeviceResponse> devices = trustedDeviceRepository.findByUserIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(device -> new TrustedDeviceResponse(
+                        device.getId(), device.getBrowserLabel(), device.getLocationLabel(), device.getCreatedAt()))
+                .toList();
+
+        return new MyAccountResponse(totalQueriesWritten, devices);
     }
 }

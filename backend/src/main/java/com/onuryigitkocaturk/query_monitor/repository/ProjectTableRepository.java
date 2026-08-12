@@ -14,4 +14,6 @@ public interface ProjectTableRepository extends JpaRepository<ProjectTable, UUID
     List<ProjectTable> findByProjectId(@Param("projectId") UUID projectId);
 
     boolean existsByProjectIdAndTableName(UUID projectId, String tableName);
+
+    long countByProjectId(UUID projectId);
 }

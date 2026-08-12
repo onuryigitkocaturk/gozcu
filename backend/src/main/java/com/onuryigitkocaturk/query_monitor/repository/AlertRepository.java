@@ -19,4 +19,6 @@ public interface AlertRepository extends JpaRepository<Alert, UUID> {
     List<Alert> findByGroupId(UUID groupId);
 
     List<Alert> findByActiveTrue();
+
+    long countByProjectIdAndActiveTrue(UUID projectId);
 }
