@@ -36,10 +36,22 @@ public class DeviceTrustService {
         byte[] randomBytes = new byte[32];
         secureRandom.nextBytes(randomBytes);
         String rawDeviceToken = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+        String userAgentHash = hash(normalize(userAgent));
 
-        trustedDeviceRepository.save(new TrustedDevice(
-                user, hash(rawDeviceToken), hash(normalize(userAgent)),
-                UserAgentSummarizer.summarize(userAgent), locationLabel));
+        // Ayni tarayici (ayni User-Agent) icin zaten bir kayit varsa, cerez
+        // gecersiz kalip yeniden dogrulatilsa bile "Hesabim" sayfasinda
+        // ayni cihaz ust uste cogalmasin diye YENI satir acmak yerine
+        // var olan kayit guncellenir.
+        TrustedDevice device = trustedDeviceRepository
+                .findByUserIdAndUserAgentHash(user.getId(), userAgentHash)
+                .orElseGet(() -> new TrustedDevice(user, null, null, null, null));
+
+        device.setDeviceTokenHash(hash(rawDeviceToken));
+        device.setUserAgentHash(userAgentHash);
+        device.setBrowserLabel(UserAgentSummarizer.summarize(userAgent));
+        device.setLocationLabel(locationLabel);
+
+        trustedDeviceRepository.save(device);
         return rawDeviceToken;
     }
 
