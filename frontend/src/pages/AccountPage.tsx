@@ -1,12 +1,26 @@
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { useAsync } from "../hooks/useAsync";
 import { usersApi } from "../api/users";
-import { Card, CardHeader, EmptyState, SpinnerCenter } from "../components/ui";
+import { ApiError } from "../api/client";
+import { Button, Card, CardHeader, EmptyState, SpinnerCenter } from "../components/ui";
 import { formatDateTime } from "../utils/format";
 
 export function AccountPage() {
   const { user } = useAuth();
-  const { data: account, loading, error } = useAsync(() => usersApi.myAccount(), []);
+  const { notifySuccess, notifyError } = useToast();
+  const { data: account, loading, error, reload } = useAsync(() => usersApi.myAccount(), []);
+
+  const handleRemoveDevice = async (deviceId: string) => {
+    if (!confirm("Bu cihazı güvenilir listesinden kaldırmak istediğine emin misin? Bir sonraki girişte tekrar mail doğrulaması istenecek.")) return;
+    try {
+      await usersApi.removeDevice(deviceId);
+      notifySuccess("Cihaz kaldırıldı.");
+      reload();
+    } catch (err) {
+      notifyError(err instanceof ApiError ? err.message : "Cihaz kaldırılamadı.");
+    }
+  };
 
   return (
     <div className="page">
@@ -63,6 +77,15 @@ export function AccountPage() {
                     <div className="device-tile__title">{device.browserLabel ?? "Bilinmeyen tarayıcı"}</div>
                     {device.locationLabel && <div className="device-tile__location">{device.locationLabel}</div>}
                     <div className="device-tile__date">Güvenilir hale geldi: {formatDateTime(device.createdAt)}</div>
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      className="mt-8"
+                      onClick={() => handleRemoveDevice(device.id)}
+                      style={{ alignSelf: "flex-start" }}
+                    >
+                      Kaldır
+                    </Button>
                   </div>
                 ))}
               </div>
