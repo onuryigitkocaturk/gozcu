@@ -12,4 +12,8 @@ public interface TrustedDeviceRepository extends JpaRepository<TrustedDevice, UU
             UUID userId, String deviceTokenHash, String userAgentHash);
 
     List<TrustedDevice> findByUserIdOrderByCreatedAtDesc(UUID userId);
+
+    boolean existsByIdAndUserId(UUID id, UUID userId);
+
+    void deleteByIdAndUserId(UUID id, UUID userId);
 }

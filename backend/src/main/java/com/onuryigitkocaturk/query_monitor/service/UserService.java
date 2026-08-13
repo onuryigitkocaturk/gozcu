@@ -24,4 +24,6 @@ public interface UserService {
     User changeRole(UUID id, ChangeRoleRequest request);
 
     MyAccountResponse getMyAccountOverview(UUID userId);
+
+    void removeTrustedDevice(UUID userId, UUID deviceId);
 }

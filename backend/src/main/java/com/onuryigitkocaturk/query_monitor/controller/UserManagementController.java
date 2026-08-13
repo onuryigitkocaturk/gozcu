@@ -47,6 +47,13 @@ UserManagementController {
         return ResponseEntity.ok(userService.getMyAccountOverview(principal.getId()));
     }
 
+    @DeleteMapping("/me/devices/{deviceId}")
+    public ResponseEntity<Void> removeTrustedDevice(@PathVariable UUID deviceId,
+                                                      @AuthenticationPrincipal UserDetailsImpl principal) {
+        userService.removeTrustedDevice(principal.getId(), deviceId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {

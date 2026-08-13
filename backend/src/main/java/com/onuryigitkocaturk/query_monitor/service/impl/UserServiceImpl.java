@@ -7,6 +7,7 @@ import com.onuryigitkocaturk.query_monitor.dto.TrustedDeviceResponse;
 import com.onuryigitkocaturk.query_monitor.dto.UpdateUserRequest;
 import com.onuryigitkocaturk.query_monitor.enums.Role;
 import com.onuryigitkocaturk.query_monitor.exception.DuplicateUserException;
+import com.onuryigitkocaturk.query_monitor.exception.TrustedDeviceNotFoundException;
 import com.onuryigitkocaturk.query_monitor.exception.UserNotFoundException;
 import com.onuryigitkocaturk.query_monitor.model.TrustedDevice;
 import com.onuryigitkocaturk.query_monitor.model.User;
@@ -126,5 +127,14 @@ public class UserServiceImpl implements UserService {
                 .toList();
 
         return new MyAccountResponse(totalQueriesWritten, devices);
+    }
+
+    @Override
+    @Transactional
+    public void removeTrustedDevice(UUID userId, UUID deviceId) {
+        if (!trustedDeviceRepository.existsByIdAndUserId(deviceId, userId)) {
+            throw new TrustedDeviceNotFoundException("Cihaz bulunamadı: " + deviceId);
+        }
+        trustedDeviceRepository.deleteByIdAndUserId(deviceId, userId);
     }
 }
