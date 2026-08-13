@@ -1,12 +1,20 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth, prefetchGeolocation } from "../../context/AuthContext";
 import { ApiError } from "../../api/client";
 import { Button, Card, Input } from "../../components/ui";
 
 export function LoginPage() {
   const { login, verifyLoginCode } = useAuth();
   const navigate = useNavigate();
+
+  // Tarayicinin konum izni diyalogu, kullanici formu doldururken zaten
+  // acilsin diye - "Giris yap"a basildigi ana kadar beklemek, kullaniciya
+  // dusunecek/cevap verecek yeterli zaman birakmiyordu.
+  useEffect(() => {
+    prefetchGeolocation();
+  }, []);
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");

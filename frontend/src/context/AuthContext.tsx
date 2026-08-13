@@ -17,20 +17,36 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 // Login mailine eklenebilmesi icin tarayicidan konum istenir - kullanici
-// izin vermezse/tarayici desteklemezse (ya da 5sn icinde yanit gelmezse)
+// izin vermezse/tarayici desteklemezse (ya da zaman asimina ugrarsa)
 // sessizce bos deger doner, giris akisini hicbir zaman bloklamaz.
-function getGeolocation(): Promise<{ latitude?: number; longitude?: number }> {
-  return new Promise((resolve) => {
-    if (!navigator.geolocation) {
-      resolve({});
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) => resolve({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
-      () => resolve({}),
-      { timeout: 5000 },
-    );
-  });
+//
+// Istek, kullanici formu gonderdigi anda DEGIL, login sayfasi acildigi anda
+// baslatilir (bkz. LoginPage'deki prefetchGeolocation cagrisi) - tarayicinin
+// izin diyaloguna kullanici genelde hemen cevap vermez, kullanici adi/sifre
+// yazarken gecen sureyi kullanmis oluyoruz. Sonuc modul seviyesinde bir
+// promise'te cache'lenir, ayni istek tekrar baslatilmaz.
+let geolocationPromise: Promise<{ latitude?: number; longitude?: number }> | null = null;
+
+function requestGeolocation(): Promise<{ latitude?: number; longitude?: number }> {
+  if (!geolocationPromise) {
+    geolocationPromise = new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve({});
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) => resolve({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
+        () => resolve({}),
+        { timeout: 20000 },
+      );
+    });
+  }
+  return geolocationPromise;
+}
+
+// Login sayfasi mount olur olmaz cagrilir - izin diyalogu erkenden acilsin diye.
+export function prefetchGeolocation(): void {
+  requestGeolocation();
 }
 
 // Token ve kullanici bilgisi SADECE bellekte (React state) tutulur.
@@ -56,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (body: LoginRequest) => {
-      const geolocation = await getGeolocation();
+      const geolocation = await requestGeolocation();
       const result = await authApi.login({ ...body, ...geolocation });
       if (result.verificationRequired && result.verificationToken) {
         setPendingVerificationToken(result.verificationToken);
