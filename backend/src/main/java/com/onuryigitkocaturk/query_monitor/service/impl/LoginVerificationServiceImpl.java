@@ -14,12 +14,8 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Bilinmeyen bir cihazdan giris yapildiginda devreye giren 6 haneli mail
- * dogrulama kodu akisi. Kod, dusuk entropili (1 milyon ihtimal) oldugu icin
- * PasswordEncoder (BCrypt) ile sifreleniyor - hizli bir hash (SHA-256) burada
- * brute-force'a karsi yetersiz kalirdi.
- */
+// bilinmeyen bir cihazdan giriş yapıldığında devreye girer.
+// kod düşük entropili olduğu için PasswordEncoder ile (BCrypt) şifreleniyor.
 @Service
 public class LoginVerificationServiceImpl implements LoginVerificationService {
 
@@ -29,7 +25,11 @@ public class LoginVerificationServiceImpl implements LoginVerificationService {
     private final LoginVerificationRepository loginVerificationRepository;
     private final NotificationService notificationService;
     private final GeocodingService geocodingService;
+
+    // interface'i inject ederek "encode/matched" yapabilen herhangi bir şey lazım.
+    // somut halini PasswordEncoderConfig'de seçtik.
     private final PasswordEncoder passwordEncoder;
+
     private final SecureRandom secureRandom = new SecureRandom();
 
     public LoginVerificationServiceImpl(LoginVerificationRepository loginVerificationRepository,
@@ -47,11 +47,7 @@ public class LoginVerificationServiceImpl implements LoginVerificationService {
         String code = generateSixDigitCode();
         String verificationToken = UUID.randomUUID().toString();
 
-        // Nominatim basarisiz olursa (zaman asimi, servis hatasi) locationLabel
-        // null kalir - NotificationServiceImpl bu durumda ham koordinatlara doner.
-        String locationLabel = (latitude != null && longitude != null)
-                ? geocodingService.reverseGeocode(latitude, longitude)
-                : null;
+        String locationLabel = (latitude != null && longitude != null) ? geocodingService.reverseGeocode(latitude,longitude) : null;
 
         LoginVerification verification = new LoginVerification(
                 user, verificationToken, passwordEncoder.encode(code),

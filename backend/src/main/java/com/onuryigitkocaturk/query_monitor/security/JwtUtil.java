@@ -50,6 +50,7 @@ public class JwtUtil {
         Claims claims = parseClaims(token);
         return claims.getSubject().equals(username) && claims.getExpiration().after(new Date());
     }
+
     // token'ı 3 parçaya ayırır, secret key kullanarak header+payload'ı tekrar hesaplar
     // doğruysa içeriği açar, değilse exception fırlatır.
     private Claims parseClaims(String token) {

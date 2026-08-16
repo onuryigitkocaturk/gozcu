@@ -1,11 +1,8 @@
 package com.onuryigitkocaturk.query_monitor.dto;
 
-/**
- * Login iki farkli sonuc dondurebilir: bilinen bir cihazdan giris yapildiysa
- * token direkt doluyor; bilinmeyen bir cihazdan giris yapildiysa token null,
- * verificationRequired=true ve verificationToken dolu geliyor - frontend
- * bu durumda "mailine gelen kodu gir" ekranini gostermeli.
- */
+// login controler'ı iki farklı sonuç döndürebilir. bilinen bir cihazdan giriş yapılırsa
+// jwt token verilir, bilinmeyen bir cihazsa token null döner, frontend "maile gelen kodu gir"
+// ekranını göstermeli.
 public class LoginResponse {
 
     private String token;

@@ -36,6 +36,9 @@ UserManagementController {
         this.userMapper = userMapper;
     }
 
+    // @AuthenticationPrincipal, JwtAuthFilter'ın her istekte SecurityContextHolder'a koyduğu "şu an giriş yapmış kullanıcı" bilgisini,
+    // controller metodunun parametresine otomatik dolduran bir anotasyon. Kullanıcıyı tekrar sorgulamana gerek kalmadan,
+    // zaten çözülmüş UserDetailsImpl nesnesini direkt veriyor.
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal UserDetailsImpl principal) {
         User user = userService.getByUsername(principal.getUsername());

@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class PasswordEncoderConfig {
 
     // döndürdüğü nesneyi IoC container içine koy, ihtiyaç olan her yere spring dağıtacak.
+    // factory method, görevi nesne oluşturup dışarı döndürmek.
     @Bean
     public PasswordEncoder passwordEncoder() {
         // BCrypt kullandığımız hash algoritması

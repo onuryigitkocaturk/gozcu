@@ -56,10 +56,13 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
+    // login doğrulama kodunu içeren html formatında mail oluşturup gönderiyor.
     @Override
     public void sendLoginVerificationCodeEmail(String recipientEmail, String code, String requestIp, String userAgent,
                                                 Double latitude, Double longitude, String locationLabel) {
         try {
+            // MimeMessage bir e-posta'nın temsili, Java Mail API'sinden geliyor.
+            // MimeMessageHelper, e-posta'yı doldurmayı kolaylaştırmak için Spring'in sunduğu yardımcı sınıf.
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "UTF-8");
             helper.setFrom(fromAddress);
@@ -73,16 +76,12 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    // Tarayicidan (navigator.geolocation) izinle alinan konum. locationLabel
-    // varsa ("Cankaya, Ankara" gibi, GeocodingService ile cozulmus) o gosterilir;
-    // geocoding basarisiz olduysa (null) ham koordinatlara geri donulur.
+    // tarayıcıdan (navigator.geolocation) izinle alınan konum.
     private String buildLocationLine(Double latitude, Double longitude, String locationLabel) {
         if (latitude == null || longitude == null) {
             return "";
         }
-        String displayLocation = (locationLabel != null && !locationLabel.isBlank())
-                ? escape(locationLabel)
-                : latitude + ", " + longitude;
+        String displayLocation = (locationLabel != null && !locationLabel.isBlank()) ? escape(locationLabel) : latitude + ", " + longitude;
         return "<p style=\"font-size: 13px; color: #8a94a6; margin: 8px 0 0;\">Yaklaşık konum: <strong>"
                 + displayLocation
                 + "</strong></p>";
