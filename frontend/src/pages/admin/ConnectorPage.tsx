@@ -2,12 +2,25 @@ import { useState } from "react";
 import { useToast } from "../../context/ToastContext";
 import { connectorApi } from "../../api/connector";
 import { ApiError } from "../../api/client";
-import { Badge, Button, Card, CardHeader, EmptyState, Input, SpinnerCenter } from "../../components/ui";
+import { Badge, Button, Card, CardHeader, EmptyState, Input, Select, SpinnerCenter } from "../../components/ui";
+import type { DatabaseType } from "../../types/api";
+
+const DB_TYPE_LABELS: Record<DatabaseType, string> = {
+  POSTGRESQL: "PostgreSQL",
+  MYSQL: "MySQL / MariaDB",
+  MSSQL: "Microsoft SQL Server",
+};
+const DEFAULT_PORTS: Record<DatabaseType, string> = {
+  POSTGRESQL: "5432",
+  MYSQL: "3306",
+  MSSQL: "1433",
+};
 
 export function ConnectorPage() {
   const { notifyError } = useToast();
+  const [dbType, setDbType] = useState<DatabaseType>("POSTGRESQL");
   const [dbHost, setDbHost] = useState("");
-  const [dbPort, setDbPort] = useState("5432");
+  const [dbPort, setDbPort] = useState(DEFAULT_PORTS.POSTGRESQL);
   const [dbName, setDbName] = useState("");
   const [dbUsername, setDbUsername] = useState("");
   const [dbPassword, setDbPassword] = useState("");
@@ -19,6 +32,7 @@ export function ConnectorPage() {
     setTables(null);
     try {
       const result = await connectorApi.testConnection({
+        dbType,
         dbHost,
         dbPort: Number(dbPort),
         dbName,
@@ -42,6 +56,21 @@ export function ConnectorPage() {
       </div>
 
       <Card style={{ marginBottom: 20 }}>
+        <Select
+          label="Veritabanı tipi"
+          value={dbType}
+          onChange={(e) => {
+            const type = e.target.value as DatabaseType;
+            setDbType(type);
+            setDbPort(DEFAULT_PORTS[type]);
+          }}
+        >
+          {Object.entries(DB_TYPE_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </Select>
         <div className="form-row">
           <Input label="Host" value={dbHost} onChange={(e) => setDbHost(e.target.value)} required />
           <Input label="Port" type="number" value={dbPort} onChange={(e) => setDbPort(e.target.value)} required />

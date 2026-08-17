@@ -6,9 +6,20 @@ import { useAsync } from "../hooks/useAsync";
 import { projectsApi } from "../api/projects";
 import { connectorApi } from "../api/connector";
 import { ApiError } from "../api/client";
-import { Badge, Button, Card, CardHeader, EmptyState, Input, Modal, SpinnerCenter } from "../components/ui";
+import { Badge, Button, Card, CardHeader, EmptyState, Input, Modal, Select, SpinnerCenter } from "../components/ui";
 import { formatDateTime } from "../utils/format";
-import type { ProjectRole } from "../types/api";
+import type { DatabaseType, ProjectRole } from "../types/api";
+
+const DB_TYPE_LABELS: Record<DatabaseType, string> = {
+  POSTGRESQL: "PostgreSQL",
+  MYSQL: "MySQL / MariaDB",
+  MSSQL: "Microsoft SQL Server",
+};
+const DEFAULT_PORTS: Record<DatabaseType, string> = {
+  POSTGRESQL: "5432",
+  MYSQL: "3306",
+  MSSQL: "1433",
+};
 
 const ROLE_LABELS: Record<ProjectRole, string> = {
   REPORTER: "Reporter",
@@ -56,8 +67,9 @@ function AdminDashboard() {
   const [modalOpen, setModalOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [dbType, setDbType] = useState<DatabaseType>("POSTGRESQL");
   const [dbHost, setDbHost] = useState("");
-  const [dbPort, setDbPort] = useState("5432");
+  const [dbPort, setDbPort] = useState(DEFAULT_PORTS.POSTGRESQL);
   const [dbName, setDbName] = useState("");
   const [dbUsername, setDbUsername] = useState("");
   const [dbPassword, setDbPassword] = useState("");
@@ -67,17 +79,24 @@ function AdminDashboard() {
   const resetForm = () => {
     setName("");
     setDescription("");
+    setDbType("POSTGRESQL");
     setDbHost("");
-    setDbPort("5432");
+    setDbPort(DEFAULT_PORTS.POSTGRESQL);
     setDbName("");
     setDbUsername("");
     setDbPassword("");
+  };
+
+  const handleDbTypeChange = (type: DatabaseType) => {
+    setDbType(type);
+    setDbPort(DEFAULT_PORTS[type]);
   };
 
   const handleTestConnection = async () => {
     setTesting(true);
     try {
       const tables = await connectorApi.testConnection({
+        dbType,
         dbHost,
         dbPort: Number(dbPort),
         dbName,
@@ -99,6 +118,7 @@ function AdminDashboard() {
       await projectsApi.create({
         name,
         description: description || undefined,
+        dbType,
         dbHost,
         dbPort: Number(dbPort),
         dbName,
@@ -209,6 +229,17 @@ function AdminDashboard() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+          <Select
+            label="Veritabanı tipi"
+            value={dbType}
+            onChange={(e) => handleDbTypeChange(e.target.value as DatabaseType)}
+          >
+            {Object.entries(DB_TYPE_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </Select>
           <div className="form-row">
             <Input label="Host" value={dbHost} onChange={(e) => setDbHost(e.target.value)} required />
             <Input label="Port" type="number" value={dbPort} onChange={(e) => setDbPort(e.target.value)} required />

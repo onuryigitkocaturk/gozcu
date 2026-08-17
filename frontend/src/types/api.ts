@@ -77,9 +77,12 @@ export interface GroupResponse {
 }
 
 // ---- Project ----
+export type DatabaseType = "POSTGRESQL" | "MYSQL" | "MSSQL";
+
 export interface ProjectRequest {
   name: string;
   description?: string;
+  dbType: DatabaseType;
   dbHost: string;
   dbPort: number;
   dbName: string;
@@ -90,6 +93,7 @@ export interface ProjectResponse {
   id: string;
   name: string;
   description: string | null;
+  dbType: DatabaseType | null;
   dbHost: string | null;
   dbPort: number | null;
   dbName: string | null;
@@ -98,6 +102,7 @@ export interface ProjectResponse {
 }
 
 export interface ConnectionTestRequest {
+  dbType: DatabaseType;
   dbHost: string;
   dbPort: number;
   dbName: string;
