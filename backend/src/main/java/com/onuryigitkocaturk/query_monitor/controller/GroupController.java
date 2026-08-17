@@ -44,9 +44,6 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.CREATED).body(groupMapper.toResponse(group));
     }
 
-    // Alert olusturan bir Developer'in bildirim grubu secebilmesi icin
-    // sadece LISTELEME herhangi bir authenticated kullaniciya acik - grup
-    // olusturma/silme/uye yonetimi hala ADMIN-only.
     @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<GroupResponse>> getAllGroups() {

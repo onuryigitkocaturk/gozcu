@@ -7,13 +7,8 @@ import org.springframework.stereotype.Component;
 import java.util.EnumSet;
 import java.util.UUID;
 
-/**
- * @PreAuthorize ifadeleri icinde ("@projectAuthorizationService.isAtLeastX(...)")
- * kullanilmak uzere yazildi. ProjectRole enum'unun tanim sirasi (REPORTER <
- * DEVELOPER < MAINTAINER < OWNER) hiyerarsi olarak kullaniliyor - "en az su
- * rol" kontrolu, o rolden itibaren yukarisindaki tum rolleri kapsayan bir
- * EnumSet ile yapiliyor.
- */
+// @PreAuthorize ifadeli için yetki karşılaştırması yapmak için olan sınıf.
+// reporter < developer < maintainer < owner
 @Component
 public class ProjectAuthorizationService {
 

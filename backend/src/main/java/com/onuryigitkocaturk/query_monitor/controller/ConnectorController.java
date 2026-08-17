@@ -13,10 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-// Bir proje oluşturulmadan önce girilen host/port/db bilgisiyle gerçekten
-// bağlanılabiliyor mu diye test etmek için kullanılır. Proje oluşturulduktan
-// sonraki tablo keşfi artık ProjectController.discoverTables üzerinden,
-// projenin KAYITLI (şifrelenmiş) bağlantı bilgisiyle yapılıyor.
+// bir proje oluşturulurken girilen host/port/db bilgisiyle bağlantı testi yapar.
+// proje oluştuktan sonra tablo keşfi ProjectController.discoverTables üzerinden yapılır.
 @RestController // -> @ResponseBody + @Controller
 @RequestMapping("/api/connector")
 @PreAuthorize("hasRole('ADMIN')")

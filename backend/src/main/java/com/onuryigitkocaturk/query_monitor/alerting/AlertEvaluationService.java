@@ -8,13 +8,9 @@ import com.onuryigitkocaturk.query_monitor.dto.AlertConditionValue;
 import com.onuryigitkocaturk.query_monitor.enums.ConditionOperator;
 import org.springframework.stereotype.Service;
 
-/**
- * Bir Alert'in su an tetiklenip tetiklenmeyecegini hesaplar: Query'yi
- * calistirip eslesen satir sayisini alir, Alert'in kosuluyla (metric +
- * operator + esik deger) karsilastirir. Mail GONDERMEZ - sadece
- * "tetiklenir miydi" sorusuna cevap verir; mail gonderimi scheduler +
- * notification/ paketinin isi (sonraki artis).
- */
+// bir alert'in anlık tetiklenip tetiklenmeyeceğini hesaplar.
+// query'yi çalıştırıp eşleşen satır sayısını alır, alert koşulu
+// ile karşılaştırır.
 @Service
 public class AlertEvaluationService {
 

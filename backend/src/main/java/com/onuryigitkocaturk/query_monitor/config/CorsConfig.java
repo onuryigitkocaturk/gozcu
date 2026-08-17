@@ -8,17 +8,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-/**
- * Frontend (Vite dev server, localhost:5173) farkli bir origin'den
- * backend'e (localhost:8080) istek atiyor - tarayici bunu varsayilan
- * olarak engeller (CORS). Bu config, sadece bilinen local gelistirme
- * origin'lerine izin verir.
- */
+// frontend farklı bir originden backende istek atıyor. tarayıcı bunu varsayılan olarak engeller.
+//  Origin = protokol + domain + port
 
-/**
- * Origin = protokol + domain + port
- * CORS = Cross Origin Resource Sharing
- */
 @Configuration
 public class CorsConfig {
 
@@ -28,9 +20,9 @@ public class CorsConfig {
         configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://127.0.0.1:5173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+
         // device_token cookie'sinin tarayici<->backend arasinda tasinabilmesi icin
-        // gerekli - allowCredentials(true) ile birlikte allowedOrigins wildcard (*)
-        // OLAMAZ, bilerek spesifik origin listesi kullaniliyor.
+        // gerekli
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

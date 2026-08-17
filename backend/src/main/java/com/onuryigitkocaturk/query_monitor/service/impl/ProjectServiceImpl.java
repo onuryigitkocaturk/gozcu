@@ -79,7 +79,7 @@ public class ProjectServiceImpl implements ProjectService {
         ConnectionDetails connection = new ConnectionDetails(
                 request.getDbType(), request.getDbHost(), request.getDbPort(), request.getDbName(),
                 request.getDbUsername(), request.getDbPassword());
-        // baglanti gercekten calisiyor mu - calismiyorsa proje hic kaydedilmez.
+        // bağlantı gerçekten çalışıyor mu kontrol eder, çalışmıyorsa kaydedilmez.
         tableMetadataService.listTables(connection);
 
         Project project = new Project(request.getName(), request.getDescription());
@@ -91,7 +91,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setDbPasswordEncrypted(connectionCredentialEncryptor.encrypt(request.getDbPassword()));
         Project savedProject = projectRepository.save(project);
 
-        // proje olusturan kisi otomatik olarak o projenin Owner'i olur.
+        // proje oluşturan kişi otomatik olarak o projenin Owner'ı olur.
         User creator = userRepository.findById(creatorUserId)
                 .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı: " + creatorUserId));
         projectMembershipRepository.save(new ProjectMembership(creator, savedProject, ProjectRole.OWNER));
@@ -228,11 +228,7 @@ public class ProjectServiceImpl implements ProjectService {
         return tableMetadataService.listColumns(toConnectionDetails(project), tableName);
     }
 
-    /**
-     * Sadece OWNER rolu atanirken ekstra bir kontrol var: bunu yapan kisi
-     * global ADMIN olmali ya da o projede zaten OWNER olmali - bir Maintainer
-     * kendini/baskasini Owner yapamaz.
-     */
+    // sadece owner rolü atanırken ekstra bir kontrol var, ya global admin ya da o projede owner olmalı
     private void assertCanAssignRole(UUID projectId, UUID actingUserId, ProjectRole roleToAssign) {
         if (roleToAssign != ProjectRole.OWNER) {
             return;
