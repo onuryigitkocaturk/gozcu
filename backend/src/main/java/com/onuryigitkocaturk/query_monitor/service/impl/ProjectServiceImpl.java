@@ -77,12 +77,13 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         ConnectionDetails connection = new ConnectionDetails(
-                request.getDbHost(), request.getDbPort(), request.getDbName(),
+                request.getDbType(), request.getDbHost(), request.getDbPort(), request.getDbName(),
                 request.getDbUsername(), request.getDbPassword());
         // baglanti gercekten calisiyor mu - calismiyorsa proje hic kaydedilmez.
         tableMetadataService.listTables(connection);
 
         Project project = new Project(request.getName(), request.getDescription());
+        project.setDbType(request.getDbType());
         project.setDbHost(request.getDbHost());
         project.setDbPort(request.getDbPort());
         project.setDbName(request.getDbName());
@@ -276,6 +277,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     private ConnectionDetails toConnectionDetails(Project project) {
         return new ConnectionDetails(
+                project.getDbType(),
                 project.getDbHost(),
                 project.getDbPort(),
                 project.getDbName(),

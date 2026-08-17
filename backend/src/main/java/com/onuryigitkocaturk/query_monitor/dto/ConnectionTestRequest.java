@@ -1,5 +1,6 @@
 package com.onuryigitkocaturk.query_monitor.dto;
 
+import com.onuryigitkocaturk.query_monitor.enums.DatabaseType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -7,6 +8,9 @@ import jakarta.validation.constraints.NotNull;
 // baglanilabiliyor mu diye test etmek icin kullanilir - hicbir yere
 // kaydedilmez, sadece o istek suresince kullanilir.
 public class ConnectionTestRequest {
+
+    @NotNull
+    private DatabaseType dbType;
 
     @NotBlank
     private String dbHost;
@@ -22,6 +26,14 @@ public class ConnectionTestRequest {
 
     @NotBlank
     private String dbPassword;
+
+    public DatabaseType getDbType() {
+        return dbType;
+    }
+
+    public void setDbType(DatabaseType dbType) {
+        this.dbType = dbType;
+    }
 
     public String getDbHost() {
         return dbHost;

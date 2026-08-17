@@ -13,6 +13,7 @@ public class ProjectMapper {
                 project.getId(),
                 project.getName(),
                 project.getDescription(),
+                project.getDbType(),
                 project.getDbHost(),
                 project.getDbPort(),
                 project.getDbName(),

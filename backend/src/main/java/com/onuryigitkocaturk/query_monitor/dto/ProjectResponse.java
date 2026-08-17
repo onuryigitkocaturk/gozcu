@@ -1,5 +1,7 @@
 package com.onuryigitkocaturk.query_monitor.dto;
 
+import com.onuryigitkocaturk.query_monitor.enums.DatabaseType;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -8,6 +10,7 @@ public class ProjectResponse {
     private UUID id;
     private String name;
     private String description;
+    private DatabaseType dbType;
     private String dbHost;
     private Integer dbPort;
     private String dbName;
@@ -17,16 +20,25 @@ public class ProjectResponse {
     public ProjectResponse() {
     }
 
-    public ProjectResponse(UUID id, String name, String description, String dbHost, Integer dbPort,
-                            String dbName, String dbUsername, LocalDateTime createdAt) {
+    public ProjectResponse(UUID id, String name, String description, DatabaseType dbType, String dbHost,
+                            Integer dbPort, String dbName, String dbUsername, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.dbType = dbType;
         this.dbHost = dbHost;
         this.dbPort = dbPort;
         this.dbName = dbName;
         this.dbUsername = dbUsername;
         this.createdAt = createdAt;
+    }
+
+    public DatabaseType getDbType() {
+        return dbType;
+    }
+
+    public void setDbType(DatabaseType dbType) {
+        this.dbType = dbType;
     }
 
     public UUID getId() {

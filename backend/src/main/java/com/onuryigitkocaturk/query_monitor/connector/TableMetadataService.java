@@ -20,15 +20,15 @@ public class TableMetadataService {
     public List<String> listTables(ConnectionDetails connection) {
         JdbcTemplate jdbcTemplate = jdbcTemplateFactory.create(connection);
         String sql = "SELECT table_name FROM information_schema.tables " +
-                "WHERE table_schema = 'public' ORDER BY table_name";
-        return jdbcTemplate.queryForList(sql, String.class);
+                "WHERE table_schema = ? ORDER BY table_name";
+        return jdbcTemplate.queryForList(sql, String.class, connection.metadataSchema());
     }
 
     public List<String> listColumns(ConnectionDetails connection, String tableName) {
         JdbcTemplate jdbcTemplate = jdbcTemplateFactory.create(connection);
         String sql = "SELECT column_name FROM information_schema.columns " +
-                "WHERE table_schema = 'public' AND table_name = ? ORDER BY ordinal_position";
-        return jdbcTemplate.queryForList(sql, String.class, tableName);
+                "WHERE table_schema = ? AND table_name = ? ORDER BY ordinal_position";
+        return jdbcTemplate.queryForList(sql, String.class, connection.metadataSchema(), tableName);
     }
 
    // Tablo adı bir değer değil, SQL'in yapısının kendisi olduğu için ? ile bağlanamaz — bu yüzden güvenlik,

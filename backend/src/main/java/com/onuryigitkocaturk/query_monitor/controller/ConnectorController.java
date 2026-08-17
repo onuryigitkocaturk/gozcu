@@ -31,7 +31,7 @@ public class ConnectorController {
     @PostMapping("/test-connection")
     public ResponseEntity<List<String>> testConnection(@Valid @RequestBody ConnectionTestRequest request) {
         ConnectionDetails connection = new ConnectionDetails(
-                request.getDbHost(), request.getDbPort(), request.getDbName(),
+                request.getDbType(), request.getDbHost(), request.getDbPort(), request.getDbName(),
                 request.getDbUsername(), request.getDbPassword());
         return ResponseEntity.ok(tableMetadataService.listTables(connection));
     }

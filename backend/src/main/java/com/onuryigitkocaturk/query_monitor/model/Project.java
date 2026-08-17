@@ -1,8 +1,11 @@
 package com.onuryigitkocaturk.query_monitor.model;
 
+import com.onuryigitkocaturk.query_monitor.enums.DatabaseType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -37,6 +40,10 @@ public class Project {
     // her proje kendi veritabanina (farkli host/port olabilir) baglanabiliyor.
     // dbPassword HICBIR ZAMAN duz metin degil, ConnectionCredentialEncryptor
     // ile sifrelenmis olarak saklanir.
+    @Enumerated(EnumType.STRING)
+    @Column(name = "db_type", nullable = false)
+    private DatabaseType dbType;
+
     @Column(name = "db_host")
     private String dbHost;
 
@@ -107,6 +114,14 @@ public class Project {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public DatabaseType getDbType() {
+        return dbType;
+    }
+
+    public void setDbType(DatabaseType dbType) {
+        this.dbType = dbType;
     }
 
     public String getDbHost() {

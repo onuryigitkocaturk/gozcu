@@ -1,5 +1,6 @@
 package com.onuryigitkocaturk.query_monitor.dto;
 
+import com.onuryigitkocaturk.query_monitor.enums.DatabaseType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -9,6 +10,9 @@ public class ProjectRequest {
     private String name;
 
     private String description;
+
+    @NotNull
+    private DatabaseType dbType;
 
     @NotBlank
     private String dbHost;
@@ -28,15 +32,24 @@ public class ProjectRequest {
     public ProjectRequest() {
     }
 
-    public ProjectRequest(String name, String description, String dbHost, Integer dbPort,
+    public ProjectRequest(String name, String description, DatabaseType dbType, String dbHost, Integer dbPort,
                            String dbName, String dbUsername, String dbPassword) {
         this.name = name;
         this.description = description;
+        this.dbType = dbType;
         this.dbHost = dbHost;
         this.dbPort = dbPort;
         this.dbName = dbName;
         this.dbUsername = dbUsername;
         this.dbPassword = dbPassword;
+    }
+
+    public DatabaseType getDbType() {
+        return dbType;
+    }
+
+    public void setDbType(DatabaseType dbType) {
+        this.dbType = dbType;
     }
 
     public String getName() {

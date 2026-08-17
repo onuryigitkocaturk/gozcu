@@ -132,6 +132,7 @@ public class QueryServiceImpl implements QueryService {
 
     private ConnectionDetails toConnectionDetails(Project project) {
         return new ConnectionDetails(
+                project.getDbType(),
                 project.getDbHost(),
                 project.getDbPort(),
                 project.getDbName(),

@@ -122,6 +122,7 @@ public class AlertServiceImpl implements AlertService {
 
     private ConnectionDetails toConnectionDetails(Project project) {
         return new ConnectionDetails(
+                project.getDbType(),
                 project.getDbHost(),
                 project.getDbPort(),
                 project.getDbName(),
