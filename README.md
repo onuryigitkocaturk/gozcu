@@ -1,18 +1,138 @@
-# Gözcü — Getting Started
+# gözcü
 
-## 1. Prerequisite: Docker services
+Kullanıcıların izlemek istedikleri veritabanlarına bağlanıp, SQL bilmeden
+sürükle-bırak ile kontrol sorguları kurabildiği, bu sorguları saatlik/günlük
+periyotlarla otomatik çalıştırıp bir koşul sağlandığında ilgili gruba mail
+gönderen bir izleme (monitoring) uygulaması.
 
-Postgres (the app's own DB + the monitored mock DB) and MailHog (fake SMTP), from the project root:
+---
+
+## 1. Neden var
+
+Fikir basit: "şu tablodaki şu koşulu sağlayan satır sayısı şu eşiği geçerse
+bana haber ver." Bunu SQL yazmadan, tekrar tekrar elle kontrol etmeden,
+arka planda kendiliğinden çalışan bir sisteme devretmek.
+
+Örnek senaryo (mock veride de kullanılan): bir araç filosunun sigorta/garanti
+bitiş tarihleri, km'leri, ehliyet yenileme tarihleri olan bir tablo var —
+"garantisi 30 gün içinde dolacak araçlar" gibi bir kural kurup, her gün
+otomatik kontrol edilip ilgili ekibe mail atılmasını istiyorsunuz. Bu proje
+tam olarak bunu yapıyor.
+
+## 2. Mimari — büyük resim
+
+```
+Kullanıcı (React frontend)
+        │  JWT ile kimlik doğrulama
+        ▼
+   Spring Boot backend
+        │
+        ├── Kendi veritabanı (Postgres)     → kullanıcılar, projeler, sorgular,
+        │                                       alertler — JPA ile yönetilir
+        │
+        └── İzlenen veritabanı(lar)          → her PROJE kendi bağlantı bilgisini
+             (Postgres / MySQL / MSSQL)         taşır, JPA KULLANILMAZ, ham JDBC
+                                                 ile (connector/ paketi) sorgulanır
+```
+
+İki farklı veritabanı katmanı **bilinçli olarak** birbirinden ayrı tutuluyor:
+uygulamanın kendi verisi (kullanıcı, proje, sorgu tanımı) JPA/Entity ile
+yönetilirken, izlenen veritabanları yapısı önceden bilinmeyen, generic JDBC
+(`JdbcTemplate`) ile sorgulanan bağımsız bir katman. Bir tabloyu "entity"
+olarak modellemek mümkün değil çünkü her kullanıcının izlediği tablo farklı
+olabilir.
+
+**Katman akışı tek yönlü:** Controller → Service → Repository. Bir katman
+sadece bir alttakini çağırır, atlama yapılmaz. Entity'ler controller'dan
+dışarı hiç sızmaz, her zaman DTO döner.
+
+## 3. Neden bu teknik kararlar alındı
+
+| Karar | Neden |
+|---|---|
+| Refresh token yok, sadece access token (1 saat) | Bilinçli sadelik tercihi — projenin kapsamı için fazladan karmaşıklık istenmedi |
+| MapStruct yok, mapper'lar elle yazılıyor | Öğrenme amaçlı: entity→DTO dönüşümünün her adımı görünür kalsın isteniyor |
+| İzlenen tablolarda Criteria API/QueryDSL yok, whitelist + parametreli JDBC var | İzlenen tablolar JPA entity'si değil, yapıları derleme zamanında bilinmiyor — kolon adı whitelist ile, değer hep `?` ile bağlanıyor (SQL injection'a karşı) |
+| Her proje kendi DB bağlantı bilgisini taşıyor, `DbConnection` diye ayrı bir entity yok | Bağlantı bilgisi zaten `Project`'in bir parçası; ayrı bir tabloya gerek yaratmıyor |
+| Bağlantı şifreleri DB'de şifreli (AES, `CONNECTION_ENCRYPTION_KEY`) tutuluyor | Kullanıcı, izlediği veritabanının gerçek şifresini paylaşıyor — düz metin saklanamaz |
+| Login'de yeni cihaz tespit edilirse mail ile 6 haneli kod doğrulaması isteniyor | Ekstra bir güvenlik katmanı — bilinmeyen cihazdan giriş anomalisi kontrolü |
+| Bağlantı testi (`/api/connector/test-connection`) proje kaydından ayrı bir endpoint | Kullanıcı, proje oluşturmadan önce girdiği host/port/şifrenin gerçekten çalıştığını görebilsin |
+
+## 4. Kod yapısı (backend)
+
+```
+model/         gerçek @Entity sınıfları (User, Project, ProjectMembership,
+                Query, Alert, AlertLog, Group, TrustedDevice, LoginVerification)
+enums/         Role, ProjectRole, Frequency, ConditionOperator gibi enum'lar
+dto/           API'de dışarı/içeri giden veri şekilleri
+repository/    Spring Data JPA repository'leri
+service/       iş mantığı — interface + impl/ altında Impl sınıfı deseni
+mapper/        entity <-> dto dönüşümü (elle yazılan mapper'lar)
+controller/    REST endpoint'leri
+security/      JWT + Spring Security entegrasyonu, login doğrulama
+connector/     izlenen veritabanına ham JDBC bağlantısı, tablo keşfi,
+                query çalıştırma
+querybuilder/  sürükle-bırak JSON ağacının parametreli SQL'e çevrilmesi
+                + whitelist doğrulaması
+alerting/      bir alert'in şu an tetiklenip tetiklenmeyeceğini hesaplayan
+                servis (mail atmaz, sadece hesaplar)
+scheduler/     @Scheduled görevler — periyodik sorgu/alert kontrolü
+notification/  mail gönderimi (MailHog ile geliştirme ortamında mock)
+geocoding/     giriş denemesinin yaklaşık konumunu (IP/koordinat) mail
+                bildirimine eklemek için
+config/        CORS, DataSource, Jackson gibi genel bean tanımları
+```
+
+## 5. Uçtan uca akış — bir sorgunun hayat döngüsü
+
+1. **Proje oluşturulur** — host/port/db tipi/kullanıcı/şifre girilir, kaydedilmeden
+   önce gerçekten bağlanılabiliyor mu test edilir, şifre şifrelenerek saklanır.
+2. **Tablo keşfedilir** — o projeye bağlı veritabanındaki tablolar listelenir,
+   izlemek istediğin tablo projeye eklenir.
+3. **Sorgu kurulur** — sürükle-bırak ekranında kolonlar/işleçler/değerlerle bir
+   koşul ağacı kurulur, kaydedilirken kolon isimleri gerçek şema ile
+   (whitelist) doğrulanır, JSON olarak saklanır.
+4. **Alert bağlanır** — bu sorgunun kaç satır eşleştirdiğine göre ("eşik
+   değeri" + karşılaştırma) tetiklenme koşulu tanımlanır, hangi gruba mail
+   gideceği seçilir.
+5. **Scheduler periyodik çalışır** — aktif her sorgunun frequency'sine
+   (saatlik/günlük) göre alert'leri değerlendirir, sonucu loglar, tetiklenmişse
+   mail gönderir.
+6. **Mail gider** — grubun tüm üyelerine, eşleşen satırların bir özetiyle
+   birlikte HTML mail atılır.
+
+## 6. Yetkilendirme modeli
+
+İki katmanlı rol sistemi var:
+
+- **Global rol** (`Role`: `ADMIN` / `USER`) — sistem genelinde kullanıcı
+  yönetimi, grup yönetimi gibi işler için.
+- **Proje rolü** (`ProjectRole`: `REPORTER` < `DEVELOPER` < `MAINTAINER` <
+  `OWNER`) — bir kullanıcının **belirli bir projedeki** yetkisi, global
+  rolden bağımsız. "En az şu rol" kontrolü hiyerarşik yapılıyor
+  (`ProjectAuthorizationService`).
+
+Bir ADMIN her projeye her zaman erişebiliyor; proje bazlı roller ise sadece
+o projenin üyeleri için geçerli.
+
+## 7. Kurulum
+
+### Gereksinim: Docker servisleri
+
+Proje kökünden, kendi Postgres'i (uygulama verisi) ve MailHog (sahte SMTP)
+ayağa kaldırılır:
 
 ```bash
 docker compose up -d
 ```
 
-Check: `docker ps` should show `query-monitor-postgres` and `query-monitor-mailhog` running.
+Kontrol: `docker ps` çıktısında `query-monitor-postgres` ve
+`query-monitor-mailhog` görünmeli.
 
-## 2. Backend
+### Backend
 
-In `backend/`, the app won't start without the `JWT_SECRET` and `CONNECTION_ENCRYPTION_KEY` environment variables set:
+`backend/` dizininde, `JWT_SECRET` ve `CONNECTION_ENCRYPTION_KEY` env
+değişkenleri set edilmeden uygulama **açılmaz** (bilinçli tercih):
 
 ```bash
 cd backend
@@ -21,29 +141,42 @@ export CONNECTION_ENCRYPTION_KEY=$(openssl rand -base64 32)
 ./mvnw spring-boot:run
 ```
 
-Once up: `http://localhost:8080`
+Açıldığında: `http://localhost:8080`
 
-## 3. Frontend
-
-In `frontend/` (run `npm install` the first time only):
+### Frontend
 
 ```bash
 cd frontend
-npm install   # first time only
+npm install   # sadece ilk seferde
 npm run dev
 ```
 
-Once up: `http://localhost:5173`
+Açıldığında: `http://localhost:5173`
 
-## 4. Other interfaces
+### Diğer arayüzler
 
-- **MailHog** (view sent emails): `http://localhost:8025`
-- Each **project** now carries its own monitored database connection (host/port/db/username/password, entered when the project is created) — there is no single fixed monitored database anymore. `CONNECTION_ENCRYPTION_KEY` is the AES key used to encrypt these stored passwords.
+- **MailHog** (gönderilen mailleri görmek için): `http://localhost:8025`
+- Sabit/tek bir izlenen veritabanı yok — her **proje** kendi bağlantı
+  bilgisini (host/port/db/kullanıcı/şifre) proje oluşturulurken taşır.
+  `CONNECTION_ENCRYPTION_KEY`, bu saklanan şifreleri şifrelemek için
+  kullanılan AES anahtarı.
 
-## 5. First admin user
+### İlk admin kullanıcı
 
-Any user who registers through the frontend (`Kayıt olun`) starts out with the `USER` role. Promote the first admin via SQL:
+Frontend'den ("Kayıt olun") kayıt olan herkes `USER` rolüyle başlar. İlk
+admin'i SQL ile elle atamak gerekiyor:
 
 ```sql
-UPDATE users SET role='ADMIN' WHERE username='<username>';
+UPDATE users SET role='ADMIN' WHERE username='<kullanici_adi>';
 ```
+
+## 8. Bilinen sınırlamalar
+
+- Query builder'da `BETWEEN`/`IN` işleçleri yok, kolon-kolona karşılaştırma
+  yok, `CONTAINS` case-insensitive değil.
+- Sorgu çalıştırma endpoint'inde sayfalama/limit yok — büyük tablolarda risk.
+- İzlenen veritabanına her sorgu kendi bağlantısını açıp kapatıyor
+  (connection pooling yok) — sık çalışan scheduler + çok sayıda sorgu
+  senaryosunda performans maliyeti var.
+- Üst üste binen scheduler çalıştırmalarını engelleyen bir mekanizma
+  (örn. "isRunning" kilidi) henüz yok.

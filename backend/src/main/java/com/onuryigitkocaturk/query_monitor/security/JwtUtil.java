@@ -53,6 +53,7 @@ public class JwtUtil {
 
     // token'ı 3 parçaya ayırır, secret key kullanarak header+payload'ı tekrar hesaplar
     // doğruysa içeriği açar, değilse exception fırlatır.
+    // Claims: JWT'nin içindeki verileri (subject, expiration vs.) taşıyan, jjwt kütüphanesine ait hazır bir arayüz.
     private Claims parseClaims(String token) {
         return Jwts.parser()
                 .verifyWith(secretKey)
