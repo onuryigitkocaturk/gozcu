@@ -2,10 +2,12 @@ package com.onuryigitkocaturk.query_monitor.service.impl;
 
 import com.onuryigitkocaturk.query_monitor.dto.GroupRequest;
 import com.onuryigitkocaturk.query_monitor.exception.DuplicateGroupException;
+import com.onuryigitkocaturk.query_monitor.exception.GroupInUseException;
 import com.onuryigitkocaturk.query_monitor.exception.GroupNotFoundException;
 import com.onuryigitkocaturk.query_monitor.exception.UserNotFoundException;
 import com.onuryigitkocaturk.query_monitor.model.Group;
 import com.onuryigitkocaturk.query_monitor.model.User;
+import com.onuryigitkocaturk.query_monitor.repository.AlertRepository;
 import com.onuryigitkocaturk.query_monitor.repository.GroupRepository;
 import com.onuryigitkocaturk.query_monitor.repository.UserRepository;
 import com.onuryigitkocaturk.query_monitor.service.GroupService;
@@ -22,10 +24,13 @@ public class GroupServiceImpl implements GroupService {
 
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
+    private final AlertRepository alertRepository;
 
-    public GroupServiceImpl(GroupRepository groupRepository, UserRepository userRepository) {
+    public GroupServiceImpl(GroupRepository groupRepository, UserRepository userRepository,
+                             AlertRepository alertRepository) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
+        this.alertRepository = alertRepository;
     }
 
     @Override
@@ -43,6 +48,11 @@ public class GroupServiceImpl implements GroupService {
     public void deleteGroup(UUID id) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new GroupNotFoundException("Grup bulunamadı: " + id));
+
+        int alertCount = alertRepository.findByGroupId(id).size();
+        if (alertCount > 0) {
+            throw new GroupInUseException("Bu gruba bağlı " + alertCount + " alert var, önce onları silin ya da başka bir gruba taşıyın");
+        }
 
         // owning side User; grubu direkt silmeden önce üyelerin
         // koleksiyonundan çıkarmazsak user_group'ta FK ihlali olur.

@@ -57,6 +57,11 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    @ExceptionHandler(GroupInUseException.class)
+    public ResponseEntity<ErrorResponse> handleGroupInUse(GroupInUseException ex) {
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
     @ExceptionHandler(TableNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleTableNotFound(TableNotFoundException ex) {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
