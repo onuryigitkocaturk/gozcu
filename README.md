@@ -11,13 +11,35 @@ gönderen bir izleme (monitoring) uygulamasıdır.
 
 Fikir basit: "şu tablodaki şu koşulu sağlayan satır sayısı şu eşiği geçerse
 bana haber ver." Bunu SQL yazmadan, tekrar tekrar elle kontrol etmeden,
-arka planda kendiliğinden çalışan bir sisteme devretmek.
+arka planda kendiliğinden çalışan bir sisteme devretmek. Proje sabit,
+önceden bilinen bir veritabanı için değil, herhangi bir veritabanı için
+çalışıyor — canlıdaki (production) hangi veritabanına bağlanılırsa
+bağlanılsın, tablo/kolon yapısı önceden bilinmeden keşfedilip süreç ona
+göre dinamik şekilde işliyor.
 
-Örnek senaryo: bir araç filosunun sigorta/garanti
-bitiş tarihleri, km'leri, ehliyet yenileme tarihleri olan bir tablo var 
-"garantisi 30 gün içinde dolan 2020 modelden daha yeni araçlar" gibi bir kural kurup, her gün
-otomatik kontrol edilip ilgili ekibe mail atılmasını istiyorsunuz. Bu proje
-tam olarak bunu yapıyor.
+Örnek senaryolar:
+
+- **Araç filosu (Postgres):** "garantisi 30 gün içinde dolacak VE 2020
+  modelden daha yeni VE son 6 ayda bakıma girmemiş" araçları her gün
+  kontrol edip filo ekibine mail at.
+- **E-ticaret siparişleri (MySQL):** "ödemesi 'başarılı' VE kargo durumu
+  hâlâ 'hazırlanıyor' VE sipariş tarihi 3 günden eski" olan (yani kargoya
+  verilmesi gecikmiş) siparişleri saatte bir kontrol edip operasyon
+  ekibine bildir.
+- **İK / sözleşme takibi (MSSQL):** "(sözleşme bitişine 15 gün kaldı VEYA
+  deneme süresi bugün doluyor) VE çalışan durumu hâlâ 'aktif'" kuralını
+  her sabah kontrol edip İK grubuna mail at — iki farklı, birbirinden
+  bağımsız aciliyet durumunu tek alert'te VEYA ile birleştiren, gruplanmış
+  (nested) bir koşul ağacı.
+- **Sunucu/log tablosu (Postgres):** "hata seviyesi 'CRITICAL' VE son 1
+  saat içinde oluşmuş VE ilgili servis 'ödeme-servisi'" satır sayısı 5'i
+  geçerse saatlik yerine daha sık aralıklarla kontrol edilip on-call
+  ekibine anında haber ver.
+
+Dördü de aynı sürükle-bırak koşul ağacı ile, aynı whitelist + parametreli
+JDBC mekanizmasıyla, farklı veritabanı tipleri ve farklı iç içe VE/VEYA
+gruplamalarıyla kuruluyor — proje tablonun ya da veritabanının ne
+olduğunu önceden bilmek zorunda değil.
 
 ## 2. Mimari — büyük resim
 
