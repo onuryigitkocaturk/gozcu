@@ -3,19 +3,19 @@
 Kullanıcıların izlemek istedikleri veritabanlarına bağlanıp, SQL bilmeden
 sürükle-bırak ile kontrol sorguları kurabildiği, bu sorguları saatlik/günlük
 periyotlarla otomatik çalıştırıp bir koşul sağlandığında ilgili gruba mail
-gönderen bir izleme (monitoring) uygulaması.
+gönderen bir izleme (monitoring) uygulamasıdır.
 
 ---
 
-## 1. Neden var
+## 1. Neden var ?
 
 Fikir basit: "şu tablodaki şu koşulu sağlayan satır sayısı şu eşiği geçerse
 bana haber ver." Bunu SQL yazmadan, tekrar tekrar elle kontrol etmeden,
 arka planda kendiliğinden çalışan bir sisteme devretmek.
 
-Örnek senaryo (mock veride de kullanılan): bir araç filosunun sigorta/garanti
-bitiş tarihleri, km'leri, ehliyet yenileme tarihleri olan bir tablo var —
-"garantisi 30 gün içinde dolacak araçlar" gibi bir kural kurup, her gün
+Örnek senaryo: bir araç filosunun sigorta/garanti
+bitiş tarihleri, km'leri, ehliyet yenileme tarihleri olan bir tablo var 
+"garantisi 30 gün içinde dolan 2020 modelden daha yeni araçlar" gibi bir kural kurup, her gün
 otomatik kontrol edilip ilgili ekibe mail atılmasını istiyorsunuz. Bu proje
 tam olarak bunu yapıyor.
 
@@ -50,13 +50,13 @@ dışarı hiç sızmaz, her zaman DTO döner.
 
 | Karar | Neden |
 |---|---|
-| Refresh token yok, sadece access token (1 saat) | Bilinçli sadelik tercihi — projenin kapsamı için fazladan karmaşıklık istenmedi |
-| MapStruct yok, mapper'lar elle yazılıyor | Öğrenme amaçlı: entity→DTO dönüşümünün her adımı görünür kalsın isteniyor |
+| Refresh token yok, sadece access token (1 saat) | Bilinçli sadelik tercihi — projenin kapsamı için fazladan karmaşıklık istemedim |
+| MapStruct yok, mapper'lar elle yazılıyor | Öğrenme amaçlı: entity→DTO dönüşümünün her adımı görünür kalsın istedim |
 | İzlenen tablolarda Criteria API/QueryDSL yok, whitelist + parametreli JDBC var | İzlenen tablolar JPA entity'si değil, yapıları derleme zamanında bilinmiyor — kolon adı whitelist ile, değer hep `?` ile bağlanıyor (SQL injection'a karşı) |
 | Her proje kendi DB bağlantı bilgisini taşıyor, `DbConnection` diye ayrı bir entity yok | Bağlantı bilgisi zaten `Project`'in bir parçası; ayrı bir tabloya gerek yaratmıyor |
 | Bağlantı şifreleri DB'de şifreli (AES, `CONNECTION_ENCRYPTION_KEY`) tutuluyor | Kullanıcı, izlediği veritabanının gerçek şifresini paylaşıyor — düz metin saklanamaz |
 | Login'de yeni cihaz tespit edilirse mail ile 6 haneli kod doğrulaması isteniyor | Ekstra bir güvenlik katmanı — bilinmeyen cihazdan giriş anomalisi kontrolü |
-| Bağlantı testi (`/api/connector/test-connection`) proje kaydından ayrı bir endpoint | Kullanıcı, proje oluşturmadan önce girdiği host/port/şifrenin gerçekten çalıştığını görebilsin |
+| Bağlantı testi (`/api/connector/test-connection`) proje kaydından ayrı bir endpoint | Kullanıcı, proje oluşturmadan önce girdiği host/port/şifrenin gerçekten çalıştığını görebilsin istedim. |
 
 ## 4. Kod yapısı (backend)
 
@@ -169,14 +169,3 @@ admin'i SQL ile elle atamak gerekiyor:
 ```sql
 UPDATE users SET role='ADMIN' WHERE username='<kullanici_adi>';
 ```
-
-## 8. Bilinen sınırlamalar
-
-- Query builder'da `BETWEEN`/`IN` işleçleri yok, kolon-kolona karşılaştırma
-  yok, `CONTAINS` case-insensitive değil.
-- Sorgu çalıştırma endpoint'inde sayfalama/limit yok — büyük tablolarda risk.
-- İzlenen veritabanına her sorgu kendi bağlantısını açıp kapatıyor
-  (connection pooling yok) — sık çalışan scheduler + çok sayıda sorgu
-  senaryosunda performans maliyeti var.
-- Üst üste binen scheduler çalıştırmalarını engelleyen bir mekanizma
-  (örn. "isRunning" kilidi) henüz yok.
