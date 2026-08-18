@@ -1,3 +1,4 @@
+// App.tsx, uygulamanın route (sayfa) haritasını tanımlıyor — hangi URL'de hangi bileşenin gösterileceğini söylüyor.
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
 import { AdminRoute, ProtectedRoute } from "./components/layout/ProtectedRoute";

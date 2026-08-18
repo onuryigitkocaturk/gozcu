@@ -25,12 +25,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
-// Aktif query'leri kendi frequency'sine göre periyodik olarak değerlendirir
-// tetiklenirse Group'un üyelerine mail atar (NotificiationService üzerinden, MailHog'a - internete gitmez)
-// ve sonucu AlertLog'a yazar.
+// aktif query'leri frequencylerine göre periyodik olarak değerlendirir.
+// tetiklenirse Group'un üyelerine NotificationService üzerinden mail atar ve sonucu AlertLog'a yazar.
 @Component
 public class AlertScheduler {
 
+    // Logger, system.out.println ile aynı işi yapar ama daha kontrollüsü.
+    // log satırı basmak için bir interface.
+    // getLogger(AlertScheduler.class): logger'ı, hangi sınıftan geldiğini bilecek şekilde oluşturuyor
+    // log satırında otomatik olarak AlertScheduler ismi görünüyor, bu sayede log kalabalığında "bu satır nereden geldi"
+    // diye uğraşmıyorsun.
     private static final Logger log = LoggerFactory.getLogger(AlertScheduler.class);
 
     private final QueryRepository queryRepository;
@@ -76,6 +80,8 @@ public class AlertScheduler {
 
         log.info("Scheduler calisti: frequency={}, aktif query sayisi={}", frequency, queries.size());
 
+        // filtrelenmiş her query için, o query'ye bağlı aktif Alert'leri çekiyor, sonra her aktif alert için tek tek evaluateAndLog(alert)
+        // çağırıyor, AlertLog'a yazıyor.
         for (Query query : queries) {
             List<Alert> alerts = alertRepository.findByQueryId(query.getId()).stream()
                     .filter(Alert::isActive)
@@ -87,6 +93,7 @@ public class AlertScheduler {
         }
     }
 
+    // Alert'in koşulunu değerlendirir, tetiklendiyse mail atar, sonucu (TRIGGERED/NOT_TRIGGERED/ERROR) AlertLog'a kaydeder.
     private void evaluateAndLog(Alert alert) {
         LogStatus status;
         String message;

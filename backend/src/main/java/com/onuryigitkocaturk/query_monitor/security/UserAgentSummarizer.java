@@ -1,7 +1,6 @@
 package com.onuryigitkocaturk.query_monitor.security;
 
-// Ham User-Agent header'ini "Chrome (macOS)" gibi genel okunur bir ozete
-// indirger. Hem dogrulama mailinde hem TrustedDevice listesinde kullanilir.
+// User-Agent header'ını okunur bir özete dönüştürür.
 public final class UserAgentSummarizer {
 
     private UserAgentSummarizer() {
