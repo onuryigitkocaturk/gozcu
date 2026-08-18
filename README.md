@@ -26,19 +26,13 @@ göre dinamik şekilde işliyor.
   hâlâ 'hazırlanıyor' VE sipariş tarihi 3 günden eski" olan (yani kargoya
   verilmesi gecikmiş) siparişleri saatte bir kontrol edip operasyon
   ekibine bildir.
-- **İK / sözleşme takibi (MSSQL):** "(sözleşme bitişine 15 gün kaldı VEYA
-  deneme süresi bugün doluyor) VE çalışan durumu hâlâ 'aktif'" kuralını
-  her sabah kontrol edip İK grubuna mail at — iki farklı, birbirinden
-  bağımsız aciliyet durumunu tek alert'te VEYA ile birleştiren, gruplanmış
-  (nested) bir koşul ağacı.
 - **Sunucu/log tablosu (Postgres):** "hata seviyesi 'CRITICAL' VE son 1
   saat içinde oluşmuş VE ilgili servis 'ödeme-servisi'" satır sayısı 5'i
-  geçerse saatlik yerine daha sık aralıklarla kontrol edilip on-call
-  ekibine anında haber ver.
+  geçerse on-call ekibine anında haber ver.
 
 Dördü de aynı sürükle-bırak koşul ağacı ile, aynı whitelist + parametreli
 JDBC mekanizmasıyla, farklı veritabanı tipleri ve farklı iç içe VE/VEYA
-gruplamalarıyla kuruluyor — proje tablonun ya da veritabanının ne
+gruplamalarıyla kuruluyor. Sistem, tablonun ya da veritabanının ne
 olduğunu önceden bilmek zorunda değil.
 
 ## 2. Mimari — büyük resim
@@ -75,9 +69,9 @@ dışarı hiç sızmaz, her zaman DTO döner.
 | Refresh token yok, sadece access token (1 saat) | Bilinçli sadelik tercihi — projenin kapsamı için fazladan karmaşıklık istemedim |
 | MapStruct yok, mapper'lar elle yazılıyor | Öğrenme amaçlı: entity→DTO dönüşümünün her adımı görünür kalsın istedim |
 | İzlenen tablolarda Criteria API/QueryDSL yok, whitelist + parametreli JDBC var | İzlenen tablolar JPA entity'si değil, yapıları derleme zamanında bilinmiyor — kolon adı whitelist ile, değer hep `?` ile bağlanıyor (SQL injection'a karşı) |
-| Her proje kendi DB bağlantı bilgisini taşıyor, `DbConnection` diye ayrı bir entity yok | Bağlantı bilgisi zaten `Project`'in bir parçası; ayrı bir tabloya gerek yaratmıyor |
+| Her proje kendi DB bağlantı bilgisini taşıyor, `DbConnection` diye ayrı bir entity yok | Bağlantı bilgisi zaten `Project`'in bir parçası; ayrı bir tabloya gerek kalmıyor. |
 | Bağlantı şifreleri DB'de şifreli (AES, `CONNECTION_ENCRYPTION_KEY`) tutuluyor | Kullanıcı, izlediği veritabanının gerçek şifresini paylaşıyor — düz metin saklanamaz |
-| Login'de yeni cihaz tespit edilirse mail ile 6 haneli kod doğrulaması isteniyor | Ekstra bir güvenlik katmanı — bilinmeyen cihazdan giriş anomalisi kontrolü |
+| Login'de yeni cihaz tespit edilirse mail ile 6 haneli kod doğrulaması isteniyor | Ekstra bir güvenlik katmanı — bilinmeyen cihazdan giriş kontrolü |
 | Bağlantı testi (`/api/connector/test-connection`) proje kaydından ayrı bir endpoint | Kullanıcı, proje oluşturmadan önce girdiği host/port/şifrenin gerçekten çalıştığını görebilsin istedim. |
 
 ## 4. Kod yapısı (backend)
