@@ -21,4 +21,6 @@ public interface TrustedDeviceRepository extends JpaRepository<TrustedDevice, UU
     boolean existsByIdAndUserId(UUID id, UUID userId);
 
     void deleteByIdAndUserId(UUID id, UUID userId);
+
+    void deleteByUserId(UUID userId);
 }

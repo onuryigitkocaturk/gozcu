@@ -10,13 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Base64;
 
-// Project'e bagli izlenen veritabani sifresini AES/GCM ile sifreler/cozer.
-// Anahtar (CONNECTION_ENCRYPTION_KEY) JWT_SECRET ile ayni desende - env
-// variable'da tutulur, kodda/repoda sabit deger YOK.
-
-// project'e bağlı izlenen veritabanı şifresini AES/GCM ile şifreler/çözer.
-// anahtar JWT_SECRET ile aynı desende, env variable'da tutuluyor.
-// varlık sebebi db şifresini şifreli tutmak
+// izlenen veritabanı şifresini AES ile şifreler ve çözer.
+// key env variable'da tutulur.
 @Component
 public class ConnectionCredentialEncryptor {
 

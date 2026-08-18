@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface LoginVerificationRepository extends JpaRepository<LoginVerification, UUID> {
 
     Optional<LoginVerification> findByVerificationToken(String verificationToken);
+
+    void deleteByUserId(UUID userId);
 }

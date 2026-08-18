@@ -11,6 +11,7 @@ import com.onuryigitkocaturk.query_monitor.exception.TrustedDeviceNotFoundExcept
 import com.onuryigitkocaturk.query_monitor.exception.UserNotFoundException;
 import com.onuryigitkocaturk.query_monitor.model.TrustedDevice;
 import com.onuryigitkocaturk.query_monitor.model.User;
+import com.onuryigitkocaturk.query_monitor.repository.LoginVerificationRepository;
 import com.onuryigitkocaturk.query_monitor.repository.ProjectMembershipRepository;
 import com.onuryigitkocaturk.query_monitor.repository.QueryRepository;
 import com.onuryigitkocaturk.query_monitor.repository.TrustedDeviceRepository;
@@ -30,17 +31,20 @@ public class UserServiceImpl implements UserService {
     private final ProjectMembershipRepository projectMembershipRepository;
     private final QueryRepository queryRepository;
     private final TrustedDeviceRepository trustedDeviceRepository;
+    private final LoginVerificationRepository loginVerificationRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UserServiceImpl(UserRepository userRepository,
                             ProjectMembershipRepository projectMembershipRepository,
                             QueryRepository queryRepository,
                             TrustedDeviceRepository trustedDeviceRepository,
+                            LoginVerificationRepository loginVerificationRepository,
                             PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.projectMembershipRepository = projectMembershipRepository;
         this.queryRepository = queryRepository;
         this.trustedDeviceRepository = trustedDeviceRepository;
+        this.loginVerificationRepository = loginVerificationRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -90,14 +94,18 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı: " + id));
 
-        // owning side User uzerinden temizlemezsek, user_group junction
-        // tablosundaki satirlar FK ihlaline yol acar.
+        // tablosundaki satırlar FK ihlaline yol açar.
         user.getGroups().clear();
         userRepository.save(user);
 
-        // ProjectMembership artik ayri bir entity - User'in koleksiyonunu
-        // temizlemek DB'deki satirlari silmez, elle silinmesi gerekiyor.
         projectMembershipRepository.deleteByUserId(id);
+
+        // kullanıcının yazdığı query'ler silinmez, sadece kim oluşturdu bilgisi null yapılır
+        queryRepository.nullifyCreatedBy(id);
+
+        // kullanıcı silinince silinir
+        trustedDeviceRepository.deleteByUserId(id);
+        loginVerificationRepository.deleteByUserId(id);
 
         userRepository.delete(user);
     }
