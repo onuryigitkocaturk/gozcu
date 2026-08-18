@@ -66,12 +66,12 @@ dışarı hiç sızmaz, her zaman DTO döner.
 
 | Karar | Neden |
 |---|---|
-| Refresh token yok, sadece access token (1 saat) | Bilinçli sadelik tercihi — projenin kapsamı için fazladan karmaşıklık istemedim |
+| Refresh token yok, sadece access token (1 saat) | Bilinçli sadelik tercihi: Projenin kapsamı için fazladan karmaşıklık istemedim |
 | MapStruct yok, mapper'lar elle yazılıyor | Öğrenme amaçlı: entity→DTO dönüşümünün her adımı görünür kalsın istedim |
 | İzlenen tablolarda Criteria API/QueryDSL yok, whitelist + parametreli JDBC var | İzlenen tablolar JPA entity'si değil, yapıları derleme zamanında bilinmiyor — kolon adı whitelist ile, değer hep `?` ile bağlanıyor (SQL injection'a karşı) |
 | Her proje kendi DB bağlantı bilgisini taşıyor, `DbConnection` diye ayrı bir entity yok | Bağlantı bilgisi zaten `Project`'in bir parçası; ayrı bir tabloya gerek kalmıyor. |
 | Bağlantı şifreleri DB'de şifreli (AES, `CONNECTION_ENCRYPTION_KEY`) tutuluyor | Kullanıcı, izlediği veritabanının gerçek şifresini paylaşıyor — düz metin saklanamaz |
-| Login'de yeni cihaz tespit edilirse mail ile 6 haneli kod doğrulaması isteniyor | Ekstra bir güvenlik katmanı — bilinmeyen cihazdan giriş kontrolü |
+| Login'de yeni cihaz tespit edilirse mail ile 6 haneli kod doğrulaması isteniyor | Ekstra bir güvenlik katmanı, bilinmeyen cihazdan giriş kontrolü |
 | Bağlantı testi (`/api/connector/test-connection`) proje kaydından ayrı bir endpoint | Kullanıcı, proje oluşturmadan önce girdiği host/port/şifrenin gerçekten çalıştığını görebilsin istedim. |
 
 ## 4. Kod yapısı (backend)
@@ -92,7 +92,7 @@ querybuilder/  sürükle-bırak JSON ağacının parametreli SQL'e çevrilmesi
                 + whitelist doğrulaması
 alerting/      bir alert'in şu an tetiklenip tetiklenmeyeceğini hesaplayan
                 servis (mail atmaz, sadece hesaplar)
-scheduler/     @Scheduled görevler — periyodik sorgu/alert kontrolü
+scheduler/     @Scheduled görevler, periyodik sorgu/alert kontrolü
 notification/  mail gönderimi (MailHog ile geliştirme ortamında mock)
 geocoding/     giriş denemesinin yaklaşık konumunu (IP/koordinat) mail
                 bildirimine eklemek için
@@ -126,10 +126,22 @@ config/        CORS, DataSource, Jackson gibi genel bean tanımları
 - **Proje rolü** (`ProjectRole`: `REPORTER` < `DEVELOPER` < `MAINTAINER` <
   `OWNER`) — bir kullanıcının **belirli bir projedeki** yetkisi, global
   rolden bağımsız. "En az şu rol" kontrolü hiyerarşik yapılıyor
-  (`ProjectAuthorizationService`).
+  (`ProjectAuthorizationService.hasAtLeastRole`, enum'un tanım sırasındaki
+  `ordinal()` değeri karşılaştırılıyor) — yani `MAINTAINER` gerektiren bir
+  endpoint'i `OWNER` de çağırabiliyor, ama `DEVELOPER` çağıramıyor.
 
-Bir ADMIN her projeye her zaman erişebiliyor; proje bazlı roller ise sadece
-o projenin üyeleri için geçerli.
+Rollerin kapsamı, projeden projeye değişiyor. Aynı kullanıcı bir projede
+`OWNER`, başka bir projede `REPORTER` olabilir:
+
+| Rol | Yetki |
+|---|---|
+| `REPORTER` | Sadece görüntüleme: proje detayı, tablo/kolon listesi, tablo verisi önizleme, sorgu çalıştırma (`run`), alert değerlendirme (`evaluate`) ve alert loglarını görme. Hiçbir şey oluşturamaz/değiştiremez. |
+| `DEVELOPER` | `REPORTER` + sorgu oluşturma/güncelleme, alert oluşturma. Yani "kural kurma" işini bu rolden itibaren yapabiliyorsunuz. |
+| `MAINTAINER` | `DEVELOPER` + üye ekleme/çıkarma, üyelerin proje rolünü değiştirme, projeye yeni tablo bağlama, sorgu/alert silme. Projenin günlük işletilmesinden sorumlu rol. |
+| `OWNER` | `MAINTAINER` + projeyi tamamen silme. En üstteki, geri dönüşü olmayan işlemler bu role ayrılmış. |
+
+Bir ADMIN (global rol) her projeye rolünden bağımsız her zaman erişebiliyor;
+proje rolleri ise sadece o projenin üyeleri için, projeye özel geçerli.
 
 ## 7. Kurulum
 
@@ -172,7 +184,7 @@ Açıldığında: `http://localhost:5173`
 ### Diğer arayüzler
 
 - **MailHog** (gönderilen mailleri görmek için): `http://localhost:8025`
-- Sabit/tek bir izlenen veritabanı yok — her **proje** kendi bağlantı
+- Sabit/tek bir izlenen veritabanı yok. Her **proje** kendi bağlantı
   bilgisini (host/port/db/kullanıcı/şifre) proje oluşturulurken taşır.
   `CONNECTION_ENCRYPTION_KEY`, bu saklanan şifreleri şifrelemek için
   kullanılan AES anahtarı.
