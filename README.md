@@ -13,7 +13,7 @@ Fikir basit: "şu tablodaki şu koşulu sağlayan satır sayısı şu eşiği ge
 bana haber ver." Bunu SQL yazmadan, tekrar tekrar elle kontrol etmeden,
 arka planda kendiliğinden çalışan bir sisteme devretmek. Proje sabit,
 önceden bilinen bir veritabanı için değil, herhangi bir veritabanı için
-çalışıyor — canlıdaki (production) hangi veritabanına bağlanılırsa
+çalışıyor. Hangi veritabanına bağlanılırsa
 bağlanılsın, tablo/kolon yapısı önceden bilinmeden keşfedilip süreç ona
 göre dinamik şekilde işliyor.
 
