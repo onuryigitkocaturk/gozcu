@@ -108,7 +108,7 @@ export function TableDetailPage() {
                 <div className="list-row__meta">
                   <Badge color="blue">{q.frequency === "HOURLY" ? "Saatlik" : "Günlük"}</Badge>
                   <Badge color={q.active ? "green" : "neutral"}>{q.active ? "Aktif" : "Pasif"}</Badge>
-                  <span>Oluşturan: {q.createdByUsername ?? "Bilinmiyor"}</span>
+                  <span>Oluşturan: {q.createdByUsername ?? "Hesabı silinmiş"}</span>
                 </div>
               </div>
               <div className="list-row__actions">

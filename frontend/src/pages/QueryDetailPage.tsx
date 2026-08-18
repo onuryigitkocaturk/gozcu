@@ -112,7 +112,7 @@ export function QueryDetailPage() {
               <>
                 <Badge color="blue">{query.frequency === "HOURLY" ? "Saatlik" : "Günlük"}</Badge>
                 <Badge color={query.active ? "green" : "neutral"}>{query.active ? "Aktif" : "Pasif"}</Badge>
-                <span>Oluşturan: {query.createdByUsername ?? "Bilinmiyor"}</span>
+                <span>Oluşturan: {query.createdByUsername ?? "Hesabı silinmiş"}</span>
               </>
             )}
           </div>
