@@ -57,9 +57,15 @@ export function ProjectDetailPage() {
   const [addTableOpen, setAddTableOpen] = useState(false);
   const [addMemberOpen, setAddMemberOpen] = useState(false);
 
-  const handleRemoveTable = async (tableName: string) => {
-    notifyError("Tablo çıkarma henüz desteklenmiyor — bunu yakında ekleyeceğiz.");
-    void tableName;
+  const handleRemoveTable = async (tableId: string, tableName: string) => {
+    if (!confirm(`"${tableName}" tablosunu projeden çıkarmak istediğine emin misin? Bağlı query ve alert'ler de silinecek.`)) return;
+    try {
+      await projectsApi.removeTable(id, tableId);
+      notifySuccess(`"${tableName}" projeden çıkarıldı.`);
+      reloadTables();
+    } catch (err) {
+      notifyError(err instanceof ApiError ? err.message : "Tablo çıkarılamadı.");
+    }
   };
 
   const handleRemoveMember = async (userId: string, username: string) => {
@@ -135,7 +141,7 @@ export function ProjectDetailPage() {
                 table={t}
                 isAdmin={canManage}
                 onOpen={() => navigate(`/projects/${id}/tables/${t.id}`)}
-                onRemove={() => handleRemoveTable(t.tableName)}
+                onRemove={() => handleRemoveTable(t.id, t.tableName)}
               />
             ))}
         </Card>

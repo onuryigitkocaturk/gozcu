@@ -33,6 +33,8 @@ export const projectsApi = {
   getTableData: (projectId: string, tableName: string) =>
     api.get<TableRow[]>(`/api/projects/${projectId}/tables/${encodeURIComponent(tableName)}/data`),
   discoverTables: (projectId: string) => api.get<string[]>(`/api/projects/${projectId}/discover-tables`),
+  removeTable: (projectId: string, tableId: string) =>
+    api.del<void>(`/api/projects/${projectId}/tables/${tableId}`),
   getTableColumns: (projectId: string, tableName: string) =>
     api.get<string[]>(`/api/projects/${projectId}/tables/${encodeURIComponent(tableName)}/columns`),
 };

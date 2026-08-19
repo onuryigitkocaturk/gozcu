@@ -204,7 +204,7 @@ function AlertRow({
   alert: {
     id: string;
     groups: { id: string; name: string }[];
-    condition: { metric: string; operator: ConditionOperator; value: number };
+    condition: { operator: ConditionOperator; value: number };
     active: boolean;
   };
   onDelete: (alertId: string) => void;
@@ -247,8 +247,7 @@ function AlertRow({
       <div className="list-row">
         <div className="list-row__main">
           <span className="list-row__title">
-            {alert.condition.metric === "ROW_COUNT" ? "Eşleşen satır sayısı" : alert.condition.metric}{" "}
-            {OPERATOR_LABELS[alert.condition.operator]} {alert.condition.value}
+            Eşleşen satır sayısı {OPERATOR_LABELS[alert.condition.operator]} {alert.condition.value}
           </span>
           <div className="list-row__meta">
             <span>Bildirim grupları: {alert.groups.map((g) => g.name).join(", ")}</span>
@@ -400,7 +399,7 @@ function AddAlertModal({
     try {
       await alertsApi.create(projectId, tableId, queryId, {
         groupIds,
-        condition: { metric: "ROW_COUNT", operator, value: Number(value) },
+        condition: { operator, value: Number(value) },
       });
       notifySuccess("Alert oluşturuldu.");
       setGroupIds([]);

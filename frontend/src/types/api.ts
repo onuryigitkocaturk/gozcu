@@ -3,7 +3,6 @@
 export type Role = "ADMIN" | "USER";
 export type Frequency = "HOURLY" | "DAILY";
 export type LogStatus = "TRIGGERED" | "NOT_TRIGGERED" | "ERROR";
-export type AlertMetric = "ROW_COUNT";
 export type ConditionOperator =
   | "EQUALS"
   | "NOT_EQUALS"
@@ -204,7 +203,6 @@ export interface CountResponse {
 
 // ---- Alert ----
 export interface AlertConditionValue {
-  metric: AlertMetric;
   operator: ConditionOperator;
   value: number;
 }
