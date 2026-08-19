@@ -209,15 +209,18 @@ export interface AlertConditionValue {
   value: number;
 }
 export interface AlertRequest {
-  groupId: string;
+  groupIds: string[];
   condition: AlertConditionValue;
+}
+export interface AlertGroupResponse {
+  id: string;
+  name: string;
 }
 export interface AlertResponse {
   id: string;
   queryId: string;
   projectId: string;
-  groupId: string;
-  groupName: string;
+  groups: AlertGroupResponse[];
   condition: AlertConditionValue;
   active: boolean;
   createdAt: string;

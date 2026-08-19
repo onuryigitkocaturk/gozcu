@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "../context/ToastContext";
 import { useAsync } from "../hooks/useAsync";
@@ -201,7 +201,12 @@ function AlertRow({
   projectId: string;
   tableId: string;
   queryId: string;
-  alert: { id: string; groupName: string; condition: { metric: string; operator: ConditionOperator; value: number }; active: boolean };
+  alert: {
+    id: string;
+    groups: { id: string; name: string }[];
+    condition: { metric: string; operator: ConditionOperator; value: number };
+    active: boolean;
+  };
   onDelete: (alertId: string) => void;
   isAdmin: boolean;
 }) {
@@ -246,7 +251,7 @@ function AlertRow({
             {OPERATOR_LABELS[alert.condition.operator]} {alert.condition.value}
           </span>
           <div className="list-row__meta">
-            <span>Bildirim grubu: {alert.groupName}</span>
+            <span>Bildirim grupları: {alert.groups.map((g) => g.name).join(", ")}</span>
             {result && (
               <Badge color={result.triggered ? "red" : "green"}>
                 {result.triggered ? `Tetiklendi (${result.matchCount})` : `Tetiklenmedi (${result.matchCount})`}
@@ -297,6 +302,72 @@ function AlertRow({
   );
 }
 
+function GroupMultiSelect({
+  groups,
+  selectedIds,
+  onToggle,
+}: {
+  groups: { id: string; name: string }[];
+  selectedIds: string[];
+  onToggle: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const selected = groups.filter((g) => selectedIds.includes(g.id));
+  const available = groups.filter((g) => !selectedIds.includes(g.id));
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  return (
+    <div className="field mb-16">
+      <label className="field__label">Bildirim grupları</label>
+      {selected.length > 0 && (
+        <div className="group-multiselect__chips">
+          {selected.map((g) => (
+            <span key={g.id} className="chip">
+              {g.name}
+              <button type="button" className="chip__remove" onClick={() => onToggle(g.id)}>
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="group-multiselect" ref={wrapperRef}>
+        <button type="button" className="select" onClick={() => setOpen((v) => !v)} disabled={available.length === 0}>
+          {available.length > 0 ? "Grup ekle…" : "Tüm gruplar eklendi"}
+        </button>
+        {open && available.length > 0 && (
+          <div className="group-multiselect__menu">
+            {available.map((g) => (
+              <button
+                key={g.id}
+                type="button"
+                className="group-multiselect__item"
+                onClick={() => {
+                  onToggle(g.id);
+                  setOpen(false);
+                }}
+              >
+                {g.name}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function AddAlertModal({
   open,
   onClose,
@@ -314,21 +385,25 @@ function AddAlertModal({
 }) {
   const { notifySuccess, notifyError } = useToast();
   const { data: groups, loading } = useAsync(() => (open ? groupsApi.list() : Promise.resolve([])), [open]);
-  const [groupId, setGroupId] = useState("");
+  const [groupIds, setGroupIds] = useState<string[]>([]);
   const [operator, setOperator] = useState<ConditionOperator>("GREATER_THAN");
   const [value, setValue] = useState("0");
   const [saving, setSaving] = useState(false);
 
+  const toggleGroup = (id: string) => {
+    setGroupIds((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]));
+  };
+
   const handleAdd = async () => {
-    if (!groupId) return;
+    if (groupIds.length === 0) return;
     setSaving(true);
     try {
       await alertsApi.create(projectId, tableId, queryId, {
-        groupId,
+        groupIds,
         condition: { metric: "ROW_COUNT", operator, value: Number(value) },
       });
       notifySuccess("Alert oluşturuldu.");
-      setGroupId("");
+      setGroupIds([]);
       onAdded();
     } catch (err) {
       notifyError(err instanceof ApiError ? err.message : "Alert oluşturulamadı.");
@@ -347,7 +422,7 @@ function AddAlertModal({
           <Button variant="ghost" onClick={onClose}>
             Vazgeç
           </Button>
-          <Button variant="primary" onClick={handleAdd} disabled={!groupId || saving}>
+          <Button variant="primary" onClick={handleAdd} disabled={groupIds.length === 0 || saving}>
             {saving ? "Ekleniyor…" : "Ekle"}
           </Button>
         </>
@@ -357,14 +432,7 @@ function AddAlertModal({
         <SpinnerCenter />
       ) : (
         <>
-          <Select label="Bildirim grubu" value={groupId} onChange={(e) => setGroupId(e.target.value)}>
-            <option value="">Bir grup seç…</option>
-            {groups?.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.name}
-              </option>
-            ))}
-          </Select>
+          <GroupMultiSelect groups={groups ?? []} selectedIds={groupIds} onToggle={toggleGroup} />
           <p className="text-sm text-muted mb-16">Koşul: eşleşen satır sayısı…</p>
           <div className="form-row">
             <Select label="İşleç" value={operator} onChange={(e) => setOperator(e.target.value as ConditionOperator)}>

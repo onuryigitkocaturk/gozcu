@@ -4,6 +4,12 @@ import { usersApi } from "../api/users";
 import { setAuthToken } from "../api/client";
 import type { LoginRequest, RegisterRequest, UserResponse } from "../types/api";
 
+
+// user state'ini bellekte tutuyor, login/verifyLoginCode/logout/register fonksiyonlarını sunuyor,
+// bunları useAuth() hook'uyla her component'e açıyor. Ayrıca 2FA akışı için token gelene kadar
+// bekleyen bir ara adım (pendingVerificationToken) ve login sayfası açılır açılmaz arka planda konum
+// izni isteyen bir optimizasyon var.
+
 interface AuthContextValue {
   user: UserResponse | null;
   isAdmin: boolean;

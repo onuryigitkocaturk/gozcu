@@ -15,8 +15,13 @@ import { UsersPage } from "./pages/admin/UsersPage";
 import { GroupsPage } from "./pages/admin/GroupsPage";
 import { ConnectorPage } from "./pages/admin/ConnectorPage";
 
+// App, bu uygulamanın tüm root ağacını döndüren ana component. main.tsx bunu route içine koyup render ediyor.
 export function App() {
   return (
+    // routes bir konteyner, route "şu path için şu componenti göster kuralı"
+    // navigate, redirect için component
+    // Outlet, o katmanın "asıl içerik buraya gelsin" dediği yer tutucu — yani AppShell header'ı basar,
+    // <Outlet /> yazdığı yere de o an eşleşen gerçek sayfa (DashboardPage vb.) render edilir.
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
