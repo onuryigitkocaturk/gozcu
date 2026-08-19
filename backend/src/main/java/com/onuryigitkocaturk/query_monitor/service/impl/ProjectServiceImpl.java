@@ -8,13 +8,7 @@ import com.onuryigitkocaturk.query_monitor.dto.ProjectRequest;
 import com.onuryigitkocaturk.query_monitor.enums.LogStatus;
 import com.onuryigitkocaturk.query_monitor.enums.ProjectRole;
 import com.onuryigitkocaturk.query_monitor.enums.Role;
-import com.onuryigitkocaturk.query_monitor.exception.DuplicateProjectException;
-import com.onuryigitkocaturk.query_monitor.exception.DuplicateProjectMembershipException;
-import com.onuryigitkocaturk.query_monitor.exception.DuplicateProjectTableException;
-import com.onuryigitkocaturk.query_monitor.exception.InsufficientProjectRoleException;
-import com.onuryigitkocaturk.query_monitor.exception.ProjectNotFoundException;
-import com.onuryigitkocaturk.query_monitor.exception.TableNotFoundException;
-import com.onuryigitkocaturk.query_monitor.exception.UserNotFoundException;
+import com.onuryigitkocaturk.query_monitor.exception.*;
 import com.onuryigitkocaturk.query_monitor.model.AlertLog;
 import com.onuryigitkocaturk.query_monitor.model.Project;
 import com.onuryigitkocaturk.query_monitor.model.ProjectMembership;
@@ -214,6 +208,20 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + projectId));
         return tableMetadataService.listTables(toConnectionDetails(project));
+    }
+
+    @Override
+    public void removeTableFromProject(UUID projectId, UUID tableId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + projectId));
+        ProjectTable table = projectTableRepository.findById(tableId)
+                .orElseThrow(() -> new ProjectTableNotFoundException("Tablo bulunamadı" + tableId));
+
+        if (!table.getProject().getId().equals(projectId)) {
+            throw new ProjectTableNotFoundException("Bu tablo bu projeye ait değil: " + tableId);
+        }
+
+        projectTableRepository.delete(table);
     }
 
     @Override

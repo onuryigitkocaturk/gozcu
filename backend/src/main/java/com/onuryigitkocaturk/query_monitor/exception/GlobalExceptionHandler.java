@@ -135,6 +135,11 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, message);
     }
 
+    @ExceptionHandler(ProjectTableNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleProjectNotFound(ProjectTableNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, "Tablo bulunamadı!");
+    }
+
     private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message) {
         ErrorResponse errorResponse = new ErrorResponse(status.value(), message, LocalDateTime.now());
         return ResponseEntity.status(status).body(errorResponse);

@@ -42,4 +42,6 @@ public interface ProjectService {
     List<String> getTableColumns(UUID projectId, String tableName);
 
     ProjectDashboardStatsResponse getDashboardStats(UUID projectId);
+
+    void removeTableFromProject(UUID projectId, UUID tableId);
 }

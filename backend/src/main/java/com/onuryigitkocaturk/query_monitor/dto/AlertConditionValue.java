@@ -1,14 +1,10 @@
 package com.onuryigitkocaturk.query_monitor.dto;
 
-import com.onuryigitkocaturk.query_monitor.enums.AlertMetric;
 import com.onuryigitkocaturk.query_monitor.enums.ConditionOperator;
 import jakarta.validation.constraints.NotNull;
 
 // Alert.conditioExpression alanında JSON olarak saklanan yapı.
 public class AlertConditionValue {
-
-    @NotNull
-    private AlertMetric metric;
 
     @NotNull
     private ConditionOperator operator;
@@ -19,18 +15,9 @@ public class AlertConditionValue {
     public AlertConditionValue() {
     }
 
-    public AlertConditionValue(AlertMetric metric, ConditionOperator operator, Long value) {
-        this.metric = metric;
+    public AlertConditionValue(ConditionOperator operator, Long value) {
         this.operator = operator;
         this.value = value;
-    }
-
-    public AlertMetric getMetric() {
-        return metric;
-    }
-
-    public void setMetric(AlertMetric metric) {
-        this.metric = metric;
     }
 
     public ConditionOperator getOperator() {

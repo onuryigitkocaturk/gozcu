@@ -30,7 +30,7 @@ public class ProjectAuthorizationService {
         return hasAtLeastRole(userId, projectId, ProjectRole.MAINTAINER);
     }
 
-    public boolean isOwner(UUID userId, UUID projectId) {
+    public boolean isAtLeastOwner(UUID userId, UUID projectId) {
         return hasAtLeastRole(userId, projectId, ProjectRole.OWNER);
     }
 

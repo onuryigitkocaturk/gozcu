@@ -43,6 +43,8 @@ public class ProjectController {
             "hasRole('ADMIN') or @projectAuthorizationService.isAtLeastReporter(principal.id, #projectId)";
     private static final String AT_LEAST_MAINTAINER =
             "hasRole('ADMIN') or @projectAuthorizationService.isAtLeastMaintainer(principal.id, #projectId)";
+    private static final String OWNER_OR_ADMIN =
+            "hasRole('ADMIN') or @projectAuthorizationService.isAtLeastOwner(principal.id, #projectId)";
 
     private final ProjectService projectService;
     private final ProjectMapper projectMapper;
@@ -87,13 +89,6 @@ public class ProjectController {
         return ResponseEntity.ok(projectMapper.toResponse(projectService.getProjectById(projectId)));
     }
 
-    @PreAuthorize("hasRole('ADMIN') or @projectAuthorizationService.isOwner(principal.id, #id)")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProject(@PathVariable UUID id) {
-        projectService.deleteProject(id);
-        return ResponseEntity.noContent().build();
-    }
-
     @PreAuthorize(AT_LEAST_MAINTAINER)
     @PostMapping("/{projectId}/users/{userId}")
     public ResponseEntity<Void> addUserToProject(@PathVariable UUID projectId, @PathVariable UUID userId,
@@ -136,6 +131,15 @@ public class ProjectController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize(OWNER_OR_ADMIN)
+    @DeleteMapping("/{projectId}/tables/{tableId}")
+    public ResponseEntity<Void> removeTableFromProject(@PathVariable UUID projectId,
+                                                       @PathVariable UUID tableId) {
+        projectService.removeTableFromProject(projectId, tableId);
+        return ResponseEntity.noContent().build();
+    }
+
+
     @PreAuthorize(AT_LEAST_MAINTAINER)
     @GetMapping("/{projectId}/discover-tables")
     public ResponseEntity<List<String>> discoverTables(@PathVariable UUID projectId) {
@@ -170,5 +174,12 @@ public class ProjectController {
     public ResponseEntity<List<String>> getTableColumns(@PathVariable UUID projectId,
                                                           @PathVariable String tableName) {
         return ResponseEntity.ok(projectService.getTableColumns(projectId, tableName));
+    }
+
+    @PreAuthorize(OWNER_OR_ADMIN)
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<Void> deleteProject(@PathVariable UUID projectId) {
+        projectService.deleteProject(projectId);
+        return ResponseEntity.noContent().build();
     }
 }

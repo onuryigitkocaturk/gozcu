@@ -1,5 +1,6 @@
 package com.onuryigitkocaturk.query_monitor.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -34,7 +35,7 @@ public class ProjectTable {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
-    @OneToMany(mappedBy = "projectTable", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "projectTable", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Query> queries = new ArrayList<>();
 
     @CreationTimestamp
