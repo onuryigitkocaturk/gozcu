@@ -6,15 +6,12 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.Set;
@@ -37,8 +34,8 @@ public class Group {
     @ManyToMany(mappedBy = "groups", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>();
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
-    private List<Alert> alerts = new ArrayList<>();
+    @ManyToMany(mappedBy = "groups", fetch = FetchType.LAZY)
+    private Set<Alert> alerts = new HashSet<>();
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -84,11 +81,11 @@ public class Group {
         this.users = users;
     }
 
-    public List<Alert> getAlerts() {
+    public Set<Alert> getAlerts() {
         return alerts;
     }
 
-    public void setAlerts(List<Alert> alerts) {
+    public void setAlerts(Set<Alert> alerts) {
         this.alerts = alerts;
     }
 

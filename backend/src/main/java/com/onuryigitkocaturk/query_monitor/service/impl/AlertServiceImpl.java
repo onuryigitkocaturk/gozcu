@@ -27,6 +27,7 @@ import com.onuryigitkocaturk.query_monitor.service.AlertService;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -78,8 +79,11 @@ public class AlertServiceImpl implements AlertService {
             throw new QueryNotFoundException("Sorgu bulunamadı: " + queryId);
         }
 
-        Group group = groupRepository.findById(request.getGroupId())
-                .orElseThrow(() -> new GroupNotFoundException("Grup bulunamadı: " + request.getGroupId()));
+        Set<Group> groups = new HashSet<>();
+        for (UUID groupId : request.getGroupIds()) {
+            groups.add(groupRepository.findById(groupId)
+                    .orElseThrow(() -> new GroupNotFoundException("Grup bulunamadı: " + groupId)));
+        }
 
         validateCondition(request.getCondition());
 
@@ -90,7 +94,7 @@ public class AlertServiceImpl implements AlertService {
             throw new InvalidAlertConditionException("Alert koşulu işlenemedi");
         }
 
-        Alert alert = new Alert(conditionJson, query, project, group);
+        Alert alert = new Alert(conditionJson, query, project, groups);
         alert.setActive(true);
         return alertRepository.save(alert);
     }

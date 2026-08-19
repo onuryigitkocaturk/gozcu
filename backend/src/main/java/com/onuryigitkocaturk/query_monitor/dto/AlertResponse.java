@@ -1,6 +1,7 @@
 package com.onuryigitkocaturk.query_monitor.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public class AlertResponse {
@@ -8,8 +9,7 @@ public class AlertResponse {
     private UUID id;
     private UUID queryId;
     private UUID projectId;
-    private UUID groupId;
-    private String groupName;
+    private List<AlertGroupResponse> groups;
     private AlertConditionValue condition;
     private boolean active;
     private LocalDateTime createdAt;
@@ -17,13 +17,12 @@ public class AlertResponse {
     public AlertResponse() {
     }
 
-    public AlertResponse(UUID id, UUID queryId, UUID projectId, UUID groupId, String groupName,
+    public AlertResponse(UUID id, UUID queryId, UUID projectId, List<AlertGroupResponse> groups,
                           AlertConditionValue condition, boolean active, LocalDateTime createdAt) {
         this.id = id;
         this.queryId = queryId;
         this.projectId = projectId;
-        this.groupId = groupId;
-        this.groupName = groupName;
+        this.groups = groups;
         this.condition = condition;
         this.active = active;
         this.createdAt = createdAt;
@@ -53,20 +52,12 @@ public class AlertResponse {
         this.projectId = projectId;
     }
 
-    public UUID getGroupId() {
-        return groupId;
+    public List<AlertGroupResponse> getGroups() {
+        return groups;
     }
 
-    public void setGroupId(UUID groupId) {
-        this.groupId = groupId;
-    }
-
-    public String getGroupName() {
-        return groupName;
-    }
-
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public void setGroups(List<AlertGroupResponse> groups) {
+        this.groups = groups;
     }
 
     public AlertConditionValue getCondition() {

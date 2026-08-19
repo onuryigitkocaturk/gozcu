@@ -34,13 +34,6 @@ public class Query {
     @Column(nullable = false)
     private String name;
 
-    /**
-     * Surukle-birak query builder'in urettigi JSON agaci (QueryNode). @Lob
-     * KULLANILMAZ - PostgreSQL'de @Lob, gercek TEXT yerine ozel bir Large
-     * Object (oid) mekanizmasina denk geliyor ve autocommit disi (transactional)
-     * erisim zorunlu kiliyor; TEXT kolonunda boyut siniri olmadigi icin buna
-     * hic gerek yok.
-     */
     @Column(nullable = false, columnDefinition = "TEXT")
     private String definitionJson;
 

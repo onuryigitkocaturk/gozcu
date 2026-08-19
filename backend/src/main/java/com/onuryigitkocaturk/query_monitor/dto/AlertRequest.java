@@ -1,14 +1,16 @@
 package com.onuryigitkocaturk.query_monitor.dto;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
 import java.util.UUID;
 
 public class AlertRequest {
 
-    @NotNull
-    private UUID groupId;
+    @NotEmpty
+    private List<UUID> groupIds;
 
     @NotNull
     @Valid
@@ -17,17 +19,17 @@ public class AlertRequest {
     public AlertRequest() {
     }
 
-    public AlertRequest(UUID groupId, AlertConditionValue condition) {
-        this.groupId = groupId;
+    public AlertRequest(List<UUID> groupIds, AlertConditionValue condition) {
+        this.groupIds = groupIds;
         this.condition = condition;
     }
 
-    public UUID getGroupId() {
-        return groupId;
+    public List<UUID> getGroupIds() {
+        return groupIds;
     }
 
-    public void setGroupId(UUID groupId) {
-        this.groupId = groupId;
+    public void setGroupIds(List<UUID> groupIds) {
+        this.groupIds = groupIds;
     }
 
     public AlertConditionValue getCondition() {

@@ -23,6 +23,7 @@ public interface QueryRepository extends JpaRepository<com.onuryigitkocaturk.que
 
     long countByCreatedById(UUID userId);
 
+    // join fetch ile project ve projectTable tek bir SQL sorgusuyla baştan dolduruluyor, n+1 problemini önlemek için
     @Query("SELECT q FROM Query q JOIN FETCH q.project JOIN FETCH q.projectTable " +
             "LEFT JOIN FETCH q.createdBy WHERE q.projectTable.id = :projectTableId")
     List<com.onuryigitkocaturk.query_monitor.model.Query> findByProjectTableId(

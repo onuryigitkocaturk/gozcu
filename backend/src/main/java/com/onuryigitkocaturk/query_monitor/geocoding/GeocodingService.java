@@ -75,7 +75,7 @@ public class GeocodingService {
 
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
-            String line = reader.readLine(); // baslik satiri (ilce,il,lat,lon) atlanir
+            String line = reader.readLine(); // başlık satırı atlanır
             while ((line = reader.readLine()) != null) {
                 if (line.isBlank()) {
                     continue;
@@ -91,7 +91,7 @@ public class GeocodingService {
                 result.add(new DistrictPoint(district, province, latitude, longitude));
             }
         } catch (IOException e) {
-            throw new IllegalStateException("Il/ilce veri seti (" + RESOURCE_PATH + ") okunamadi", e);
+            throw new IllegalStateException("Il/ilçe veri seti (" + RESOURCE_PATH + ") okunamadı", e);
         }
 
         return result;

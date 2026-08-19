@@ -60,7 +60,7 @@ public class AlertScheduler {
         this.notificationService = notificationService;
         this.connectionCredentialEncryptor = connectionCredentialEncryptor;
     }
-
+    // http isteği yok, transactional yazmak gerekir.
     @Transactional
     @Scheduled(fixedRateString = "${scheduler.hourly-rate-ms:3600000}")
     public void runHourlyQueries() {
@@ -108,8 +108,11 @@ public class AlertScheduler {
 
             if (result.triggered()) {
                 status = LogStatus.TRIGGERED;
-                List<String> recipientEmails = alert.getGroup().getUsers().stream()
+                // Ayni kullanici birden fazla gruba uyeyse tek mail alsin diye distinct.
+                List<String> recipientEmails = alert.getGroups().stream()
+                        .flatMap(group -> group.getUsers().stream())
                         .map(User::getEmail)
+                        .distinct()
                         .toList();
                 List<Map<String, Object>> matchedRows = queryExecutionService.executeQuery(
                         connection,

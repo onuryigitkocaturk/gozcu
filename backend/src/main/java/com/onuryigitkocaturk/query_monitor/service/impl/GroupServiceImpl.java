@@ -49,7 +49,7 @@ public class GroupServiceImpl implements GroupService {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new GroupNotFoundException("Grup bulunamadı: " + id));
 
-        int alertCount = alertRepository.findByGroupId(id).size();
+        int alertCount = alertRepository.findByGroupsId(id).size();
         if (alertCount > 0) {
             throw new GroupInUseException("Bu gruba bağlı " + alertCount + " alert var, önce onları silin ya da başka bir gruba taşıyın");
         }

@@ -3,9 +3,12 @@ package com.onuryigitkocaturk.query_monitor.mapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onuryigitkocaturk.query_monitor.dto.AlertConditionValue;
+import com.onuryigitkocaturk.query_monitor.dto.AlertGroupResponse;
 import com.onuryigitkocaturk.query_monitor.dto.AlertResponse;
 import com.onuryigitkocaturk.query_monitor.model.Alert;
 import org.springframework.stereotype.Component;
+
+import java.util.Comparator;
 
 @Component
 public class AlertMapper {
@@ -24,12 +27,16 @@ public class AlertMapper {
             throw new IllegalStateException("Stored alert condition is corrupted for alert id " + alert.getId(), e);
         }
 
+        var groups = alert.getGroups().stream()
+                .map(group -> new AlertGroupResponse(group.getId(), group.getName()))
+                .sorted(Comparator.comparing(AlertGroupResponse::getName))
+                .toList();
+
         return new AlertResponse(
                 alert.getId(),
                 alert.getQuery().getId(),
                 alert.getProject().getId(),
-                alert.getGroup().getId(),
-                alert.getGroup().getName(),
+                groups,
                 condition,
                 alert.isActive(),
                 alert.getCreatedAt()

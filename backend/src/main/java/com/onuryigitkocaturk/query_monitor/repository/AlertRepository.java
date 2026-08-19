@@ -11,12 +11,12 @@ import java.util.UUID;
 public interface AlertRepository extends JpaRepository<Alert, UUID> {
 
     @Query("SELECT a FROM Alert a JOIN FETCH a.query q JOIN FETCH q.projectTable " +
-            "JOIN FETCH a.project JOIN FETCH a.group WHERE a.query.id = :queryId")
+            "JOIN FETCH a.project LEFT JOIN FETCH a.groups WHERE a.query.id = :queryId")
     List<Alert> findByQueryId(@Param("queryId") UUID queryId);
 
     List<Alert> findByProjectId(UUID projectId);
 
-    List<Alert> findByGroupId(UUID groupId);
+    List<Alert> findByGroupsId(UUID groupId);
 
     List<Alert> findByActiveTrue();
 

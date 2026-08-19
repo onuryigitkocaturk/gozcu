@@ -7,6 +7,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -15,8 +17,10 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -51,11 +55,16 @@ public class Alert {
     private Project project;
 
     /**
-     * Koşul sağlandığında mail bildiriminin gönderileceği kullanıcı grubu.
+     * Koşul sağlandığında mail bildiriminin gönderileceği kullanıcı grupları.
+     * Bir alert birden fazla gruba mail atabilir.
      */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id", nullable = false)
-    private Group group;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "alert_group",
+            joinColumns = @JoinColumn(name = "alert_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private Set<Group> groups = new HashSet<>();
 
     @OneToMany(mappedBy = "alert", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AlertLog> alertLogs = new ArrayList<>();
@@ -67,11 +76,11 @@ public class Alert {
     public Alert() {
     }
 
-    public Alert(String conditionExpression, Query query, Project project, Group group) {
+    public Alert(String conditionExpression, Query query, Project project, Set<Group> groups) {
         this.conditionExpression = conditionExpression;
         this.query = query;
         this.project = project;
-        this.group = group;
+        this.groups = groups;
     }
 
     public UUID getId() {
@@ -114,12 +123,12 @@ public class Alert {
         this.project = project;
     }
 
-    public Group getGroup() {
-        return group;
+    public Set<Group> getGroups() {
+        return groups;
     }
 
-    public void setGroup(Group group) {
-        this.group = group;
+    public void setGroups(Set<Group> groups) {
+        this.groups = groups;
     }
 
     public List<AlertLog> getAlertLogs() {
