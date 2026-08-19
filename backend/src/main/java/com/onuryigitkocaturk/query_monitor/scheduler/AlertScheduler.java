@@ -108,7 +108,7 @@ public class AlertScheduler {
 
             if (result.triggered()) {
                 status = LogStatus.TRIGGERED;
-                // Ayni kullanici birden fazla gruba uyeyse tek mail alsin diye distinct.
+                // aynı kullancı için birden fazla mail atmasın
                 List<String> recipientEmails = alert.getGroups().stream()
                         .flatMap(group -> group.getUsers().stream())
                         .map(User::getEmail)

@@ -4,11 +4,7 @@ import com.onuryigitkocaturk.query_monitor.enums.AlertMetric;
 import com.onuryigitkocaturk.query_monitor.enums.ConditionOperator;
 import jakarta.validation.constraints.NotNull;
 
-/**
- * Alert.conditionExpression alaninda JSON olarak saklanan yapi:
- * "eslesen satir sayisi (metric) X isleciyle (operator) Y esigine (value)
- * gore degerlendirilsin".
- */
+// Alert.conditioExpression alanında JSON olarak saklanan yapı.
 public class AlertConditionValue {
 
     @NotNull
