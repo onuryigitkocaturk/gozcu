@@ -44,7 +44,7 @@ export function QueryDetailPage() {
   const query = queries?.find((q) => q.id === qId);
 
   const [runResult, setRunResult] = useState<TableRow[] | null>(null);
-  const [runningAction, setRunningAction] = useState<"run" | "count" | null>(null);
+  const [runningAction, setRunningAction] = useState<"run" | "count" | "exportExcel" | "exportPdf" | null>(null);
   const [countResult, setCountResult] = useState<number | null>(null);
 
   const {
@@ -75,6 +75,28 @@ export function QueryDetailPage() {
       setCountResult(count);
     } catch (err) {
       notifyError(err instanceof ApiError ? err.message : "Sayım yapılamadı.");
+    } finally {
+      setRunningAction(null);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    setRunningAction("exportExcel");
+    try {
+      await queriesApi.exportExcel(pId, tId, qId);
+    } catch (err) {
+      notifyError(err instanceof ApiError ? err.message : "Excel indirilemedi.");
+    } finally {
+      setRunningAction(null);
+    }
+  };
+
+  const handleExportPdf = async () => {
+    setRunningAction("exportPdf");
+    try {
+      await queriesApi.exportPdf(pId, tId, qId);
+    } catch (err) {
+      notifyError(err instanceof ApiError ? err.message : "PDF indirilemedi.");
     } finally {
       setRunningAction(null);
     }
@@ -128,6 +150,12 @@ export function QueryDetailPage() {
           )}
           <Button variant="secondary" onClick={handleCount} disabled={runningAction !== null}>
             {runningAction === "count" ? "Sayılıyor…" : "Say"}
+          </Button>
+          <Button variant="secondary" onClick={handleExportExcel} disabled={runningAction !== null}>
+            {runningAction === "exportExcel" ? "İndiriliyor…" : "Excel İndir"}
+          </Button>
+          <Button variant="secondary" onClick={handleExportPdf} disabled={runningAction !== null}>
+            {runningAction === "exportPdf" ? "İndiriliyor…" : "PDF İndir"}
           </Button>
           <Button variant="primary" onClick={handleRun} disabled={runningAction !== null}>
             {runningAction === "run" ? "Çalıştırılıyor…" : "Çalıştır"}

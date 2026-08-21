@@ -79,3 +79,34 @@ export const api = {
   put: <T>(path: string, body?: unknown) => request<T>(path, { method: "PUT", body }),
   del: <T>(path: string) => request<T>(path, { method: "DELETE" }),
 };
+
+/**
+ * JSON degil, ham dosya (Excel/PDF vb.) donen uc noktalar icin.
+ * request()'ten farkli: govdeyi JSON.parse etmez, Blob olarak alip
+ * tarayicinin indirme diyalogunu tetikler.
+ */
+export async function downloadFile(path: string, filename: string): Promise<void> {
+  const headers: Record<string, string> = {};
+  if (currentToken) {
+    headers["Authorization"] = `Bearer ${currentToken}`;
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    headers,
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new ApiError(response.status, await parseErrorMessage(response));
+  }
+
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
