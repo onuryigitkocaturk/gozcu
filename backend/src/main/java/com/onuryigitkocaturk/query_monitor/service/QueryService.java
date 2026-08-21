@@ -20,4 +20,8 @@ public interface QueryService {
     List<Map<String, Object>> runQuery(UUID projectId, UUID queryId);
 
     long countQueryMatches(UUID projectId, UUID queryId);
+
+    byte[] exportQueryResultAsExcel(UUID projectId, UUID queryId);
+
+    byte[] exportQueryResultAsPdf(UUID projectId, UUID queryId);
 }

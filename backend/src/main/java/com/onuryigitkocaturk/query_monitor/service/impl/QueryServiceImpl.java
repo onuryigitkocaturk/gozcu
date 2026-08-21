@@ -11,6 +11,8 @@ import com.onuryigitkocaturk.query_monitor.exception.InvalidQueryDefinitionExcep
 import com.onuryigitkocaturk.query_monitor.exception.ProjectNotFoundException;
 import com.onuryigitkocaturk.query_monitor.exception.QueryNotFoundException;
 import com.onuryigitkocaturk.query_monitor.exception.TableNotFoundException;
+import com.onuryigitkocaturk.query_monitor.export.ExcelExportService;
+import com.onuryigitkocaturk.query_monitor.export.PdfExportService;
 import com.onuryigitkocaturk.query_monitor.model.Project;
 import com.onuryigitkocaturk.query_monitor.model.ProjectTable;
 import com.onuryigitkocaturk.query_monitor.model.Query;
@@ -39,6 +41,8 @@ public class QueryServiceImpl implements QueryService {
     private final QueryExecutionService queryExecutionService;
     private final ObjectMapper objectMapper;
     private final ConnectionCredentialEncryptor connectionCredentialEncryptor;
+    private final ExcelExportService excelExportService;
+    private final PdfExportService pdfExportService;
 
     public QueryServiceImpl(QueryRepository queryRepository,
                              ProjectRepository projectRepository,
@@ -48,7 +52,9 @@ public class QueryServiceImpl implements QueryService {
                              QueryDefinitionValidator queryDefinitionValidator,
                              QueryExecutionService queryExecutionService,
                              ObjectMapper objectMapper,
-                             ConnectionCredentialEncryptor connectionCredentialEncryptor) {
+                             ConnectionCredentialEncryptor connectionCredentialEncryptor,
+                            ExcelExportService excelExportService,
+                            PdfExportService pdfExportService) {
         this.queryRepository = queryRepository;
         this.projectRepository = projectRepository;
         this.projectTableRepository = projectTableRepository;
@@ -58,6 +64,8 @@ public class QueryServiceImpl implements QueryService {
         this.queryExecutionService = queryExecutionService;
         this.objectMapper = objectMapper;
         this.connectionCredentialEncryptor = connectionCredentialEncryptor;
+        this.excelExportService = excelExportService;
+        this.pdfExportService = pdfExportService;
     }
 
     @Override
@@ -129,6 +137,21 @@ public class QueryServiceImpl implements QueryService {
         return queryExecutionService.countMatches(
                 toConnectionDetails(query.getProject()), query.getProjectTable().getTableName(), query.getDefinitionJson());
     }
+
+    @Override
+    public byte[] exportQueryResultAsExcel(UUID projectId, UUID queryId) {
+        Query query = getValidatedQuery(projectId, queryId);
+        List<Map<String, Object>> rows = queryExecutionService.executeQuery(toConnectionDetails(query.getProject()), query.getProjectTable().getTableName(), query.getDefinitionJson());
+        return excelExportService.toExcel(query.getName(), rows);
+    }
+
+    @Override
+    public byte[] exportQueryResultAsPdf(UUID projectId, UUID queryId) {
+        Query query = getValidatedQuery(projectId, queryId);
+        List<Map<String, Object>> rows = queryExecutionService.executeQuery(toConnectionDetails(query.getProject()), query.getProjectTable().getTableName(), query.getDefinitionJson());
+        return pdfExportService.toPdf(query.getName(), rows);
+    }
+
 
     private ConnectionDetails toConnectionDetails(Project project) {
         return new ConnectionDetails(

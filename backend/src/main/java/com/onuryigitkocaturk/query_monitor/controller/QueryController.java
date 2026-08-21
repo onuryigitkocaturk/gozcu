@@ -7,10 +7,13 @@ import com.onuryigitkocaturk.query_monitor.model.Query;
 import com.onuryigitkocaturk.query_monitor.security.UserDetailsImpl;
 import com.onuryigitkocaturk.query_monitor.service.QueryService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -100,4 +103,25 @@ public class QueryController {
                                                                   @PathVariable UUID queryId) {
         return ResponseEntity.ok(Map.of("count", queryService.countQueryMatches(projectId, queryId)));
     }
+
+    @PreAuthorize(AT_LEAST_REPORTER)
+    @GetMapping("/{queryId}/export/excel")
+    public ResponseEntity<byte[]> exportExcel(@PathVariable UUID projectId,@PathVariable UUID tableId, @PathVariable UUID queryId) {
+        byte[] excel = queryService.exportQueryResultAsExcel(projectId, queryId);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"sonuc.xlsx\"")
+                .contentType(MediaType.parseMediaType(
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excel);
+    }
+
+    @PreAuthorize(AT_LEAST_REPORTER)
+    @GetMapping("/{queryId}/export/pdf")
+    public ResponseEntity<byte[]> exportPdf(@PathVariable UUID projectId, @PathVariable UUID tableId, @PathVariable UUID queryId) {
+        byte[] pdf = queryService.exportQueryResultAsPdf(projectId, queryId);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"sonuc.pdf\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+
+    }
+
 }
