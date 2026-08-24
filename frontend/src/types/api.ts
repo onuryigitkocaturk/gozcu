@@ -1,4 +1,4 @@
-// Backend ile birebir eslesen tipler (bkz. dto/, enums/ paketleri).
+// Backend ile birebir eşleşen tipler.
 
 export type Role = "ADMIN" | "USER";
 export type Frequency = "HOURLY" | "DAILY";

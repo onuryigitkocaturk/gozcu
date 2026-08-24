@@ -35,11 +35,7 @@ public class Project {
     @Column
     private String description;
 
-    // Bu projenin izledigi veritabanina baglanmak icin gereken bilgiler.
-    // Eskiden tek/sabit bir mock DB vardi (monitored.datasource.*); artik
-    // her proje kendi veritabanina (farkli host/port olabilir) baglanabiliyor.
-    // dbPassword HICBIR ZAMAN duz metin degil, ConnectionCredentialEncryptor
-    // ile sifrelenmis olarak saklanir.
+    // bu projenin izlediği veritabanına bağlanmak için gereken bilgiler.
     @Enumerated(EnumType.STRING)
     @Column(name = "db_type", nullable = false)
     private DatabaseType dbType;
@@ -59,8 +55,8 @@ public class Project {
     @Column(name = "db_password_encrypted", columnDefinition = "TEXT")
     private String dbPasswordEncrypted;
 
-    // cascade + orphanRemoval: bir ProjectMembership projesiz var olamaz,
-    // proje silinince uyelik kayitlari da otomatik silinsin diye.
+    // cascade + orphanRemoval: bir ProjectMembership projesiz var olamaz
+    // proje silinince üyelik kayıtları da otomatik silinsin diye.
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY,
             cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectMembership> memberships = new ArrayList<>();
@@ -69,10 +65,6 @@ public class Project {
             cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Query> queries = new ArrayList<>();
 
-    /**
-     * cascade + orphanRemoval: bir ProjectTable projesiz var olamaz,
-     * proje silinince bağlı tablo kayıtları da otomatik silinsin diye.
-     */
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY,
             cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectTable> tables = new ArrayList<>();

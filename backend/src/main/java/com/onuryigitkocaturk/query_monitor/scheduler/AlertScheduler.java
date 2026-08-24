@@ -78,7 +78,7 @@ public class AlertScheduler {
                 .filter(query -> query.getFrequency() == frequency)
                 .toList();
 
-        log.info("Scheduler calisti: frequency={}, aktif query sayisi={}", frequency, queries.size());
+        log.info("Scheduler çalıştı: frequency={}, aktif query sayısı={}", frequency, queries.size());
 
         // filtrelenmiş her query için, o query'ye bağlı aktif Alert'leri çekiyor, sonra her aktif alert için tek tek evaluateAndLog(alert)
         // çağırıyor, AlertLog'a yazıyor.

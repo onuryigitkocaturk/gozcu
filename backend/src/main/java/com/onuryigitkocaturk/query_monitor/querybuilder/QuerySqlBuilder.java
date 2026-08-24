@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 public class QuerySqlBuilder {
 
     // gelen node GroupNode mu ConditionNode mu diye bakıp SqlFragment'a dönüştürüyor.
-    //
     public SqlFragment build(QueryNode node) {
         if (node instanceof GroupNode group) {
             return buildGroup(group);

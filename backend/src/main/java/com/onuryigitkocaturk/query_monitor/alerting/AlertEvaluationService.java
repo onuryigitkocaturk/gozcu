@@ -37,7 +37,7 @@ public class AlertEvaluationService {
         try {
             return objectMapper.readValue(conditionExpressionJson, AlertConditionValue.class);
         } catch (JsonProcessingException e) {
-            throw new IllegalStateException("Stored alert condition is corrupted", e);
+            throw new IllegalStateException("DB'de saklı alert koşulu bozuk", e);
         }
     }
 
@@ -51,7 +51,7 @@ public class AlertEvaluationService {
             case LESS_THAN -> matchCount < threshold;
             case LESS_THAN_OR_EQUAL -> matchCount <= threshold;
             case CONTAINS, IS_NULL, IS_NOT_NULL -> throw new IllegalStateException(
-                    "Operator not supported for alert condition: " + operator);
+                    "Operatör desteklenmiyor: " + operator);
         };
     }
 }

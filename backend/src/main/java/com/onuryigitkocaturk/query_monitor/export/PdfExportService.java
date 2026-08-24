@@ -26,7 +26,7 @@ public class PdfExportService {
     private static final DateTimeFormatter EXPORTED_AT_FORMATTER =
             DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm", new Locale("tr", "TR"));
 
-    // her kolona ayrilan asgari genislik (points) - fontun sigmasi icin
+    // fontun sığması için her kolona ayrılan genişlik
     private static final float MIN_COLUMN_WIDTH = 65f;
 
     public byte[] toPdf(String queryName, List<Map<String, Object>> rows) {
@@ -35,8 +35,7 @@ public class PdfExportService {
             columns.addAll(row.keySet());
         }
 
-        // kolon sayisi arttikca sayfayi genislet - A4'un dar genisligine
-        // sigdirmaya calisirsak yazi harf harf alt satira kaymaya basliyordu.
+        // kolon sayısı arttıkça sayfayı genişlet
         Rectangle landscapeA4 = PageSize.A4.rotate();
         float pageWidth = Math.max(landscapeA4.getWidth(), columns.size() * MIN_COLUMN_WIDTH);
         Rectangle pageSize = new Rectangle(pageWidth, landscapeA4.getHeight());

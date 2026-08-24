@@ -58,9 +58,6 @@ public class User {
     )
     private Set<Group> groups = new HashSet<>();
 
-    // Eskiden @ManyToMany + user_project ara tablosuydu (sadece "uye mi
-    // degil mi"). Artik rol bilgisi de gerektigi icin ProjectMembership
-    // ara entity'sine cevrildi - bkz. ProjectMembership.
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<ProjectMembership> projectMemberships = new ArrayList<>();
 
