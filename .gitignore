@@ -1,1 +1,22 @@
+# Claude Code
 CLAUDE.md
+.claude/settings.local.json
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# Ortam degiskenleri (gercek degerler repoya girmemeli, ornek icin .env.example)
+.env
+.env.local
+.env.*.local
+
+# Kisisel dosyalar (staj raporu vb.)
+*.docx
+staj_raporu_ekleri/
